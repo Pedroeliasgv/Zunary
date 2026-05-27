@@ -4,13 +4,16 @@ import {
   Check,
   Clock,
   Copy,
+  CreditCard,
   ExternalLink,
   Scissors,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { CompanyForm } from "../components/company/CompanyForm";
 import { getAppointmentsCountByCompany } from "../lib/appointments";
 import { getAvailabilityByCompany } from "../lib/availability";
 import { getCurrentUserCompany } from "../lib/company";
+import { getCompanyActiveSubscription, type CompanySubscription } from "../lib/plans";
 import { getServicesByCompany } from "../lib/services";
 import type { Company } from "../types";
 
@@ -24,6 +27,9 @@ type DashboardStats = {
 
 export function Dashboard() {
   const [company, setCompany] = useState<Company | null>(null);
+  const [subscription, setSubscription] =
+    useState<CompanySubscription | null>(null);
+
   const [stats, setStats] = useState<DashboardStats>({
     servicesCount: 0,
     activeServicesCount: 0,
@@ -42,12 +48,17 @@ export function Dashboard() {
     setCompany(companyData);
 
     if (companyData) {
-      const [servicesData, availabilityData, appointmentsCount] =
-        await Promise.all([
-          getServicesByCompany(companyData.id),
-          getAvailabilityByCompany(companyData.id),
-          getAppointmentsCountByCompany(companyData.id),
-        ]);
+      const [
+        servicesData,
+        availabilityData,
+        appointmentsCount,
+        subscriptionData,
+      ] = await Promise.all([
+        getServicesByCompany(companyData.id),
+        getAvailabilityByCompany(companyData.id),
+        getAppointmentsCountByCompany(companyData.id),
+        getCompanyActiveSubscription(companyData.id),
+      ]);
 
       setStats({
         servicesCount: servicesData.length,
@@ -58,6 +69,8 @@ export function Dashboard() {
           .length,
         appointmentsCount,
       });
+
+      setSubscription(subscriptionData);
     }
 
     setLoading(false);
@@ -114,6 +127,14 @@ export function Dashboard() {
       href: "/settings",
     },
     {
+      title: "Plano ativo",
+      description: subscription?.plans
+        ? `Plano ${subscription.plans.name} ativo.`
+        : "Escolha um plano para liberar os recursos.",
+      done: Boolean(subscription),
+      href: "/plans",
+    },
+    {
       title: "Serviços cadastrados",
       description:
         stats.activeServicesCount > 0
@@ -133,10 +154,11 @@ export function Dashboard() {
     },
     {
       title: "Página pública pronta",
-      description: company.public_booking_enabled
-        ? "Seu link público está ativo para clientes."
-        : "Ative sua página pública nas configurações.",
-      done: company.public_booking_enabled,
+      description:
+        company.public_booking_enabled && subscription
+          ? "Seu link público está ativo para clientes."
+          : "Ative sua página pública e mantenha um plano ativo.",
+      done: company.public_booking_enabled && Boolean(subscription),
       href: "/settings",
     },
     {
@@ -173,25 +195,47 @@ export function Dashboard() {
         </a>
       </div>
 
-      <div className="zunary-hero-card">
-        <div>
-          <span>Link público de agendamento</span>
-          <h2>{publicBookingPath}</h2>
-          <p>
-            Compartilhe esse link com seus clientes para receber solicitações de
-            agendamento.
-          </p>
+      <div className="zunary-dashboard-top-grid">
+        <div className="zunary-hero-card">
+          <div>
+            <span>Link público de agendamento</span>
+            <h2>{publicBookingPath}</h2>
+            <p>
+              Compartilhe esse link com seus clientes para receber solicitações
+              de agendamento.
+            </p>
+          </div>
+
+          <div className="zunary-hero-actions">
+            <button onClick={handleCopyPublicLink}>
+              {copied ? <Check size={16} /> : <Copy size={16} />}
+              {copied ? "Copiado" : "Copiar link"}
+            </button>
+
+            <a href={publicBookingPath} target="_blank" rel="noreferrer">
+              Abrir página
+            </a>
+          </div>
         </div>
 
-        <div className="zunary-hero-actions">
-          <button onClick={handleCopyPublicLink}>
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? "Copiado" : "Copiar link"}
-          </button>
+        <div className="zunary-plan-status-card">
+          <div className="zunary-plan-status-icon">
+            <CreditCard size={22} />
+          </div>
 
-          <a href={publicBookingPath} target="_blank" rel="noreferrer">
-            Abrir página
-          </a>
+          <span>Plano atual</span>
+
+          <h2>{subscription?.plans?.name || "Sem plano"}</h2>
+
+          <p>
+            {subscription?.plans
+              ? `Sua empresa está ativa no plano ${subscription.plans.name}.`
+              : "Escolha um plano para liberar o sistema e a página pública."}
+          </p>
+
+          <Link to="/plans" className="zunary-button">
+            Gerenciar plano
+          </Link>
         </div>
       </div>
 
