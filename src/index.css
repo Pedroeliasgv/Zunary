@@ -1431,3 +1431,68 @@ a {
     width: 100%;
   }
 }
+
+/* ========================= */
+/* SUBSCRIPTION BANNER */
+/* ========================= */
+
+.zunary-subscription-banner {
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: #fffbeb;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.zunary-subscription-banner > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.zunary-subscription-banner svg {
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.zunary-subscription-banner strong {
+  display: block;
+  color: #92400e;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.zunary-subscription-banner span {
+  display: block;
+  margin-top: 3px;
+  color: #a16207;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.zunary-subscription-banner a {
+  flex-shrink: 0;
+  text-decoration: none;
+  color: white;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+@media (max-width: 900px) {
+  .zunary-subscription-banner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .zunary-subscription-banner a {
+    text-align: center;
+  }
+}

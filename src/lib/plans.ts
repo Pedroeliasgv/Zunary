@@ -72,6 +72,20 @@ export async function setCompanyPlan(companyId: string, planId: string) {
   return data as CompanySubscription;
 }
 
+export async function cancelCompanySubscription(subscriptionId: string) {
+  const { error } = await supabase
+    .from("company_subscriptions")
+    .update({
+      status: "canceled",
+      ends_at: new Date().toISOString(),
+    })
+    .eq("id", subscriptionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 export function canCreateMoreActiveServices(
   subscription: CompanySubscription | null,
   activeServicesCount: number

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { getCurrentUserCompany } from "../lib/company";
 import {
+  cancelCompanySubscription,
   getActivePlans,
   getCompanyActiveSubscription,
   setCompanyPlan,
@@ -21,7 +22,7 @@ function getPlanFeatures(plan: Plan) {
   if (plan.slug === "starter") {
     return [
       "1 empresa",
-      "Até 5 serviços",
+      "Até 5 serviços ativos",
       "Página pública de agendamento",
       "Disponibilidade semanal",
       "Painel de agendamentos",
@@ -60,6 +61,7 @@ export function Plans() {
 
   const [loading, setLoading] = useState(true);
   const [savingPlanId, setSavingPlanId] = useState<string | null>(null);
+  const [canceling, setCanceling] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -119,6 +121,36 @@ export function Plans() {
     }
   }
 
+  async function handleCancelSubscription() {
+    if (!subscription) return;
+
+    const confirmed = window.confirm(
+      "Tem certeza que deseja cancelar o plano atual? Sua página pública de agendamento ficará indisponível até você escolher um novo plano."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setCanceling(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      await cancelCompanySubscription(subscription.id);
+
+      setSuccessMessage(
+        "Plano cancelado com sucesso. Escolha um novo plano para reativar a página pública."
+      );
+
+      await loadPlansPage();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao cancelar plano."
+      );
+    } finally {
+      setCanceling(false);
+    }
+  }
+
   if (loading) {
     return <p className="zunary-muted-text">Carregando planos...</p>;
   }
@@ -144,15 +176,32 @@ export function Plans() {
         <div className="zunary-success">{successMessage}</div>
       )}
 
-      {subscription?.plans && (
+      {subscription?.plans ? (
         <div className="zunary-card">
           <div className="zunary-card-header">
             <h2>Plano atual</h2>
             <p>
               Sua empresa está usando o plano{" "}
-              <strong>{subscription.plans.name}</strong>.
+              <strong>{subscription.plans.name}</strong>. Se cancelar, a página
+              pública de agendamento ficará indisponível.
             </p>
           </div>
+
+          <button
+            className="zunary-button zunary-button-danger"
+            onClick={handleCancelSubscription}
+            disabled={canceling}
+          >
+            {canceling ? "Cancelando..." : "Cancelar plano"}
+          </button>
+        </div>
+      ) : (
+        <div className="zunary-plan-limit-alert">
+          <strong>Nenhum plano ativo</strong>
+          <span>
+            Escolha um plano para liberar a página pública de agendamento e o
+            cadastro de serviços.
+          </span>
         </div>
       )}
 
@@ -219,8 +268,9 @@ export function Plans() {
         <div className="zunary-card-header">
           <h2>Observação importante</h2>
           <p>
-            A seleção de plano já fica salva no banco, mas ainda não há cobrança
-            automática. A integração com pagamento entra em uma etapa futura.
+            A seleção e o cancelamento de plano já ficam salvos no banco, mas
+            ainda não há cobrança automática. A integração com pagamento entra em
+            uma etapa futura.
           </p>
         </div>
       </div>
