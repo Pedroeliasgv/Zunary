@@ -3,10 +3,17 @@ import { createService } from "../../lib/services";
 
 type ServiceFormProps = {
   companyId: string;
+  canCreateService: boolean;
+  blockedMessage?: string;
   onServiceCreated?: () => void;
 };
 
-export function ServiceForm({ companyId, onServiceCreated }: ServiceFormProps) {
+export function ServiceForm({
+  companyId,
+  canCreateService,
+  blockedMessage,
+  onServiceCreated,
+}: ServiceFormProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(30);
@@ -17,6 +24,13 @@ export function ServiceForm({ companyId, onServiceCreated }: ServiceFormProps) {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!canCreateService) {
+      setErrorMessage(
+        blockedMessage || "Seu plano atual não permite cadastrar mais serviços."
+      );
+      return;
+    }
 
     try {
       setLoading(true);
@@ -52,6 +66,13 @@ export function ServiceForm({ companyId, onServiceCreated }: ServiceFormProps) {
         <p>Cadastre os serviços que poderão ser agendados pelos clientes.</p>
       </div>
 
+      {!canCreateService && blockedMessage && (
+        <div className="zunary-plan-limit-alert">
+          <strong>Limite do plano atingido</strong>
+          <span>{blockedMessage}</span>
+        </div>
+      )}
+
       {errorMessage && <div className="zunary-error">{errorMessage}</div>}
 
       <form onSubmit={handleSubmit} className="zunary-form">
@@ -63,6 +84,7 @@ export function ServiceForm({ companyId, onServiceCreated }: ServiceFormProps) {
             onChange={(event) => setName(event.target.value)}
             placeholder="Ex: Corte masculino"
             required
+            disabled={!canCreateService}
           />
         </div>
 
@@ -73,6 +95,7 @@ export function ServiceForm({ companyId, onServiceCreated }: ServiceFormProps) {
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             placeholder="Descrição opcional"
+            disabled={!canCreateService}
           />
         </div>
 
@@ -88,6 +111,7 @@ export function ServiceForm({ companyId, onServiceCreated }: ServiceFormProps) {
                 setDurationMinutes(Number(event.target.value))
               }
               required
+              disabled={!canCreateService}
             />
           </div>
 
@@ -101,11 +125,16 @@ export function ServiceForm({ companyId, onServiceCreated }: ServiceFormProps) {
               value={price}
               onChange={(event) => setPrice(event.target.value)}
               placeholder="Ex: 50"
+              disabled={!canCreateService}
             />
           </div>
         </div>
 
-        <button className="zunary-button" type="submit" disabled={loading}>
+        <button
+          className="zunary-button"
+          type="submit"
+          disabled={loading || !canCreateService}
+        >
           {loading ? "Salvando..." : "Salvar serviço"}
         </button>
       </form>

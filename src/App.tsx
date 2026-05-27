@@ -12,6 +12,7 @@ import { PublicBooking } from "./pages/PublicBooking";
 import { Register } from "./pages/Register";
 import { Services } from "./pages/Services";
 import { Settings } from "./pages/Settings";
+import { Plans } from "./pages/Plans";
 
 function ProtectedPage({ children }: { children: React.ReactNode }) {
   return (
@@ -87,6 +88,15 @@ export function App() {
         element={
           <ProtectedPage>
             <Settings />
+          </ProtectedPage>
+        }
+      />
+
+      <Route
+        path="/plans"
+        element={
+          <ProtectedPage>
+            <Plans />
           </ProtectedPage>
         }
       />

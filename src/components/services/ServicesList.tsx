@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { Service } from "../../types";
 import {
   deleteService,
@@ -9,10 +10,17 @@ import { formatCurrency } from "../../lib/utils";
 
 type ServicesListProps = {
   services: Service[];
+  canActivateService?: boolean;
+  blockedActivationMessage?: string;
   onServiceDeleted?: () => void;
 };
 
-export function ServicesList({ services, onServiceDeleted }: ServicesListProps) {
+export function ServicesList({
+  services,
+  canActivateService = true,
+  blockedActivationMessage,
+  onServiceDeleted,
+}: ServicesListProps) {
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
 
   const [editName, setEditName] = useState("");
@@ -65,6 +73,14 @@ export function ServicesList({ services, onServiceDeleted }: ServicesListProps) 
   }
 
   async function handleToggleStatus(service: Service) {
+    if (!service.is_active && !canActivateService) {
+      setErrorMessage(
+        blockedActivationMessage ||
+          "Seu plano atual não permite ativar mais serviços."
+      );
+      return;
+    }
+
     await toggleServiceStatus(service.id, !service.is_active);
     onServiceDeleted?.();
   }
@@ -94,10 +110,15 @@ export function ServicesList({ services, onServiceDeleted }: ServicesListProps) 
         <h2>Serviços cadastrados</h2>
       </div>
 
-      {errorMessage && <div className="zunary-error">{errorMessage}</div>}
+      {errorMessage && (
+        <div style={{ margin: 16 }}>
+          <div className="zunary-error">{errorMessage}</div>
+        </div>
+      )}
 
       {services.map((service) => {
         const isEditing = editingServiceId === service.id;
+        const activationBlocked = !service.is_active && !canActivateService;
 
         return (
           <div key={service.id} className="zunary-list-item">
@@ -206,6 +227,13 @@ export function ServicesList({ services, onServiceDeleted }: ServicesListProps) 
                     {service.duration_minutes} minutos •{" "}
                     {formatCurrency(service.price)}
                   </div>
+
+                  {activationBlocked && (
+                    <p className="zunary-help-text">
+                      Limite do plano atingido.{" "}
+                      <Link to="/plans">Fazer upgrade</Link>
+                    </p>
+                  )}
                 </div>
 
                 <div className="zunary-list-actions">
@@ -223,6 +251,7 @@ export function ServicesList({ services, onServiceDeleted }: ServicesListProps) 
                         : "zunary-button"
                     }
                     onClick={() => handleToggleStatus(service)}
+                    disabled={activationBlocked}
                   >
                     {service.is_active ? "Desativar" : "Ativar"}
                   </button>

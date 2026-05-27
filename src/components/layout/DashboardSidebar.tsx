@@ -6,6 +6,7 @@ import {
   Scissors,
   ClipboardList,
   Settings,
+  CreditCard,
 } from "lucide-react";
 
 const items = [
@@ -33,6 +34,11 @@ const items = [
     label: "Configurações",
     href: "/settings",
     icon: Settings,
+  },
+  {
+    label: "Planos",
+    href: "/plans",
+    icon: CreditCard,
   },
 ];
 

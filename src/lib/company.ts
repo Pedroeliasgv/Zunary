@@ -80,16 +80,21 @@ export async function updateCompany(companyId: string, data: UpdateCompanyData) 
 }
 
 export async function getPublicCompanyBySlug(slug: string) {
-  const { data, error } = await supabase
-    .from("companies")
-    .select("*")
-    .eq("slug", slug)
-    .eq("public_booking_enabled", true)
-    .single();
+  const { data, error } = await supabase.rpc("get_public_company_by_slug", {
+    target_slug: slug,
+  });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data as Company;
+  const company = data?.[0];
+
+  if (!company) {
+    throw new Error(
+      "Empresa não encontrada, página desativada ou plano inativo."
+    );
+  }
+
+  return company as Company;
 }
