@@ -17,6 +17,26 @@ type UpdateCompanyData = {
   public_booking_enabled?: boolean;
 };
 
+export type PublicBookingStatusReason =
+  | "ok"
+  | "company_not_found"
+  | "booking_disabled"
+  | "plan_inactive";
+
+export type PublicBookingStatus = {
+  can_book: boolean;
+  reason: PublicBookingStatusReason;
+  company_id: string | null;
+  owner_id: string | null;
+  name: string | null;
+  slug: string | null;
+  business_type: string | null;
+  description: string | null;
+  public_booking_enabled: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
 export async function getCurrentUserCompany() {
   const user = await getCurrentUser();
 
@@ -79,8 +99,8 @@ export async function updateCompany(companyId: string, data: UpdateCompanyData) 
   return company as Company;
 }
 
-export async function getPublicCompanyBySlug(slug: string) {
-  const { data, error } = await supabase.rpc("get_public_company_by_slug", {
+export async function getPublicBookingStatus(slug: string) {
+  const { data, error } = await supabase.rpc("get_public_booking_status", {
     target_slug: slug,
   });
 
@@ -88,13 +108,27 @@ export async function getPublicCompanyBySlug(slug: string) {
     throw new Error(error.message);
   }
 
-  const company = data?.[0];
+  return data?.[0] as PublicBookingStatus;
+}
 
-  if (!company) {
+export async function getPublicCompanyBySlug(slug: string) {
+  const status = await getPublicBookingStatus(slug);
+
+  if (!status || !status.can_book) {
     throw new Error(
       "Empresa não encontrada, página desativada ou plano inativo."
     );
   }
 
-  return company as Company;
+  return {
+    id: status.company_id,
+    owner_id: status.owner_id,
+    name: status.name,
+    slug: status.slug,
+    business_type: status.business_type,
+    description: status.description,
+    public_booking_enabled: status.public_booking_enabled,
+    created_at: status.created_at,
+    updated_at: status.updated_at,
+  } as Company;
 }

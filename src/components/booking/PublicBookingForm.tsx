@@ -4,7 +4,10 @@ import {
   getBookedTimesByCompanyAndDate,
 } from "../../lib/appointments";
 import { getActiveAvailabilityByCompany } from "../../lib/availability";
-import { getPublicCompanyBySlug } from "../../lib/company";
+import {
+  getPublicBookingStatus,
+  type PublicBookingStatusReason,
+} from "../../lib/company";
 import { getActiveServicesByCompany } from "../../lib/services";
 import { addMinutesToTime, formatCurrency, getDayName } from "../../lib/utils";
 import type { AvailabilityRule, Company, Service } from "../../types";
@@ -12,6 +15,38 @@ import type { AvailabilityRule, Company, Service } from "../../types";
 type PublicBookingFormProps = {
   slug: string;
 };
+
+function getPublicBookingErrorMessage(reason?: PublicBookingStatusReason) {
+  if (reason === "company_not_found") {
+    return {
+      title: "Empresa não encontrada",
+      description:
+        "O link de agendamento que você acessou não existe ou foi alterado.",
+    };
+  }
+
+  if (reason === "booking_disabled") {
+    return {
+      title: "Agendamento indisponível",
+      description:
+        "Esta empresa desativou temporariamente a página pública de agendamento.",
+    };
+  }
+
+  if (reason === "plan_inactive") {
+    return {
+      title: "Agendamento temporariamente indisponível",
+      description:
+        "Esta empresa precisa regularizar o plano para receber novos agendamentos.",
+    };
+  }
+
+  return {
+    title: "Página indisponível",
+    description:
+      "Não foi possível carregar esta página de agendamento no momento.",
+  };
+}
 
 function timeToMinutes(time: string) {
   const [hours, minutes] = time.split(":").map(Number);
@@ -71,12 +106,36 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [publicErrorReason, setPublicErrorReason] =
+    useState<PublicBookingStatusReason>();
 
   async function loadPublicData() {
     try {
       setLoading(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+      setPublicErrorReason(undefined);
 
-      const companyData = await getPublicCompanyBySlug(slug);
+      const publicStatus = await getPublicBookingStatus(slug);
+
+      if (!publicStatus?.can_book || !publicStatus.company_id) {
+        setPublicErrorReason(publicStatus?.reason);
+        setCompany(null);
+        return;
+      }
+
+      const companyData = {
+        id: publicStatus.company_id,
+        owner_id: publicStatus.owner_id,
+        name: publicStatus.name,
+        slug: publicStatus.slug,
+        business_type: publicStatus.business_type,
+        description: publicStatus.description,
+        public_booking_enabled: publicStatus.public_booking_enabled,
+        created_at: publicStatus.created_at,
+        updated_at: publicStatus.updated_at,
+      } as Company;
+
       setCompany(companyData);
 
       const [servicesData, availabilityData] = await Promise.all([
@@ -91,7 +150,9 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
         setServiceId(servicesData[0].id);
       }
     } catch {
-      setErrorMessage("Empresa não encontrada ou agendamento desativado.");
+      setPublicErrorReason(undefined);
+      setCompany(null);
+      setErrorMessage("Não foi possível carregar esta página de agendamento.");
     } finally {
       setLoading(false);
     }
@@ -230,13 +291,24 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
   }
 
   if (!company) {
+    const message = getPublicBookingErrorMessage(publicErrorReason);
+
     return (
       <div className="zunary-booking-page">
         <div className="zunary-booking-shell">
+          <div className="zunary-booking-brand">
+            <div className="zunary-logo-mark">
+              <span>Z</span>
+            </div>
+
+            <h1>Zunary</h1>
+            <p>Agendamentos simples para negócios organizados.</p>
+          </div>
+
           <div className="zunary-booking-card">
             <div className="zunary-card-header">
-              <h2>Página não encontrada</h2>
-              <p>{errorMessage}</p>
+              <h2>{message.title}</h2>
+              <p>{errorMessage || message.description}</p>
             </div>
           </div>
         </div>
