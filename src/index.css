@@ -1,0 +1,1245 @@
+
+:root {
+  --zunary-navy: #050a24;
+  --zunary-dark: #071032;
+  --zunary-blue: #2563eb;
+  --zunary-cyan: #06d6ff;
+  --zunary-mint: #22f5d2;
+  --zunary-white: #f8fafc;
+  --zunary-text: #020617;
+  --zunary-muted: #64748b;
+  --zunary-border: rgba(148, 163, 184, 0.24);
+  --zunary-card: rgba(255, 255, 255, 0.92);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f8fafc;
+  color: var(--zunary-text);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+/* ========================= */
+/* AUTH */
+/* ========================= */
+
+.zunary-auth-page {
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(6, 214, 255, 0.2), transparent 28%),
+    radial-gradient(circle at 85% 85%, rgba(34, 245, 210, 0.16), transparent 32%),
+    radial-gradient(circle at 50% 40%, rgba(37, 99, 235, 0.15), transparent 35%),
+    linear-gradient(135deg, #050a24 0%, #071032 48%, #020617 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.zunary-auth-page::before {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 999px;
+  background: rgba(6, 214, 255, 0.08);
+  filter: blur(70px);
+  top: -180px;
+  left: -160px;
+}
+
+.zunary-auth-page::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 999px;
+  background: rgba(34, 245, 210, 0.08);
+  filter: blur(70px);
+  right: -180px;
+  bottom: -180px;
+}
+
+.zunary-auth-shell {
+  width: 100%;
+  max-width: 440px;
+  position: relative;
+  z-index: 2;
+}
+
+.zunary-auth-card {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 28px;
+  padding: 32px;
+  box-shadow: 0 28px 80px rgba(6, 214, 255, 0.14);
+  backdrop-filter: blur(18px);
+}
+
+.zunary-logo-mark {
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  box-shadow: 0 18px 35px rgba(6, 214, 255, 0.25);
+}
+
+.zunary-logo-mark span {
+  color: white;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.zunary-auth-title {
+  margin: 0;
+  text-align: center;
+  color: #020617;
+  font-size: 32px;
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.zunary-gradient-text {
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 45%, #22f5d2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.zunary-auth-subtitle {
+  margin: 10px auto 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 330px;
+}
+
+.zunary-auth-footer {
+  margin-top: 22px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.zunary-auth-footer a {
+  color: #2563eb;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.zunary-auth-footer a:hover {
+  color: #06d6ff;
+}
+
+/* ========================= */
+/* APP LAYOUT */
+/* ========================= */
+
+.zunary-app {
+  min-height: 100vh;
+  display: flex;
+  background:
+    radial-gradient(circle at 85% 5%, rgba(6, 214, 255, 0.12), transparent 28%),
+    radial-gradient(circle at 10% 95%, rgba(34, 245, 210, 0.08), transparent 32%),
+    #f8fafc;
+}
+
+.zunary-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.zunary-content {
+  padding: 32px;
+}
+
+.zunary-app-loading {
+  min-height: 100vh;
+  background: #050a24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(224, 242, 254, 0.8);
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ========================= */
+/* SIDEBAR */
+/* ========================= */
+
+.zunary-sidebar {
+  width: 280px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(6, 214, 255, 0.16), transparent 32%),
+    linear-gradient(180deg, #050a24 0%, #071032 55%, #020617 100%);
+  color: white;
+  padding: 24px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.zunary-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 42px;
+}
+
+.zunary-sidebar-logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 18px 35px rgba(6, 214, 255, 0.22);
+}
+
+.zunary-sidebar-brand strong {
+  display: block;
+  font-size: 20px;
+  letter-spacing: -0.04em;
+}
+
+.zunary-sidebar-brand span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba(224, 242, 254, 0.7);
+}
+
+.zunary-sidebar-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.zunary-sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.zunary-sidebar-nav a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.zunary-sidebar-nav a.active {
+  background: white;
+  color: #050a24;
+  box-shadow: 0 18px 35px rgba(6, 214, 255, 0.14);
+}
+
+.zunary-sidebar-box {
+  margin-top: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 22px;
+  padding: 18px;
+}
+
+.zunary-sidebar-box p {
+  margin: 0 0 6px;
+  color: #67e8f9;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.zunary-sidebar-box span {
+  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ========================= */
+/* HEADER */
+/* ========================= */
+
+.zunary-header {
+  height: 72px;
+  padding: 0 32px;
+  background: rgba(255, 255, 255, 0.78);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.zunary-header p {
+  margin: 0;
+  color: #020617;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.zunary-header span {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.zunary-header-button {
+  border: 1px solid #dbe3ef;
+  background: white;
+  color: #0f172a;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.zunary-header-button:hover {
+  border-color: #06d6ff;
+  box-shadow: 0 0 0 4px rgba(6, 214, 255, 0.1);
+}
+
+/* ========================= */
+/* PAGE BASE */
+/* ========================= */
+
+.zunary-page {
+  display: grid;
+  gap: 24px;
+}
+
+.zunary-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.zunary-page-header span {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.zunary-page-header h1 {
+  margin: 0;
+  color: #020617;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.zunary-page-header p {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.zunary-muted-text {
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* ========================= */
+/* CARDS */
+/* ========================= */
+
+.zunary-card {
+  border: 1px solid var(--zunary-border);
+  background: var(--zunary-card);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(16px);
+}
+
+.zunary-card-header {
+  margin-bottom: 20px;
+}
+
+.zunary-card-header h2 {
+  margin: 0;
+  color: #020617;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.zunary-card-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.zunary-empty-card {
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+  background: rgba(255, 255, 255, 0.74);
+  border-radius: 24px;
+  padding: 36px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* ========================= */
+/* FORMS */
+/* ========================= */
+
+.zunary-form {
+  margin-top: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.zunary-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.zunary-form-grid-4 {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.zunary-field label {
+  display: block;
+  margin-bottom: 7px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.zunary-input,
+.zunary-select,
+.zunary-textarea {
+  width: 100%;
+  border: 1px solid #dbe3ef;
+  background: white;
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.zunary-textarea {
+  resize: vertical;
+  min-height: 92px;
+}
+
+.zunary-input::placeholder,
+.zunary-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.zunary-input:focus,
+.zunary-select:focus,
+.zunary-textarea:focus {
+  border-color: #06d6ff;
+  box-shadow: 0 0 0 4px rgba(6, 214, 255, 0.12);
+}
+
+.zunary-help-text {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.zunary-button {
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 16px;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+  box-shadow: 0 18px 30px rgba(6, 214, 255, 0.2);
+  transition: 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.zunary-button:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.zunary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.zunary-button-secondary {
+  border: 1px solid #dbe3ef;
+  background: white;
+  color: #0f172a;
+  box-shadow: none;
+}
+
+.zunary-button-danger {
+  background: #dc2626;
+  box-shadow: 0 16px 30px rgba(220, 38, 38, 0.14);
+}
+
+.zunary-error {
+  margin-top: 18px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.zunary-success {
+  margin-top: 18px;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+/* ========================= */
+/* DASHBOARD */
+/* ========================= */
+
+.zunary-public-link {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: white;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 16px 30px rgba(6, 214, 255, 0.2);
+}
+
+.zunary-hero-card {
+  border-radius: 28px;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(34, 245, 210, 0.18), transparent 35%),
+    linear-gradient(135deg, #050a24 0%, #071032 50%, #020617 100%);
+  color: white;
+  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.18);
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+}
+
+.zunary-hero-card span {
+  color: #67e8f9;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.zunary-hero-card h2 {
+  margin: 10px 0 8px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.zunary-hero-card p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 14px;
+  max-width: 560px;
+}
+
+.zunary-hero-card a {
+  flex-shrink: 0;
+  text-decoration: none;
+  color: #050a24;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.zunary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.zunary-stat-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+
+.zunary-stat-card > div {
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 18px;
+}
+
+.zunary-stat-card span {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.zunary-stat-card h3 {
+  margin: 7px 0;
+  color: #020617;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.zunary-stat-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ========================= */
+/* LISTS */
+/* ========================= */
+
+.zunary-list {
+  border: 1px solid var(--zunary-border);
+  background: var(--zunary-card);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+
+.zunary-list-header {
+  padding: 22px 24px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.zunary-list-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.zunary-list-item {
+  padding: 22px 24px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.zunary-list-item:last-child {
+  border-bottom: 0;
+}
+
+.zunary-list-item h3 {
+  margin: 0;
+  color: #020617;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.zunary-list-item p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.zunary-list-meta {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* ========================= */
+/* TABLE */
+/* ========================= */
+
+.zunary-table-wrapper {
+  border: 1px solid var(--zunary-border);
+  background: white;
+  border-radius: 24px;
+  overflow-x: auto;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+
+.zunary-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.zunary-table thead {
+  background: #f8fafc;
+}
+
+.zunary-table th {
+  padding: 14px 16px;
+  text-align: left;
+  color: #64748b;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-table td {
+  padding: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  color: #475569;
+}
+
+.zunary-table td strong {
+  color: #020617;
+}
+
+/* ========================= */
+/* PUBLIC BOOKING */
+/* ========================= */
+
+.zunary-booking-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(6, 214, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 90% 90%, rgba(34, 245, 210, 0.14), transparent 32%),
+    linear-gradient(135deg, #050a24 0%, #071032 52%, #020617 100%);
+  padding: 40px 16px;
+}
+
+.zunary-booking-shell {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.zunary-booking-brand {
+  text-align: center;
+  color: white;
+  margin-bottom: 24px;
+}
+
+.zunary-booking-brand .zunary-logo-mark {
+  margin-bottom: 14px;
+}
+
+.zunary-booking-brand h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.zunary-booking-brand p {
+  margin: 10px auto 0;
+  color: #cbd5e1;
+  font-size: 15px;
+  max-width: 520px;
+}
+
+.zunary-booking-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 28px 80px rgba(6, 214, 255, 0.12);
+}
+
+.zunary-booking-company {
+  margin-bottom: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.zunary-booking-company span {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.zunary-booking-company h2 {
+  margin: 8px 0;
+  color: #020617;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.zunary-booking-company p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.zunary-availability-box {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 14px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.zunary-availability-box strong {
+  color: #020617;
+}
+
+.zunary-availability-box ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+/* ========================= */
+/* RESPONSIVE */
+/* ========================= */
+
+@media (max-width: 900px) {
+  .zunary-app {
+    display: block;
+  }
+
+  .zunary-sidebar {
+    display: none;
+  }
+
+  .zunary-header {
+    padding: 0 20px;
+  }
+
+  .zunary-content {
+    padding: 20px;
+  }
+
+  .zunary-page-header,
+  .zunary-hero-card,
+  .zunary-list-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .zunary-grid,
+  .zunary-form-grid,
+  .zunary-form-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-page-header h1 {
+    font-size: 28px;
+  }
+
+  .zunary-hero-card h2 {
+    font-size: 22px;
+  }
+
+  .zunary-auth-title,
+  .zunary-booking-brand h1 {
+    font-size: 28px;
+  }
+
+  .zunary-auth-card,
+  .zunary-booking-card {
+    padding: 24px;
+    border-radius: 24px;
+  }
+}
+
+/* ========================= */
+/* DASHBOARD LINK BOX */
+/* ========================= */
+
+.zunary-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.zunary-hero-actions button,
+.zunary-hero-actions a {
+  border: 0;
+  text-decoration: none;
+  color: #050a24;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s ease;
+}
+
+.zunary-hero-actions button:hover,
+.zunary-hero-actions a:hover {
+  transform: translateY(-1px);
+}
+
+.zunary-link-box {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.zunary-link-box span {
+  color: #334155;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.zunary-link-box button {
+  border: 0;
+  border-radius: 13px;
+  padding: 10px 14px;
+  color: white;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .zunary-hero-actions,
+  .zunary-link-box {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .zunary-hero-actions button,
+  .zunary-hero-actions a,
+  .zunary-link-box button {
+    justify-content: center;
+  }
+}
+
+/* ========================= */
+/* SERVICE STATUS */
+/* ========================= */
+
+.zunary-list-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.zunary-status-badge {
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.zunary-status-badge.active {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.zunary-status-badge.inactive {
+  color: #475569;
+  background: #e2e8f0;
+}
+
+.zunary-list-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ========================= */
+/* EDIT FORM */
+/* ========================= */
+
+.zunary-edit-form {
+  width: 100%;
+  display: grid;
+  gap: 16px;
+}
+
+/* ========================= */
+/* APPOINTMENTS PANEL */
+/* ========================= */
+
+.zunary-appointments-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.zunary-appointments-summary div {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.05);
+}
+
+.zunary-appointments-summary span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-appointments-summary strong {
+  display: block;
+  margin-top: 8px;
+  color: #020617;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.zunary-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.zunary-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  .zunary-appointments-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-filter-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .zunary-filter-actions button {
+    width: 100%;
+  }
+}
+
+/* ========================= */
+/* SETTINGS */
+/* ========================= */
+
+.zunary-toggle-row {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.zunary-toggle-row strong {
+  display: block;
+  color: #020617;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.zunary-toggle-row span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.zunary-toggle-row input {
+  width: 42px;
+  height: 22px;
+  flex-shrink: 0;
+  accent-color: #06d6ff;
+}
+
+@media (max-width: 900px) {
+  .zunary-toggle-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* ========================= */
+/* DASHBOARD CHECKLIST */
+/* ========================= */
+
+.zunary-progress-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.zunary-progress-bar div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+  transition: width 0.25s ease;
+}
+
+.zunary-checklist {
+  display: grid;
+  gap: 10px;
+}
+
+.zunary-checklist-item {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.zunary-checklist-item:hover {
+  border-color: rgba(6, 214, 255, 0.5);
+  box-shadow: 0 0 0 4px rgba(6, 214, 255, 0.08);
+}
+
+.zunary-checklist-item > div {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.zunary-checklist-item > div.done {
+  border-color: transparent;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+}
+
+.zunary-checklist-item section {
+  display: grid;
+  gap: 3px;
+}
+
+.zunary-checklist-item strong {
+  color: #020617;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.zunary-checklist-item span {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.4;
+}

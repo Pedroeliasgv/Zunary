@@ -1,0 +1,126 @@
+import { supabase } from "./supabase";
+import type { AppointmentStatus } from "../types";
+
+type CreateAppointmentData = {
+  company_id: string;
+  service_id: string;
+  customer_name: string;
+  customer_email?: string;
+  customer_phone?: string;
+  appointment_date: string;
+  start_time: string;
+  end_time: string;
+  notes?: string;
+};
+
+export async function getAppointmentsByCompany(companyId: string) {
+  const { data, error } = await supabase
+    .from("appointments")
+    .select(
+      `
+      *,
+      services (
+        name,
+        duration_minutes,
+        price
+      ),
+      customers (
+        name,
+        email,
+        phone
+      )
+    `
+    )
+    .eq("company_id", companyId)
+    .order("appointment_date", { ascending: true })
+    .order("start_time", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+export async function getAppointmentsCountByCompany(companyId: string) {
+  const { count, error } = await supabase
+    .from("appointments")
+    .select("*", { count: "exact", head: true })
+    .eq("company_id", companyId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return count || 0;
+}
+
+export async function getBookedTimesByCompanyAndDate(
+  companyId: string,
+  appointmentDate: string
+) {
+  const { data, error } = await supabase.rpc("get_booked_times", {
+    target_company_id: companyId,
+    target_date: appointmentDate,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data || []).map((item: { start_time: string }) =>
+    item.start_time.slice(0, 5)
+  );
+}
+
+export async function createPublicAppointment(data: CreateAppointmentData) {
+  const { data: customer, error: customerError } = await supabase
+    .from("customers")
+    .insert({
+      company_id: data.company_id,
+      name: data.customer_name,
+      email: data.customer_email || null,
+      phone: data.customer_phone || null,
+    })
+    .select("*")
+    .single();
+
+  if (customerError) {
+    throw new Error(customerError.message);
+  }
+
+  const { data: appointment, error: appointmentError } = await supabase
+    .from("appointments")
+    .insert({
+      company_id: data.company_id,
+      service_id: data.service_id,
+      customer_id: customer.id,
+      appointment_date: data.appointment_date,
+      start_time: data.start_time,
+      end_time: data.end_time,
+      status: "pending",
+      notes: data.notes || null,
+    })
+    .select("*")
+    .single();
+
+  if (appointmentError) {
+    throw new Error(appointmentError.message);
+  }
+
+  return appointment;
+}
+
+export async function updateAppointmentStatus(
+  appointmentId: string,
+  status: AppointmentStatus
+) {
+  const { error } = await supabase
+    .from("appointments")
+    .update({ status })
+    .eq("id", appointmentId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
