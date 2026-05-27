@@ -2,22 +2,33 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { PublicOnlyRoute } from "./components/auth/PublicOnlyRoute";
+import { RequireActivePlan } from "./components/auth/RequireActivePlan";
 
 import { Appointments } from "./pages/Appointments";
 import { Availability } from "./pages/Availability";
 import { Dashboard } from "./pages/Dashboard";
 import { Login } from "./pages/Login";
 import { NotFound } from "./pages/NotFound";
+import { Plans } from "./pages/Plans";
 import { PublicBooking } from "./pages/PublicBooking";
 import { Register } from "./pages/Register";
 import { Services } from "./pages/Services";
 import { Settings } from "./pages/Settings";
-import { Plans } from "./pages/Plans";
 
 function ProtectedPage({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
       <AppLayout>{children}</AppLayout>
+    </ProtectedRoute>
+  );
+}
+
+function ProtectedPlanPage({ children }: { children: React.ReactNode }) {
+  return (
+    <ProtectedRoute>
+      <AppLayout>
+        <RequireActivePlan>{children}</RequireActivePlan>
+      </AppLayout>
     </ProtectedRoute>
   );
 }
@@ -57,28 +68,10 @@ export function App() {
       />
 
       <Route
-        path="/services"
+        path="/plans"
         element={
           <ProtectedPage>
-            <Services />
-          </ProtectedPage>
-        }
-      />
-
-      <Route
-        path="/availability"
-        element={
-          <ProtectedPage>
-            <Availability />
-          </ProtectedPage>
-        }
-      />
-
-      <Route
-        path="/appointments"
-        element={
-          <ProtectedPage>
-            <Appointments />
+            <Plans />
           </ProtectedPage>
         }
       />
@@ -93,11 +86,29 @@ export function App() {
       />
 
       <Route
-        path="/plans"
+        path="/services"
         element={
-          <ProtectedPage>
-            <Plans />
-          </ProtectedPage>
+          <ProtectedPlanPage>
+            <Services />
+          </ProtectedPlanPage>
+        }
+      />
+
+      <Route
+        path="/availability"
+        element={
+          <ProtectedPlanPage>
+            <Availability />
+          </ProtectedPlanPage>
+        }
+      />
+
+      <Route
+        path="/appointments"
+        element={
+          <ProtectedPlanPage>
+            <Appointments />
+          </ProtectedPlanPage>
         }
       />
 

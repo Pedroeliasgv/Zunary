@@ -1496,3 +1496,63 @@ a {
     text-align: center;
   }
 }
+
+/* ========================= */
+/* BLOCKED PAGE */
+/* ========================= */
+
+.zunary-blocked-page {
+  min-height: calc(100vh - 160px);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(6, 214, 255, 0.12), transparent 32%),
+    rgba(255, 255, 255, 0.92);
+  border-radius: 28px;
+  padding: 42px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+}
+
+.zunary-blocked-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  box-shadow: 0 18px 35px rgba(6, 214, 255, 0.2);
+}
+
+.zunary-blocked-page h1 {
+  margin: 0;
+  color: #020617;
+  font-size: 32px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.zunary-blocked-page p {
+  margin: 12px 0 24px;
+  max-width: 520px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .zunary-blocked-page {
+    min-height: auto;
+    padding: 28px;
+  }
+
+  .zunary-blocked-page h1 {
+    font-size: 26px;
+  }
+}
