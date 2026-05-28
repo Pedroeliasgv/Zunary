@@ -1651,3 +1651,68 @@ a {
   border-color: #06d6ff;
   box-shadow: 0 0 0 4px rgba(6, 214, 255, 0.1);
 }
+
+/* ========================= */
+/* PENDING SUBSCRIPTION */
+/* ========================= */
+
+.zunary-pending-subscription-card {
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background:
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 32%),
+    #fffbeb;
+  border-radius: 24px;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.zunary-pending-subscription-card span {
+  display: inline-block;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.zunary-pending-subscription-card h2 {
+  margin: 0;
+  color: #020617;
+  font-size: 24px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.zunary-pending-subscription-card p {
+  margin: 8px 0 0;
+  color: #a16207;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.zunary-pending-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .zunary-pending-subscription-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .zunary-pending-actions {
+    flex-direction: column;
+  }
+
+  .zunary-pending-actions button {
+    width: 100%;
+  }
+}

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, ExternalLink, X } from "lucide-react";
 import { createAsaasCheckout } from "../lib/billing";
 import { getCurrentUserCompany } from "../lib/company";
 import {
   cancelCompanySubscription,
   getActivePlans,
   getCompanyActiveSubscription,
+  getCompanyPendingSubscription,
   type CompanySubscription,
   type Plan,
 } from "../lib/plans";
@@ -16,6 +17,14 @@ function formatPlanPrice(value: number) {
     style: "currency",
     currency: "BRL",
   }).format(value);
+}
+
+function formatDate(date?: string | null) {
+  if (!date) return "-";
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+  }).format(new Date(`${date}T00:00:00`));
 }
 
 function getPlanFeatures(plan: Plan) {
@@ -58,6 +67,8 @@ export function Plans() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscription, setSubscription] =
     useState<CompanySubscription | null>(null);
+  const [pendingSubscription, setPendingSubscription] =
+    useState<CompanySubscription | null>(null);
 
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
@@ -85,11 +96,13 @@ export function Plans() {
       setPlans(plansData);
 
       if (companyData) {
-        const subscriptionData = await getCompanyActiveSubscription(
-          companyData.id
-        );
+        const [subscriptionData, pendingSubscriptionData] = await Promise.all([
+          getCompanyActiveSubscription(companyData.id),
+          getCompanyPendingSubscription(companyData.id),
+        ]);
 
         setSubscription(subscriptionData);
+        setPendingSubscription(pendingSubscriptionData);
       }
     } catch (error) {
       setErrorMessage(
@@ -150,19 +163,16 @@ export function Plans() {
         customer_phone: customerPhone || undefined,
       });
 
-      console.log("CHECKOUT ASAAS:", checkout);
-
-      if (checkout.checkout_url) {
-        window.location.assign(checkout.checkout_url);
-        return;
-      }
-
       setSuccessMessage(
-        `Assinatura do plano ${selectedPlan.name} criada no Asaas, mas não foi possível obter o link de pagamento.`
+        `Assinatura do plano ${selectedPlan.name} criada no Asaas. Você será redirecionado para o pagamento.`
       );
 
       closeCheckoutForm();
       await loadPlansPage();
+
+      if (checkout.checkout_url) {
+        window.location.href = checkout.checkout_url;
+      }
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -174,11 +184,9 @@ export function Plans() {
     }
   }
 
-  async function handleCancelSubscription() {
-    if (!subscription) return;
-
+  async function handleCancelSubscription(subscriptionId: string) {
     const confirmed = window.confirm(
-      "Tem certeza que deseja cancelar o plano atual? Sua página pública de agendamento ficará indisponível até você escolher um novo plano."
+      "Tem certeza que deseja cancelar esta assinatura? A página pública de agendamento ficará indisponível até um plano ser ativado."
     );
 
     if (!confirmed) return;
@@ -188,20 +196,31 @@ export function Plans() {
       setErrorMessage("");
       setSuccessMessage("");
 
-      await cancelCompanySubscription(subscription.id);
+      await cancelCompanySubscription(subscriptionId);
 
       setSuccessMessage(
-        "Plano cancelado com sucesso. Escolha um novo plano para reativar a página pública."
+        "Assinatura cancelada com sucesso. Escolha um novo plano para continuar."
       );
 
       await loadPlansPage();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Erro ao cancelar plano."
+        error instanceof Error ? error.message : "Erro ao cancelar assinatura."
       );
     } finally {
       setCanceling(false);
     }
+  }
+
+  function handleOpenPayment(url?: string | null) {
+    if (!url) {
+      setErrorMessage(
+        "Link de pagamento não encontrado. Gere uma nova assinatura."
+      );
+      return;
+    }
+
+    window.open(url, "_blank", "noopener,noreferrer");
   }
 
   if (loading) {
@@ -217,7 +236,7 @@ export function Plans() {
           <span>Planos</span>
           <h1>Escolha o melhor plano</h1>
           <p>
-            Agora a escolha do plano cria uma assinatura real no Asaas em modo
+            A escolha do plano cria uma assinatura real no Asaas em modo
             sandbox.
           </p>
         </div>
@@ -242,7 +261,7 @@ export function Plans() {
 
           <button
             className="zunary-button zunary-button-danger"
-            onClick={handleCancelSubscription}
+            onClick={() => handleCancelSubscription(subscription.id)}
             disabled={canceling}
           >
             {canceling ? "Cancelando..." : "Cancelar plano"}
@@ -255,6 +274,39 @@ export function Plans() {
             Escolha um plano para criar a assinatura no Asaas. O plano será
             ativado quando o pagamento for confirmado pelo webhook.
           </span>
+        </div>
+      )}
+
+      {pendingSubscription?.plans && (
+        <div className="zunary-pending-subscription-card">
+          <div>
+            <span>Assinatura pendente</span>
+            <h2>{pendingSubscription.plans.name}</h2>
+            <p>
+              Aguardando pagamento da assinatura. Vencimento:{" "}
+              <strong>{formatDate(pendingSubscription.next_due_date)}</strong>.
+            </p>
+          </div>
+
+          <div className="zunary-pending-actions">
+            <button
+              className="zunary-button"
+              onClick={() =>
+                handleOpenPayment(pendingSubscription.checkout_url)
+              }
+            >
+              <ExternalLink size={16} />
+              Abrir pagamento
+            </button>
+
+            <button
+              className="zunary-button zunary-button-secondary"
+              onClick={() => handleCancelSubscription(pendingSubscription.id)}
+              disabled={canceling}
+            >
+              {canceling ? "Cancelando..." : "Cancelar pendente"}
+            </button>
+          </div>
         </div>
       )}
 
@@ -406,7 +458,7 @@ export function Plans() {
         <div className="zunary-card-header">
           <h2>Observação importante</h2>
           <p>
-            A assinatura já é criada no Asaas, mas o plano só será ativado após
+            A assinatura é criada no Asaas, mas o plano só será ativado após
             confirmação de pagamento pelo webhook.
           </p>
         </div>

@@ -26,7 +26,13 @@ export type CompanySubscription = {
   asaas_subscription_id?: string | null;
   asaas_payment_id?: string | null;
   checkout_url?: string | null;
-  billing_status?: "pending" | "paid" | "overdue" | "canceled" | "refunded" | "failed";
+  billing_status?:
+    | "pending"
+    | "paid"
+    | "overdue"
+    | "canceled"
+    | "refunded"
+    | "failed";
   payment_method?: string | null;
   next_due_date?: string | null;
   plans?: Plan;
@@ -57,6 +63,29 @@ export async function getCompanyActiveSubscription(companyId: string) {
     )
     .eq("company_id", companyId)
     .eq("status", "active")
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as CompanySubscription | null;
+}
+
+export async function getCompanyPendingSubscription(companyId: string) {
+  const { data, error } = await supabase
+    .from("company_subscriptions")
+    .select(
+      `
+      *,
+      plans (*)
+    `
+    )
+    .eq("company_id", companyId)
+    .eq("status", "inactive")
+    .eq("billing_status", "pending")
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   if (error) {
