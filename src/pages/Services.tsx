@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ServiceForm } from "../components/services/ServiceForm";
 import { ServicesList } from "../components/services/ServicesList";
+import { isCurrentUserAdmin } from "../lib/admin";
 import { getCurrentUserCompany } from "../lib/company";
 import { getServicesByCompany } from "../lib/services";
 import {
@@ -17,13 +18,19 @@ export function Services() {
   const [subscription, setSubscription] =
     useState<CompanySubscription | null>(null);
 
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   async function loadData() {
     setLoading(true);
 
-    const companyData = await getCurrentUserCompany();
+    const [companyData, adminStatus] = await Promise.all([
+      getCurrentUserCompany(),
+      isCurrentUserAdmin(),
+    ]);
+
     setCompany(companyData);
+    setIsAdmin(adminStatus);
 
     if (companyData) {
       const [servicesData, subscriptionData] = await Promise.all([
@@ -47,8 +54,15 @@ export function Services() {
   }, [services]);
 
   const planLimit = useMemo(() => {
+    if (isAdmin) {
+      return {
+        allowed: true,
+        message: "",
+      };
+    }
+
     return canCreateMoreActiveServices(subscription, activeServicesCount);
-  }, [subscription, activeServicesCount]);
+  }, [isAdmin, subscription, activeServicesCount]);
 
   if (loading) {
     return <p className="zunary-muted-text">Carregando...</p>;
@@ -76,7 +90,12 @@ export function Services() {
         <div className="zunary-card-header">
           <h2>Plano atual</h2>
 
-          {subscription?.plans ? (
+          {isAdmin ? (
+            <p>
+              Você está usando uma conta <strong>admin</strong>. Os limites de
+              plano não são aplicados para este usuário.
+            </p>
+          ) : subscription?.plans ? (
             <p>
               Você está no plano <strong>{subscription.plans.name}</strong>.{" "}
               {subscription.plans.allow_unlimited_services
@@ -85,8 +104,8 @@ export function Services() {
             </p>
           ) : (
             <p>
-              Você ainda não escolheu um plano. Escolha um plano para liberar o
-              cadastro de serviços.
+              Você ainda não possui um plano ativo. Escolha um plano para
+              liberar o cadastro de serviços.
             </p>
           )}
         </div>
@@ -96,23 +115,31 @@ export function Services() {
             <span>Serviços ativos</span>
             <strong>
               {activeServicesCount}
-              {subscription?.plans?.max_services
+              {!isAdmin && subscription?.plans?.max_services
                 ? `/${subscription.plans.max_services}`
                 : ""}
             </strong>
           </div>
 
-          {!subscription && (
+          {isAdmin && (
+            <div className="zunary-admin-badge">
+              Modo admin
+            </div>
+          )}
+
+          {!isAdmin && !subscription && (
             <Link to="/plans" className="zunary-button">
               Escolher plano
             </Link>
           )}
 
-          {subscription?.plans?.slug === "starter" && !planLimit.allowed && (
-            <Link to="/plans" className="zunary-button">
-              Fazer upgrade
-            </Link>
-          )}
+          {!isAdmin &&
+            subscription?.plans?.slug === "starter" &&
+            !planLimit.allowed && (
+              <Link to="/plans" className="zunary-button">
+                Fazer upgrade
+              </Link>
+            )}
         </div>
       </div>
 
@@ -128,7 +155,7 @@ export function Services() {
         canActivateService={planLimit.allowed}
         blockedActivationMessage={planLimit.message}
         onServiceDeleted={loadData}
-       />
+      />
     </div>
   );
 }
