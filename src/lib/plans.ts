@@ -63,6 +63,7 @@ export async function getCompanyActiveSubscription(companyId: string) {
     )
     .eq("company_id", companyId)
     .eq("status", "active")
+    .eq("billing_status", "paid")
     .maybeSingle();
 
   if (error) {
@@ -93,34 +94,6 @@ export async function getCompanyPendingSubscription(companyId: string) {
   }
 
   return data as CompanySubscription | null;
-}
-
-export async function setCompanyPlan(companyId: string, planId: string) {
-  const { data, error } = await supabase.rpc("set_company_plan", {
-    target_company_id: companyId,
-    target_plan_id: planId,
-  });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data as CompanySubscription;
-}
-
-export async function cancelCompanySubscription(subscriptionId: string) {
-  const { error } = await supabase
-    .from("company_subscriptions")
-    .update({
-      status: "canceled",
-      billing_status: "canceled",
-      ends_at: new Date().toISOString(),
-    })
-    .eq("id", subscriptionId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
 }
 
 export function canCreateMoreActiveServices(
@@ -161,22 +134,4 @@ export function canCreateMoreActiveServices(
     allowed: true,
     message: "",
   };
-
-}
-
-export async function cancelCompanyPendingSubscriptions(companyId: string) {
-  const { error } = await supabase
-    .from("company_subscriptions")
-    .update({
-      status: "canceled",
-      billing_status: "canceled",
-      ends_at: new Date().toISOString(),
-    })
-    .eq("company_id", companyId)
-    .eq("status", "inactive")
-    .eq("billing_status", "pending");
-
-  if (error) {
-    throw new Error(error.message);
-  }
 }
