@@ -1862,3 +1862,32 @@ a {
     flex-direction: column;
   }
 }
+
+/* ========================= */
+/* SANDBOX ALERT */
+/* ========================= */
+
+.zunary-sandbox-alert {
+  border: 1px solid rgba(37, 99, 235, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(6, 214, 255, 0.12), transparent 32%),
+    #eff6ff;
+  border-radius: 20px;
+  padding: 16px;
+  display: grid;
+  gap: 4px;
+}
+
+.zunary-sandbox-alert strong {
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-sandbox-alert span {
+  color: #1e40af;
+  font-size: 13px;
+  line-height: 1.5;
+}

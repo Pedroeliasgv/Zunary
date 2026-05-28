@@ -368,6 +368,14 @@ export function Plans() {
         <div className="zunary-success">{successMessage}</div>
       )}
 
+      <div className="zunary-sandbox-alert">
+        <strong>Ambiente sandbox</strong>
+        <span>
+          Os pagamentos estão em modo de teste/homologação. Nenhuma cobrança real será
+          feita enquanto o Asaas estiver configurado como sandbox.
+        </span>
+      </div>
+
       {subscription?.plans ? (
         <div className="zunary-subscription-status-card">
           <div>
