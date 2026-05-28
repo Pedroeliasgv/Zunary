@@ -117,9 +117,15 @@ serve(async (req) => {
     const payment = body.payment;
 
     if (!event || !payment) {
+      await supabase.from("billing_events").insert({
+        provider: "asaas",
+        event_type: event || "unknown",
+        payload: body,
+      });
+
       return jsonResponse({
         received: true,
-        message: "Evento sem payment. Ignorado.",
+        message: "Evento sem payment. Registrado e ignorado.",
       });
     }
 
@@ -128,9 +134,17 @@ serve(async (req) => {
     const asaasCustomerId = payment.customer;
 
     if (!asaasSubscriptionId) {
+      await supabase.from("billing_events").insert({
+        provider: "asaas",
+        event_type: event,
+        asaas_payment_id: asaasPaymentId || null,
+        asaas_customer_id: asaasCustomerId || null,
+        payload: body,
+      });
+
       return jsonResponse({
         received: true,
-        message: "Pagamento sem subscription. Ignorado.",
+        message: "Pagamento sem subscription. Registrado e ignorado.",
       });
     }
 
@@ -164,6 +178,18 @@ serve(async (req) => {
       .maybeSingle();
 
     if (subscriptionError) {
+      await supabase.from("billing_events").insert({
+        provider: "asaas",
+        event_type: event,
+        asaas_payment_id: asaasPaymentId || null,
+        asaas_subscription_id: asaasSubscriptionId || null,
+        asaas_customer_id: asaasCustomerId || null,
+        payload: {
+          ...body,
+          internal_error: subscriptionError.message,
+        },
+      });
+
       return jsonResponse(
         {
           error: "Erro ao atualizar assinatura.",
@@ -172,6 +198,17 @@ serve(async (req) => {
         500
       );
     }
+
+    await supabase.from("billing_events").insert({
+      company_id: subscription?.company_id || null,
+      company_subscription_id: subscription?.id || null,
+      provider: "asaas",
+      event_type: event,
+      asaas_payment_id: asaasPaymentId || null,
+      asaas_subscription_id: asaasSubscriptionId || null,
+      asaas_customer_id: asaasCustomerId || null,
+      payload: body,
+    });
 
     if (!subscription) {
       return jsonResponse({
@@ -201,4 +238,3 @@ serve(async (req) => {
     );
   }
 });
-
