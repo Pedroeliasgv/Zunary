@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
+import { isCurrentUserAdmin } from "../../lib/admin";
 import { getCurrentUserCompany } from "../../lib/company";
 import { getCompanyActiveSubscription } from "../../lib/plans";
 import type { Company } from "../../types";
@@ -12,14 +13,20 @@ export function SubscriptionBanner() {
   const [company, setCompany] = useState<Company | null>(null);
   const [subscription, setSubscription] =
     useState<CompanySubscription | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   async function loadSubscriptionStatus() {
     try {
       setLoading(true);
 
-      const companyData = await getCurrentUserCompany();
+      const [companyData, adminStatus] = await Promise.all([
+        getCurrentUserCompany(),
+        isCurrentUserAdmin(),
+      ]);
+
       setCompany(companyData);
+      setIsAdmin(adminStatus);
 
       if (companyData) {
         const subscriptionData = await getCompanyActiveSubscription(
@@ -37,21 +44,11 @@ export function SubscriptionBanner() {
     loadSubscriptionStatus();
   }, [location.pathname]);
 
-  if (loading) {
-    return null;
-  }
-
-  if (!company) {
-    return null;
-  }
-
-  if (subscription) {
-    return null;
-  }
-
-  if (location.pathname === "/plans") {
-    return null;
-  }
+  if (loading) return null;
+  if (!company) return null;
+  if (isAdmin) return null;
+  if (subscription) return null;
+  if (location.pathname === "/plans") return null;
 
   return (
     <div className="zunary-subscription-banner">

@@ -11,9 +11,13 @@ import {
 import { Link } from "react-router-dom";
 import { CompanyForm } from "../components/company/CompanyForm";
 import { getAppointmentsCountByCompany } from "../lib/appointments";
+import { isCurrentUserAdmin } from "../lib/admin";
 import { getAvailabilityByCompany } from "../lib/availability";
 import { getCurrentUserCompany } from "../lib/company";
-import { getCompanyActiveSubscription, type CompanySubscription } from "../lib/plans";
+import {
+  getCompanyActiveSubscription,
+  type CompanySubscription,
+} from "../lib/plans";
 import { getServicesByCompany } from "../lib/services";
 import type { Company } from "../types";
 
@@ -29,6 +33,7 @@ export function Dashboard() {
   const [company, setCompany] = useState<Company | null>(null);
   const [subscription, setSubscription] =
     useState<CompanySubscription | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [stats, setStats] = useState<DashboardStats>({
     servicesCount: 0,
@@ -44,36 +49,54 @@ export function Dashboard() {
   async function loadDashboard() {
     setLoading(true);
 
-    const companyData = await getCurrentUserCompany();
-    setCompany(companyData);
-
-    if (companyData) {
-      const [
-        servicesData,
-        availabilityData,
-        appointmentsCount,
-        subscriptionData,
-      ] = await Promise.all([
-        getServicesByCompany(companyData.id),
-        getAvailabilityByCompany(companyData.id),
-        getAppointmentsCountByCompany(companyData.id),
-        getCompanyActiveSubscription(companyData.id),
+    try {
+      const [companyData, adminStatus] = await Promise.all([
+        getCurrentUserCompany(),
+        isCurrentUserAdmin(),
       ]);
 
-      setStats({
-        servicesCount: servicesData.length,
-        activeServicesCount: servicesData.filter((service) => service.is_active)
-          .length,
-        availabilityCount: availabilityData.length,
-        activeAvailabilityCount: availabilityData.filter((rule) => rule.is_active)
-          .length,
-        appointmentsCount,
-      });
+      setCompany(companyData);
+      setIsAdmin(adminStatus);
 
-      setSubscription(subscriptionData);
+      if (companyData) {
+        const [
+          servicesData,
+          availabilityData,
+          appointmentsCount,
+          subscriptionData,
+        ] = await Promise.all([
+          getServicesByCompany(companyData.id),
+          getAvailabilityByCompany(companyData.id),
+          getAppointmentsCountByCompany(companyData.id),
+          getCompanyActiveSubscription(companyData.id),
+        ]);
+
+        setStats({
+          servicesCount: servicesData.length,
+          activeServicesCount: servicesData.filter(
+            (service) => service.is_active
+          ).length,
+          availabilityCount: availabilityData.length,
+          activeAvailabilityCount: availabilityData.filter(
+            (rule) => rule.is_active
+          ).length,
+          appointmentsCount,
+        });
+
+        setSubscription(subscriptionData);
+      } else {
+        setSubscription(null);
+        setStats({
+          servicesCount: 0,
+          activeServicesCount: 0,
+          availabilityCount: 0,
+          activeAvailabilityCount: 0,
+          appointmentsCount: 0,
+        });
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -119,6 +142,8 @@ export function Dashboard() {
   const publicBookingPath = `/booking/${company.slug}`;
   const publicBookingUrl = `${window.location.origin}${publicBookingPath}`;
 
+  const hasPlanAccess = isAdmin || Boolean(subscription);
+
   const checklist = [
     {
       title: "Empresa criada",
@@ -128,10 +153,12 @@ export function Dashboard() {
     },
     {
       title: "Plano ativo",
-      description: subscription?.plans
+      description: isAdmin
+        ? "Conta admin liberada para testes internos."
+        : subscription?.plans
         ? `Plano ${subscription.plans.name} ativo.`
         : "Escolha um plano para liberar os recursos.",
-      done: Boolean(subscription),
+      done: hasPlanAccess,
       href: "/plans",
     },
     {
@@ -155,10 +182,10 @@ export function Dashboard() {
     {
       title: "Página pública pronta",
       description:
-        company.public_booking_enabled && subscription
+        company.public_booking_enabled && hasPlanAccess
           ? "Seu link público está ativo para clientes."
           : "Ative sua página pública e mantenha um plano ativo.",
-      done: company.public_booking_enabled && Boolean(subscription),
+      done: company.public_booking_enabled && hasPlanAccess,
       href: "/settings",
     },
     {
@@ -195,6 +222,16 @@ export function Dashboard() {
         </a>
       </div>
 
+      {isAdmin && (
+        <div className="zunary-sandbox-alert">
+          <strong>Modo admin ativo</strong>
+          <span>
+            Esta conta está liberada para testes internos sem exigir assinatura
+            paga.
+          </span>
+        </div>
+      )}
+
       <div className="zunary-dashboard-top-grid">
         <div className="zunary-hero-card">
           <div>
@@ -225,10 +262,12 @@ export function Dashboard() {
 
           <span>Plano atual</span>
 
-          <h2>{subscription?.plans?.name || "Sem plano"}</h2>
+          <h2>{isAdmin ? "Admin" : subscription?.plans?.name || "Sem plano"}</h2>
 
           <p>
-            {subscription?.plans
+            {isAdmin
+              ? "Conta master liberada para testes internos sem cobrança."
+              : subscription?.plans
               ? `Sua empresa está ativa no plano ${subscription.plans.name}.`
               : "Escolha um plano para liberar o sistema e a página pública."}
           </p>
@@ -258,7 +297,11 @@ export function Dashboard() {
 
         <div className="zunary-checklist">
           {checklist.map((item) => (
-            <a key={item.title} href={item.href} className="zunary-checklist-item">
+            <a
+              key={item.title}
+              href={item.href}
+              className="zunary-checklist-item"
+            >
               <div className={item.done ? "done" : ""}>
                 {item.done ? <Check size={16} /> : null}
               </div>
