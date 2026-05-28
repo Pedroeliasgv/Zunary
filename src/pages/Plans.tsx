@@ -368,13 +368,25 @@ export function Plans() {
         <div className="zunary-success">{successMessage}</div>
       )}
 
+      {import.meta.env.VITE_BILLING_ENV === "sandbox" && (
       <div className="zunary-sandbox-alert">
         <strong>Ambiente sandbox</strong>
         <span>
-          Os pagamentos estão em modo de teste/homologação. Nenhuma cobrança real será
-          feita enquanto o Asaas estiver configurado como sandbox.
+          Os pagamentos estão em modo de teste/homologação. Nenhuma cobrança real
+          será feita enquanto o Asaas estiver configurado como sandbox.
         </span>
       </div>
+    )}
+
+    {import.meta.env.VITE_BILLING_ENV === "production" && (
+      <div className="zunary-production-alert">
+        <strong>Ambiente de produção</strong>
+        <span>
+          Os pagamentos estão em modo real. Assinaturas criadas aqui podem gerar
+          cobranças reais para o cliente.
+        </span>
+      </div>
+    )}
 
       {subscription?.plans ? (
         <div className="zunary-subscription-status-card">
