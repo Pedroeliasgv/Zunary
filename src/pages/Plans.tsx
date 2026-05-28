@@ -48,9 +48,45 @@ function getEventLabel(eventType: string) {
     PAYMENT_OVERDUE: "Pagamento vencido",
     PAYMENT_DELETED: "Cobrança removida",
     PAYMENT_REFUNDED: "Pagamento estornado",
+    SUBSCRIPTION_CANCELED_MANUALLY: "Assinatura cancelada manualmente",
   };
 
   return labels[eventType] || eventType;
+}
+
+function getSubscriptionStatusLabel(status?: string | null) {
+  const labels: Record<string, string> = {
+    active: "Ativa",
+    inactive: "Pendente",
+    canceled: "Cancelada",
+    past_due: "Vencida",
+  };
+
+  return status ? labels[status] || status : "-";
+}
+
+function getBillingStatusLabel(status?: string | null) {
+  const labels: Record<string, string> = {
+    pending: "Aguardando pagamento",
+    paid: "Pago",
+    overdue: "Vencido",
+    canceled: "Cancelado",
+    refunded: "Estornado",
+    failed: "Falhou",
+  };
+
+  return status ? labels[status] || status : "-";
+}
+
+function getBillingStatusClass(status?: string | null) {
+  if (status === "paid") return "paid";
+  if (status === "pending") return "pending";
+  if (status === "overdue") return "overdue";
+  if (status === "canceled") return "canceled";
+  if (status === "refunded") return "refunded";
+  if (status === "failed") return "failed";
+
+  return "default";
 }
 
 function getPlanFeatures(plan: Plan) {
@@ -255,38 +291,38 @@ export function Plans() {
   }
 
   async function handleCancelPendingSubscription() {
-  if (!company || !pendingSubscription) return;
+    if (!company || !pendingSubscription) return;
 
-  const confirmed = window.confirm(
-    "Tem certeza que deseja cancelar a assinatura pendente? Ela também será cancelada no Asaas."
-  );
-
-  if (!confirmed) return;
-
-  try {
-    setCanceling(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-
-    await cancelAsaasSubscription({
-      company_id: company.id,
-      subscription_id: pendingSubscription.id,
-    });
-
-    setSuccessMessage("Assinatura pendente cancelada com sucesso.");
-    setPendingSubscription(null);
-
-    await loadPlansPage();
-  } catch (error) {
-    setErrorMessage(
-      error instanceof Error
-        ? error.message
-        : "Erro ao cancelar assinatura pendente."
+    const confirmed = window.confirm(
+      "Tem certeza que deseja cancelar a assinatura pendente? Ela também será cancelada no Asaas."
     );
-  } finally {
-    setCanceling(false);
+
+    if (!confirmed) return;
+
+    try {
+      setCanceling(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      await cancelAsaasSubscription({
+        company_id: company.id,
+        subscription_id: pendingSubscription.id,
+      });
+
+      setSuccessMessage("Assinatura pendente cancelada com sucesso.");
+      setPendingSubscription(null);
+
+      await loadPlansPage();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao cancelar assinatura pendente."
+      );
+    } finally {
+      setCanceling(false);
+    }
   }
-}
 
   function handleOpenPayment(url?: string | null) {
     if (!url) {
@@ -333,14 +369,29 @@ export function Plans() {
       )}
 
       {subscription?.plans ? (
-        <div className="zunary-card">
-          <div className="zunary-card-header">
-            <h2>Plano atual</h2>
+        <div className="zunary-subscription-status-card">
+          <div>
+            <span>Plano atual</span>
+            <h2>{subscription.plans.name}</h2>
+
             <p>
-              Sua empresa está usando o plano{" "}
-              <strong>{subscription.plans.name}</strong>. Se cancelar, a página
-              pública de agendamento ficará indisponível.
+              Sua empresa está usando este plano. Se cancelar, a página pública
+              de agendamento ficará indisponível.
             </p>
+
+            <div className="zunary-subscription-badges">
+              <strong className="zunary-status-pill paid">
+                {getSubscriptionStatusLabel(subscription.status)}
+              </strong>
+
+              <strong
+                className={`zunary-status-pill ${getBillingStatusClass(
+                  subscription.billing_status
+                )}`}
+              >
+                {getBillingStatusLabel(subscription.billing_status)}
+              </strong>
+            </div>
           </div>
 
           <button
@@ -366,10 +417,25 @@ export function Plans() {
           <div>
             <span>Assinatura pendente</span>
             <h2>{pendingSubscription.plans.name}</h2>
+
             <p>
               Aguardando pagamento da assinatura. Vencimento:{" "}
               <strong>{formatDate(pendingSubscription.next_due_date)}</strong>.
             </p>
+
+            <div className="zunary-subscription-badges">
+              <strong className="zunary-status-pill pending">
+                {getSubscriptionStatusLabel(pendingSubscription.status)}
+              </strong>
+
+              <strong
+                className={`zunary-status-pill ${getBillingStatusClass(
+                  pendingSubscription.billing_status
+                )}`}
+              >
+                {getBillingStatusLabel(pendingSubscription.billing_status)}
+              </strong>
+            </div>
           </div>
 
           <div className="zunary-pending-actions">
