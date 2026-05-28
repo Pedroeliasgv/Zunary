@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Settings,
   CreditCard,
+  Shield,
 } from "lucide-react";
 
 const items = [
@@ -40,6 +41,11 @@ const items = [
     href: "/plans",
     icon: CreditCard,
   },
+  {
+    label: "Admin",
+    href: "/admin",
+    icon: Shield,
+  }
 ];
 
 export function DashboardSidebar() {

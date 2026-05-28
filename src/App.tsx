@@ -14,6 +14,7 @@ import { PublicBooking } from "./pages/PublicBooking";
 import { Register } from "./pages/Register";
 import { Services } from "./pages/Services";
 import { Settings } from "./pages/Settings";
+import { Admin } from "./pages/Admin";
 
 function ProtectedPage({ children }: { children: React.ReactNode }) {
   return (
@@ -109,6 +110,15 @@ export function App() {
           <ProtectedPlanPage>
             <Appointments />
           </ProtectedPlanPage>
+        }
+      />
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedPage>
+            <Admin />
+          </ProtectedPage>
         }
       />
 
