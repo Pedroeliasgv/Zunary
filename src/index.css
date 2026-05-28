@@ -2037,3 +2037,19 @@ a {
     flex-direction: column;
   }
 }
+
+.zunary-admin-inline-link {
+  width: fit-content;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.zunary-admin-inline-link:hover {
+  text-decoration: underline;
+}
