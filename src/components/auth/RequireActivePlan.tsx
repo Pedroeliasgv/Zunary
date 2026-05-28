@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Lock } from "lucide-react";
+import { isCurrentUserAdmin } from "../../lib/admin";
 import { getCurrentUserCompany } from "../../lib/company";
 import { getCompanyActiveSubscription } from "../../lib/plans";
 import type { Company } from "../../types";
@@ -14,14 +15,20 @@ export function RequireActivePlan({ children }: RequireActivePlanProps) {
   const [company, setCompany] = useState<Company | null>(null);
   const [subscription, setSubscription] =
     useState<CompanySubscription | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   async function loadPlanStatus() {
     try {
       setLoading(true);
 
-      const companyData = await getCurrentUserCompany();
+      const [companyData, adminStatus] = await Promise.all([
+        getCurrentUserCompany(),
+        isCurrentUserAdmin(),
+      ]);
+
       setCompany(companyData);
+      setIsAdmin(adminStatus);
 
       if (companyData) {
         const subscriptionData = await getCompanyActiveSubscription(
@@ -49,6 +56,10 @@ export function RequireActivePlan({ children }: RequireActivePlanProps) {
         Crie uma empresa primeiro no dashboard.
       </div>
     );
+  }
+
+  if (isAdmin) {
+    return <>{children}</>;
   }
 
   if (!subscription) {
