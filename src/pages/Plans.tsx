@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
+import { createAsaasCheckout } from "../lib/billing";
 import { getCurrentUserCompany } from "../lib/company";
 import {
   cancelCompanySubscription,
   getActivePlans,
   getCompanyActiveSubscription,
-  setCompanyPlan,
   type CompanySubscription,
   type Plan,
 } from "../lib/plans";
@@ -59,8 +59,15 @@ export function Plans() {
   const [subscription, setSubscription] =
     useState<CompanySubscription | null>(null);
 
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerCpfCnpj, setCustomerCpfCnpj] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+
   const [loading, setLoading] = useState(true);
-  const [savingPlanId, setSavingPlanId] = useState<string | null>(null);
+  const [creatingCheckout, setCreatingCheckout] = useState(false);
   const [canceling, setCanceling] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -97,27 +104,73 @@ export function Plans() {
     loadPlansPage();
   }, []);
 
-  async function handleChoosePlan(plan: Plan) {
+  function openCheckoutForm(plan: Plan) {
+    setSelectedPlan(plan);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (company) {
+      setCustomerName(company.name);
+    }
+  }
+
+  function closeCheckoutForm() {
+    setSelectedPlan(null);
+    setCustomerName("");
+    setCustomerEmail("");
+    setCustomerCpfCnpj("");
+    setCustomerPhone("");
+    setErrorMessage("");
+  }
+
+  async function handleCreateCheckout(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
     if (!company) {
       setErrorMessage("Crie uma empresa antes de escolher um plano.");
       return;
     }
 
+    if (!selectedPlan) {
+      setErrorMessage("Escolha um plano para continuar.");
+      return;
+    }
+
     try {
-      setSavingPlanId(plan.id);
+      setCreatingCheckout(true);
       setErrorMessage("");
       setSuccessMessage("");
 
-      await setCompanyPlan(company.id, plan.id);
+      const checkout = await createAsaasCheckout({
+        company_id: company.id,
+        plan_id: selectedPlan.id,
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_cpf_cnpj: customerCpfCnpj,
+        customer_phone: customerPhone || undefined,
+      });
 
-      setSuccessMessage(`Plano ${plan.name} selecionado com sucesso.`);
+      console.log("CHECKOUT ASAAS:", checkout);
+
+      if (checkout.checkout_url) {
+        window.location.assign(checkout.checkout_url);
+        return;
+      }
+
+      setSuccessMessage(
+        `Assinatura do plano ${selectedPlan.name} criada no Asaas, mas não foi possível obter o link de pagamento.`
+      );
+
+      closeCheckoutForm();
       await loadPlansPage();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Erro ao selecionar plano."
+        error instanceof Error
+          ? error.message
+          : "Erro ao criar assinatura no Asaas."
       );
     } finally {
-      setSavingPlanId(null);
+      setCreatingCheckout(false);
     }
   }
 
@@ -164,8 +217,8 @@ export function Plans() {
           <span>Planos</span>
           <h1>Escolha o melhor plano</h1>
           <p>
-            A cobrança ainda não está ativa. Por enquanto, esta tela salva o
-            plano escolhido para preparar a estrutura comercial da Zunary.
+            Agora a escolha do plano cria uma assinatura real no Asaas em modo
+            sandbox.
           </p>
         </div>
       </div>
@@ -199,9 +252,98 @@ export function Plans() {
         <div className="zunary-plan-limit-alert">
           <strong>Nenhum plano ativo</strong>
           <span>
-            Escolha um plano para liberar a página pública de agendamento e o
-            cadastro de serviços.
+            Escolha um plano para criar a assinatura no Asaas. O plano será
+            ativado quando o pagamento for confirmado pelo webhook.
           </span>
+        </div>
+      )}
+
+      {selectedPlan && (
+        <div className="zunary-card">
+          <div className="zunary-modal-header">
+            <div className="zunary-card-header">
+              <h2>Dados de cobrança</h2>
+              <p>
+                Plano selecionado: <strong>{selectedPlan.name}</strong> —{" "}
+                {formatPlanPrice(selectedPlan.price_monthly)}/mês
+              </p>
+            </div>
+
+            <button
+              className="zunary-icon-button"
+              onClick={closeCheckoutForm}
+              type="button"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <form onSubmit={handleCreateCheckout} className="zunary-form">
+            <div className="zunary-form-grid">
+              <div className="zunary-field">
+                <label>Nome completo / razão social</label>
+                <input
+                  className="zunary-input"
+                  value={customerName}
+                  onChange={(event) => setCustomerName(event.target.value)}
+                  placeholder="Nome do pagador"
+                  required
+                />
+              </div>
+
+              <div className="zunary-field">
+                <label>E-mail</label>
+                <input
+                  className="zunary-input"
+                  type="email"
+                  value={customerEmail}
+                  onChange={(event) => setCustomerEmail(event.target.value)}
+                  placeholder="email@exemplo.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="zunary-form-grid">
+              <div className="zunary-field">
+                <label>CPF/CNPJ</label>
+                <input
+                  className="zunary-input"
+                  value={customerCpfCnpj}
+                  onChange={(event) => setCustomerCpfCnpj(event.target.value)}
+                  placeholder="Somente números"
+                  required
+                />
+              </div>
+
+              <div className="zunary-field">
+                <label>Telefone</label>
+                <input
+                  className="zunary-input"
+                  value={customerPhone}
+                  onChange={(event) => setCustomerPhone(event.target.value)}
+                  placeholder="11999999999"
+                />
+              </div>
+            </div>
+
+            <div className="zunary-plan-limit-alert">
+              <strong>Ambiente sandbox</strong>
+              <span>
+                Esta etapa cria a assinatura no Asaas. A ativação do plano
+                acontece quando o Asaas enviar o webhook de pagamento recebido ou
+                confirmado.
+              </span>
+            </div>
+
+            <button
+              className="zunary-button"
+              type="submit"
+              disabled={creatingCheckout}
+            >
+              {creatingCheckout ? "Criando assinatura..." : "Continuar"}
+            </button>
+          </form>
         </div>
       )}
 
@@ -241,14 +383,10 @@ export function Plans() {
                     ? "zunary-button zunary-button-secondary"
                     : "zunary-button"
                 }
-                onClick={() => handleChoosePlan(plan)}
-                disabled={savingPlanId === plan.id || isCurrentPlan}
+                onClick={() => openCheckoutForm(plan)}
+                disabled={isCurrentPlan}
               >
-                {savingPlanId === plan.id
-                  ? "Salvando..."
-                  : isCurrentPlan
-                  ? "Plano atual"
-                  : "Escolher plano"}
+                {isCurrentPlan ? "Plano atual" : "Escolher plano"}
               </button>
 
               <div className="zunary-plan-features">
@@ -268,9 +406,8 @@ export function Plans() {
         <div className="zunary-card-header">
           <h2>Observação importante</h2>
           <p>
-            A seleção e o cancelamento de plano já ficam salvos no banco, mas
-            ainda não há cobrança automática. A integração com pagamento entra em
-            uma etapa futura.
+            A assinatura já é criada no Asaas, mas o plano só será ativado após
+            confirmação de pagamento pelo webhook.
           </p>
         </div>
       </div>

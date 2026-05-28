@@ -34,6 +34,15 @@ function addOneDayDate() {
   return date.toISOString().slice(0, 10);
 }
 
+function getFirstPaymentUrl(payment: any) {
+  return (
+    payment?.invoiceUrl ||
+    payment?.bankSlipUrl ||
+    payment?.transactionReceiptUrl ||
+    null
+  );
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", {
@@ -50,7 +59,7 @@ serve(async (req) => {
     const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const asaasApiKey = Deno.env.get("ASAAS_API_KEY");
     const asaasApiUrl =
-      Deno.env.get("ASAAS_API_URL") || "https://sandbox.asaas.com/api/v3";
+      Deno.env.get("ASAAS_API_URL") || "https://api-sandbox.asaas.com/v3";
     const appUrl = Deno.env.get("APP_URL");
 
     if (!supabaseUrl || !supabaseServiceRoleKey) {
@@ -191,6 +200,32 @@ serve(async (req) => {
       );
     }
 
+    const paymentsResponse = await fetch(
+      `${asaasApiUrl}/subscriptions/${subscriptionData.id}/payments`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          access_token: asaasApiKey,
+        },
+      }
+    );
+
+    const paymentsData = await paymentsResponse.json();
+
+    if (!paymentsResponse.ok) {
+      return jsonResponse(
+        {
+          error: "Assinatura criada, mas houve erro ao buscar cobrança.",
+          details: paymentsData,
+        },
+        400
+      );
+    }
+
+    const firstPayment = paymentsData?.data?.[0] || null;
+    const paymentUrl = getFirstPaymentUrl(firstPayment);
+
     await supabase
       .from("company_subscriptions")
       .update({
@@ -211,8 +246,11 @@ serve(async (req) => {
           billing_status: "pending",
           asaas_customer_id: customerData.id,
           asaas_subscription_id: subscriptionData.id,
+          asaas_payment_id: firstPayment?.id || null,
+          checkout_url: paymentUrl,
           payment_method: "UNDEFINED",
-          next_due_date: subscriptionData.nextDueDate || null,
+          next_due_date:
+            firstPayment?.dueDate || subscriptionData.nextDueDate || null,
         })
         .select("*")
         .single();
@@ -232,9 +270,12 @@ serve(async (req) => {
       message: "Assinatura criada no Asaas.",
       asaas_customer_id: customerData.id,
       asaas_subscription_id: subscriptionData.id,
+      asaas_payment_id: firstPayment?.id || null,
+      checkout_url: paymentUrl,
       subscription: localSubscription,
-      next_due_date: subscriptionData.nextDueDate,
-      checkout_url: `${appUrl}/plans`,
+      payment: firstPayment,
+      next_due_date:
+        firstPayment?.dueDate || subscriptionData.nextDueDate || null,
     });
   } catch (error) {
     return jsonResponse(

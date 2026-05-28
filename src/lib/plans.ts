@@ -22,6 +22,13 @@ export type CompanySubscription = {
   ends_at: string | null;
   created_at: string;
   updated_at: string;
+  asaas_customer_id?: string | null;
+  asaas_subscription_id?: string | null;
+  asaas_payment_id?: string | null;
+  checkout_url?: string | null;
+  billing_status?: "pending" | "paid" | "overdue" | "canceled" | "refunded" | "failed";
+  payment_method?: string | null;
+  next_due_date?: string | null;
   plans?: Plan;
 };
 
@@ -77,6 +84,7 @@ export async function cancelCompanySubscription(subscriptionId: string) {
     .from("company_subscriptions")
     .update({
       status: "canceled",
+      billing_status: "canceled",
       ends_at: new Date().toISOString(),
     })
     .eq("id", subscriptionId);
