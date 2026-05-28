@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   CalendarDays,
@@ -9,8 +10,9 @@ import {
   CreditCard,
   Shield,
 } from "lucide-react";
+import { isCurrentUserAdmin } from "../../lib/admin";
 
-const items = [
+const baseItems = [
   {
     label: "Dashboard",
     href: "/dashboard",
@@ -32,24 +34,44 @@ const items = [
     icon: CalendarDays,
   },
   {
-    label: "Configurações",
-    href: "/settings",
-    icon: Settings,
-  },
-  {
     label: "Planos",
     href: "/plans",
     icon: CreditCard,
   },
   {
-    label: "Admin",
-    href: "/admin",
-    icon: Shield,
-  }
+    label: "Configurações",
+    href: "/settings",
+    icon: Settings,
+  },
 ];
+
+const adminItem = {
+  label: "Admin",
+  href: "/admin",
+  icon: Shield,
+};
 
 export function DashboardSidebar() {
   const location = useLocation();
+
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    async function loadAdminStatus() {
+      const adminStatus = await isCurrentUserAdmin();
+      setIsAdmin(adminStatus);
+    }
+
+    loadAdminStatus();
+  }, []);
+
+  const items = useMemo(() => {
+    if (isAdmin) {
+      return [...baseItems, adminItem];
+    }
+
+    return baseItems;
+  }, [isAdmin]);
 
   return (
     <aside className="zunary-sidebar">
@@ -82,12 +104,21 @@ export function DashboardSidebar() {
         })}
       </nav>
 
-      <div className="zunary-sidebar-box">
-        <p>MVP Zunary</p>
-        <span>
-          Organize serviços, horários e agendamentos em um só lugar.
-        </span>
-      </div>
+      {isAdmin ? (
+        <div className="zunary-sidebar-box">
+          <p>Modo admin</p>
+          <span>
+            Você está usando uma conta master para testes internos da Zunary.
+          </span>
+        </div>
+      ) : (
+        <div className="zunary-sidebar-box">
+          <p>MVP Zunary</p>
+          <span>
+            Organize serviços, horários e agendamentos em um só lugar.
+          </span>
+        </div>
+      )}
     </aside>
   );
 }
