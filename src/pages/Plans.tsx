@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
-import { Check, ExternalLink, X } from "lucide-react";
-import { createAsaasCheckout } from "../lib/billing";
+import { Check, ExternalLink, RefreshCw, X } from "lucide-react";
+import {
+  cancelAsaasSubscription,
+  createAsaasCheckout,
+  getBillingEventsByCompany,
+  type BillingEvent,
+} from "../lib/billing";
 import { getCurrentUserCompany } from "../lib/company";
 import {
-  cancelCompanySubscription,
   getActivePlans,
   getCompanyActiveSubscription,
   getCompanyPendingSubscription,
@@ -25,6 +29,28 @@ function formatDate(date?: string | null) {
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "short",
   }).format(new Date(`${date}T00:00:00`));
+}
+
+function formatDateTime(date?: string | null) {
+  if (!date) return "-";
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(date));
+}
+
+function getEventLabel(eventType: string) {
+  const labels: Record<string, string> = {
+    PAYMENT_CREATED: "Cobrança criada",
+    PAYMENT_RECEIVED: "Pagamento recebido",
+    PAYMENT_CONFIRMED: "Pagamento confirmado",
+    PAYMENT_OVERDUE: "Pagamento vencido",
+    PAYMENT_DELETED: "Cobrança removida",
+    PAYMENT_REFUNDED: "Pagamento estornado",
+  };
+
+  return labels[eventType] || eventType;
 }
 
 function getPlanFeatures(plan: Plan) {
@@ -69,6 +95,7 @@ export function Plans() {
     useState<CompanySubscription | null>(null);
   const [pendingSubscription, setPendingSubscription] =
     useState<CompanySubscription | null>(null);
+  const [billingEvents, setBillingEvents] = useState<BillingEvent[]>([]);
 
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
@@ -96,13 +123,23 @@ export function Plans() {
       setPlans(plansData);
 
       if (companyData) {
-        const [subscriptionData, pendingSubscriptionData] = await Promise.all([
+        const [
+          subscriptionData,
+          pendingSubscriptionData,
+          billingEventsData,
+        ] = await Promise.all([
           getCompanyActiveSubscription(companyData.id),
           getCompanyPendingSubscription(companyData.id),
+          getBillingEventsByCompany(companyData.id),
         ]);
 
         setSubscription(subscriptionData);
         setPendingSubscription(pendingSubscriptionData);
+        setBillingEvents(billingEventsData);
+      } else {
+        setSubscription(null);
+        setPendingSubscription(null);
+        setBillingEvents([]);
       }
     } catch (error) {
       setErrorMessage(
@@ -185,8 +222,10 @@ export function Plans() {
   }
 
   async function handleCancelSubscription(subscriptionId: string) {
+    if (!company) return;
+
     const confirmed = window.confirm(
-      "Tem certeza que deseja cancelar esta assinatura? A página pública de agendamento ficará indisponível até um plano ser ativado."
+      "Tem certeza que deseja cancelar esta assinatura? Ela também será cancelada no Asaas."
     );
 
     if (!confirmed) return;
@@ -196,10 +235,13 @@ export function Plans() {
       setErrorMessage("");
       setSuccessMessage("");
 
-      await cancelCompanySubscription(subscriptionId);
+      await cancelAsaasSubscription({
+        company_id: company.id,
+        subscription_id: subscriptionId,
+      });
 
       setSuccessMessage(
-        "Assinatura cancelada com sucesso. Escolha um novo plano para continuar."
+        "Assinatura cancelada com sucesso no Asaas e na Zunary."
       );
 
       await loadPlansPage();
@@ -211,6 +253,40 @@ export function Plans() {
       setCanceling(false);
     }
   }
+
+  async function handleCancelPendingSubscription() {
+  if (!company || !pendingSubscription) return;
+
+  const confirmed = window.confirm(
+    "Tem certeza que deseja cancelar a assinatura pendente? Ela também será cancelada no Asaas."
+  );
+
+  if (!confirmed) return;
+
+  try {
+    setCanceling(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    await cancelAsaasSubscription({
+      company_id: company.id,
+      subscription_id: pendingSubscription.id,
+    });
+
+    setSuccessMessage("Assinatura pendente cancelada com sucesso.");
+    setPendingSubscription(null);
+
+    await loadPlansPage();
+  } catch (error) {
+    setErrorMessage(
+      error instanceof Error
+        ? error.message
+        : "Erro ao cancelar assinatura pendente."
+    );
+  } finally {
+    setCanceling(false);
+  }
+}
 
   function handleOpenPayment(url?: string | null) {
     if (!url) {
@@ -240,6 +316,14 @@ export function Plans() {
             sandbox.
           </p>
         </div>
+
+        <button
+          className="zunary-button zunary-button-secondary"
+          onClick={loadPlansPage}
+        >
+          <RefreshCw size={16} />
+          Atualizar
+        </button>
       </div>
 
       {errorMessage && <div className="zunary-error">{errorMessage}</div>}
@@ -291,9 +375,7 @@ export function Plans() {
           <div className="zunary-pending-actions">
             <button
               className="zunary-button"
-              onClick={() =>
-                handleOpenPayment(pendingSubscription.checkout_url)
-              }
+              onClick={() => handleOpenPayment(pendingSubscription.checkout_url)}
             >
               <ExternalLink size={16} />
               Abrir pagamento
@@ -301,7 +383,7 @@ export function Plans() {
 
             <button
               className="zunary-button zunary-button-secondary"
-              onClick={() => handleCancelSubscription(pendingSubscription.id)}
+              onClick={handleCancelPendingSubscription}
               disabled={canceling}
             >
               {canceling ? "Cancelando..." : "Cancelar pendente"}
@@ -452,6 +534,32 @@ export function Plans() {
             </div>
           );
         })}
+      </div>
+
+      <div className="zunary-card">
+        <div className="zunary-card-header">
+          <h2>Histórico de cobrança</h2>
+          <p>Últimos eventos recebidos do Asaas para esta empresa.</p>
+        </div>
+
+        {billingEvents.length === 0 ? (
+          <div className="zunary-empty-card">
+            Nenhum evento de cobrança registrado ainda.
+          </div>
+        ) : (
+          <div className="zunary-billing-events-list">
+            {billingEvents.map((event) => (
+              <div key={event.id} className="zunary-billing-event-item">
+                <div>
+                  <strong>{getEventLabel(event.event_type)}</strong>
+                  <span>{event.event_type}</span>
+                </div>
+
+                <time>{formatDateTime(event.created_at)}</time>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="zunary-card">

@@ -161,4 +161,22 @@ export function canCreateMoreActiveServices(
     allowed: true,
     message: "",
   };
+
+}
+
+export async function cancelCompanyPendingSubscriptions(companyId: string) {
+  const { error } = await supabase
+    .from("company_subscriptions")
+    .update({
+      status: "canceled",
+      billing_status: "canceled",
+      ends_at: new Date().toISOString(),
+    })
+    .eq("company_id", companyId)
+    .eq("status", "inactive")
+    .eq("billing_status", "pending");
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }

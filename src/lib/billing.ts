@@ -19,6 +19,19 @@ export type CreateAsaasCheckoutResponse = {
   next_due_date: string | null;
 };
 
+export type BillingEvent = {
+  id: string;
+  company_id: string | null;
+  company_subscription_id: string | null;
+  provider: string;
+  event_type: string;
+  asaas_payment_id: string | null;
+  asaas_subscription_id: string | null;
+  asaas_customer_id: string | null;
+  payload: unknown;
+  created_at: string;
+};
+
 export async function createAsaasCheckout(data: CreateAsaasCheckoutData) {
   const { data: response, error } = await supabase.functions.invoke(
     "create-asaas-checkout",
@@ -43,4 +56,45 @@ export async function createAsaasCheckout(data: CreateAsaasCheckoutData) {
   }
 
   return response as CreateAsaasCheckoutResponse;
+}
+
+export async function getBillingEventsByCompany(companyId: string) {
+  const { data, error } = await supabase
+    .from("billing_events")
+    .select("*")
+    .eq("company_id", companyId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as BillingEvent[];
+}
+
+export async function cancelAsaasSubscription(data: {
+  company_id: string;
+  subscription_id: string;
+}) {
+  const { data: response, error } = await supabase.functions.invoke(
+    "cancel-asaas-subscription",
+    {
+      body: data,
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message || "Erro ao cancelar assinatura.");
+  }
+
+  if (response?.error) {
+    const details = response?.details
+      ? ` Detalhes: ${JSON.stringify(response.details)}`
+      : "";
+
+    throw new Error(`${response.error}${details}`);
+  }
+
+  return response;
 }

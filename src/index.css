@@ -1716,3 +1716,51 @@ a {
     width: 100%;
   }
 }
+
+/* ========================= */
+/* BILLING EVENTS */
+/* ========================= */
+
+.zunary-billing-events-list {
+  display: grid;
+  gap: 10px;
+}
+
+.zunary-billing-event-item {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.zunary-billing-event-item strong {
+  display: block;
+  color: #020617;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.zunary-billing-event-item span {
+  display: block;
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.zunary-billing-event-item time {
+  color: #64748b;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .zunary-billing-event-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
