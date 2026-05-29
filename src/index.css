@@ -2053,3 +2053,32 @@ a {
 .zunary-admin-inline-link:hover {
   text-decoration: underline;
 }
+
+/* ========================= */
+/* ADMIN FILTERS */
+/* ========================= */
+
+.zunary-admin-toolbar {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.zunary-admin-toolbar .zunary-input,
+.zunary-admin-toolbar .zunary-select {
+  max-width: 420px;
+}
+
+@media (max-width: 700px) {
+  .zunary-admin-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .zunary-admin-toolbar .zunary-input,
+  .zunary-admin-toolbar .zunary-select {
+    max-width: 100%;
+  }
+}
+

@@ -67,6 +67,10 @@ export function Admin() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [companySearch, setCompanySearch] = useState("");
+  const [subscriptionStatusFilter, setSubscriptionStatusFilter] =
+    useState("all");
+
   async function loadAdminPage() {
     try {
       setLoading(true);
@@ -83,7 +87,9 @@ export function Admin() {
       setOverview(data);
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Erro ao carregar painel admin."
+        error instanceof Error
+          ? error.message
+          : "Erro ao carregar painel admin."
       );
     } finally {
       setLoading(false);
@@ -123,6 +129,29 @@ export function Admin() {
       </div>
     );
   }
+
+  const filteredCompanies = overview.recent_companies.filter((company) => {
+    const search = companySearch.trim().toLowerCase();
+
+    if (!search) return true;
+
+    return (
+      company.name.toLowerCase().includes(search) ||
+      company.slug.toLowerCase().includes(search) ||
+      company.owner_name?.toLowerCase().includes(search) ||
+      company.owner_email?.toLowerCase().includes(search)
+    );
+  });
+
+  const filteredSubscriptions = overview.recent_subscriptions.filter(
+    (subscription) => {
+      if (subscriptionStatusFilter === "all") {
+        return true;
+      }
+
+      return subscription.status === subscriptionStatusFilter;
+    }
+  );
 
   return (
     <div className="zunary-page">
@@ -197,18 +226,29 @@ export function Admin() {
           <p>Últimas empresas criadas na Zunary.</p>
         </div>
 
-        {overview.recent_companies.length === 0 ? (
+        <div className="zunary-admin-toolbar">
+          <input
+            className="zunary-input"
+            value={companySearch}
+            onChange={(event) => setCompanySearch(event.target.value)}
+            placeholder="Buscar por empresa, dono, e-mail ou slug..."
+          />
+        </div>
+
+        {filteredCompanies.length === 0 ? (
           <div className="zunary-empty-card">Nenhuma empresa encontrada.</div>
         ) : (
           <div className="zunary-admin-list">
-            {overview.recent_companies.map((company) => (
+            {filteredCompanies.map((company) => (
               <div key={company.id} className="zunary-admin-list-item">
                 <div>
                   <strong>{company.name}</strong>
+
                   <span>
                     Dono: {company.owner_name || "Sem nome"} •{" "}
                     {company.owner_email || "Sem e-mail"}
                   </span>
+
                   <span>
                     Slug: /booking/{company.slug} •{" "}
                     {company.public_booking_enabled
@@ -230,21 +270,41 @@ export function Admin() {
           <p>Últimas assinaturas criadas na Zunary.</p>
         </div>
 
-        {overview.recent_subscriptions.length === 0 ? (
+        <div className="zunary-admin-toolbar">
+          <select
+            className="zunary-select"
+            value={subscriptionStatusFilter}
+            onChange={(event) =>
+              setSubscriptionStatusFilter(event.target.value)
+            }
+          >
+            <option value="all">Todos os status</option>
+            <option value="active">Ativas</option>
+            <option value="inactive">Pendentes</option>
+            <option value="canceled">Canceladas</option>
+            <option value="past_due">Vencidas</option>
+          </select>
+        </div>
+
+        {filteredSubscriptions.length === 0 ? (
           <div className="zunary-empty-card">
             Nenhuma assinatura encontrada.
           </div>
         ) : (
           <div className="zunary-admin-list">
-            {overview.recent_subscriptions.map((subscription) => (
+            {filteredSubscriptions.map((subscription) => (
               <div key={subscription.id} className="zunary-admin-list-item">
                 <div>
-                  <strong>{subscription.company_name || "Empresa sem nome"}</strong>
+                  <strong>
+                    {subscription.company_name || "Empresa sem nome"}
+                  </strong>
+
                   <span>
                     Plano: {subscription.plan_name || "Plano não encontrado"} •{" "}
                     Status: {getStatusLabel(subscription.status)} /{" "}
                     {getStatusLabel(subscription.billing_status)}
                   </span>
+
                   <span>
                     Vencimento: {formatDate(subscription.next_due_date)}
                   </span>
@@ -285,10 +345,12 @@ export function Admin() {
               <div key={event.id} className="zunary-admin-list-item">
                 <div>
                   <strong>{getEventLabel(event.event_type)}</strong>
+
                   <span>
                     {event.company_name || "Empresa não vinculada"} •{" "}
                     {event.event_type}
                   </span>
+
                   <span>
                     Status: {getStatusLabel(event.subscription_status)} /{" "}
                     {getStatusLabel(event.billing_status)}
