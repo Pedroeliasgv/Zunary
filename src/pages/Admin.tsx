@@ -190,6 +190,51 @@ export function Admin() {
         </span>
       </div>
 
+      <div className="zunary-card">
+        <div className="zunary-card-header">
+            <h2>Saúde do sistema</h2>
+            <p>Resumo rápido do ambiente de cobrança e eventos recentes.</p>
+        </div>
+
+        <div className="zunary-system-health-grid">
+            <div>
+            <span>Ambiente</span>
+            <strong>{isSandbox ? "Sandbox" : "Produção"}</strong>
+            <p>
+                {isSandbox
+                ? "Cobranças em modo de teste."
+                : "Cobranças reais ativadas."}
+            </p>
+            </div>
+
+            <div>
+            <span>Último evento</span>
+            <strong>
+                {overview.recent_events[0]
+                ? getEventLabel(overview.recent_events[0].event_type)
+                : "Nenhum evento"}
+            </strong>
+            <p>
+                {overview.recent_events[0]
+                ? formatDateTime(overview.recent_events[0].created_at)
+                : "Ainda sem eventos do Asaas."}
+            </p>
+            </div>
+
+            <div>
+            <span>Assinaturas ativas</span>
+            <strong>{overview.active_subscriptions_count}</strong>
+            <p>Empresas com plano ativo e pago.</p>
+            </div>
+
+            <div>
+            <span>Pendentes</span>
+            <strong>{overview.pending_subscriptions_count}</strong>
+            <p>Assinaturas aguardando pagamento.</p>
+            </div>
+        </div>
+        </div>
+
       <div className="zunary-admin-grid">
         <div className="zunary-admin-stat-card">
           <div>

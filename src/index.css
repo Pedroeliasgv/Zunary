@@ -2264,3 +2264,56 @@ a {
 .zunary-admin-env-card.production span {
   color: #991b1b;
 }
+
+/* ========================= */
+/* ADMIN SYSTEM HEALTH */
+/* ========================= */
+
+.zunary-system-health-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.zunary-system-health-grid > div {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.zunary-system-health-grid span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-system-health-grid strong {
+  color: #020617;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.zunary-system-health-grid p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+@media (max-width: 1000px) {
+  .zunary-system-health-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .zunary-system-health-grid {
+    grid-template-columns: 1fr;
+  }
+}
