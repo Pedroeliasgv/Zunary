@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, CheckCircle2, Clock, Scissors, User } from "lucide-react";
 import {
   createPublicAppointment,
   getBookedTimesByCompanyAndDate,
@@ -48,6 +49,10 @@ function getPublicBookingErrorMessage(reason?: PublicBookingStatusReason) {
   };
 }
 
+function getTodayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 function timeToMinutes(time: string) {
   const [hours, minutes] = time.split(":").map(Number);
   return hours * 60 + minutes;
@@ -63,10 +68,7 @@ function minutesToTime(totalMinutes: number) {
   )}`;
 }
 
-function generateTimeSlots(
-  rules: AvailabilityRule[],
-  durationMinutes: number
-) {
+function generateTimeSlots(rules: AvailabilityRule[], durationMinutes: number) {
   const slots: string[] = [];
 
   rules.forEach((rule) => {
@@ -82,7 +84,7 @@ function generateTimeSlots(
     }
   });
 
-  return slots;
+  return Array.from(new Set(slots)).sort();
 }
 
 export function PublicBookingForm({ slug }: PublicBookingFormProps) {
@@ -106,6 +108,13 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [confirmedAppointment, setConfirmedAppointment] = useState<{
+    serviceName: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+  } | null>(null);
+
   const [publicErrorReason, setPublicErrorReason] =
     useState<PublicBookingStatusReason>();
 
@@ -115,6 +124,7 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
       setErrorMessage("");
       setSuccessMessage("");
       setPublicErrorReason(undefined);
+      setConfirmedAppointment(null);
 
       const publicStatus = await getPublicBookingStatus(slug);
 
@@ -213,6 +223,11 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
     return allSlots.filter((slot) => !bookedTimes.includes(slot));
   }, [selectedService, availabilityForSelectedDay, bookedTimes]);
 
+  const selectedEndTime =
+    selectedService && startTime
+      ? addMinutesToTime(startTime, selectedService.duration_minutes)
+      : "";
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -220,6 +235,11 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
 
     if (!appointmentDate) {
       setErrorMessage("Escolha uma data para o agendamento.");
+      return;
+    }
+
+    if (appointmentDate < getTodayDate()) {
+      setErrorMessage("Escolha uma data atual ou futura.");
       return;
     }
 
@@ -237,6 +257,7 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
       setSubmitting(true);
       setErrorMessage("");
       setSuccessMessage("");
+      setConfirmedAppointment(null);
 
       const endTime = addMinutesToTime(
         startTime,
@@ -255,8 +276,15 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
         notes,
       });
 
+      setConfirmedAppointment({
+        serviceName: selectedService.name,
+        date: appointmentDate,
+        startTime,
+        endTime,
+      });
+
       setSuccessMessage(
-        "Agendamento enviado com sucesso. Aguarde a confirmação."
+        "Agendamento enviado com sucesso. Aguarde a confirmação da empresa."
       );
 
       setCustomerName("");
@@ -280,7 +308,7 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
   if (loading) {
     return (
       <div className="zunary-booking-page">
-        <div className="zunary-booking-brand">
+        <div className="zunary-public-loading">
           <div className="zunary-logo-mark">
             <span>Z</span>
           </div>
@@ -305,7 +333,11 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
             <p>Agendamentos simples para negócios organizados.</p>
           </div>
 
-          <div className="zunary-booking-card">
+          <div className="zunary-booking-card zunary-public-state-card">
+            <div className="zunary-public-state-icon">
+              <CalendarDays size={24} />
+            </div>
+
             <div className="zunary-card-header">
               <h2>{message.title}</h2>
               <p>{errorMessage || message.description}</p>
@@ -318,180 +350,258 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
 
   return (
     <div className="zunary-booking-page">
-      <div className="zunary-booking-shell">
-        <div className="zunary-booking-brand">
-          <div className="zunary-logo-mark">
-            <span>Z</span>
+      <div className="zunary-booking-shell zunary-booking-shell-wide">
+        <div className="zunary-public-hero">
+          <div className="zunary-booking-brand">
+            <div className="zunary-logo-mark">
+              <span>Z</span>
+            </div>
+
+            <h1>Zunary</h1>
+            <p>Agendamentos simples para negócios organizados.</p>
           </div>
 
-          <h1>Zunary</h1>
-          <p>Agendamentos simples para negócios organizados.</p>
-        </div>
-
-        <div className="zunary-booking-card">
-          <div className="zunary-booking-company">
+          <div className="zunary-public-company-card">
             <span>Agendamento online</span>
             <h2>{company.name}</h2>
-            {company.description && <p>{company.description}</p>}
-          </div>
 
-          {errorMessage && <div className="zunary-error">{errorMessage}</div>}
+            {company.description ? (
+              <p>{company.description}</p>
+            ) : (
+              <p>Escolha um serviço, selecione um horário disponível e envie sua solicitação.</p>
+            )}
 
-          {successMessage && (
-            <div className="zunary-success">{successMessage}</div>
-          )}
+            <div className="zunary-public-company-meta">
+              <div>
+                <Scissors size={16} />
+                {services.length} serviço(s)
+              </div>
 
-          {services.length === 0 ? (
-            <div className="zunary-empty-card">
-              Esta empresa ainda não possui serviços disponíveis.
+              <div>
+                <Clock size={16} />
+                Horários disponíveis
+              </div>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="zunary-form">
-              <div className="zunary-field">
-                <label>Serviço</label>
-                <select
-                  className="zunary-select"
-                  value={serviceId}
-                  onChange={(event) => setServiceId(event.target.value)}
-                  required
-                >
-                  {services.map((service) => (
-                    <option key={service.id} value={service.id}>
-                      {service.name} — {service.duration_minutes} min —{" "}
-                      {formatCurrency(service.price)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="zunary-form-grid">
-                <div className="zunary-field">
-                  <label>Data</label>
-                  <input
-                    className="zunary-input"
-                    type="date"
-                    value={appointmentDate}
-                    onChange={(event) => setAppointmentDate(event.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="zunary-field">
-                  <label>Horário disponível</label>
-                  <select
-                    className="zunary-select"
-                    value={startTime}
-                    onChange={(event) => setStartTime(event.target.value)}
-                    required
-                    disabled={
-                      !appointmentDate ||
-                      loadingTimes ||
-                      availableTimeSlots.length === 0
-                    }
-                  >
-                    <option value="">
-                      {!appointmentDate
-                        ? "Escolha uma data primeiro"
-                        : loadingTimes
-                        ? "Carregando horários..."
-                        : availableTimeSlots.length === 0
-                        ? "Nenhum horário disponível"
-                        : "Escolha um horário"}
-                    </option>
-
-                    {availableTimeSlots.map((slot) => (
-                      <option key={slot} value={slot}>
-                        {slot}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {appointmentDate && (
-                <div className="zunary-availability-box">
-                  {availabilityForSelectedDay.length > 0 ? (
-                    <>
-                      <strong>
-                        Disponibilidade para{" "}
-                        {getDayName(selectedDateDay as number)}:
-                      </strong>
-
-                      <ul>
-                        {availabilityForSelectedDay.map((rule) => (
-                          <li key={rule.id}>
-                            {rule.start_time.slice(0, 5)} até{" "}
-                            {rule.end_time.slice(0, 5)}
-                          </li>
-                        ))}
-                      </ul>
-
-                      {bookedTimes.length > 0 && (
-                        <p style={{ marginTop: 10 }}>
-                          Horários ocupados não aparecem na lista.
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <p>Não há disponibilidade cadastrada para este dia.</p>
-                  )}
-                </div>
-              )}
-
-              <div className="zunary-field">
-                <label>Seu nome</label>
-                <input
-                  className="zunary-input"
-                  value={customerName}
-                  onChange={(event) => setCustomerName(event.target.value)}
-                  placeholder="Seu nome completo"
-                  required
-                />
-              </div>
-
-              <div className="zunary-form-grid">
-                <div className="zunary-field">
-                  <label>E-mail</label>
-                  <input
-                    className="zunary-input"
-                    type="email"
-                    value={customerEmail}
-                    onChange={(event) => setCustomerEmail(event.target.value)}
-                    placeholder="seu@email.com"
-                  />
-                </div>
-
-                <div className="zunary-field">
-                  <label>Telefone</label>
-                  <input
-                    className="zunary-input"
-                    value={customerPhone}
-                    onChange={(event) => setCustomerPhone(event.target.value)}
-                    placeholder="(11) 99999-9999"
-                  />
-                </div>
-              </div>
-
-              <div className="zunary-field">
-                <label>Observações</label>
-                <textarea
-                  className="zunary-textarea"
-                  value={notes}
-                  onChange={(event) => setNotes(event.target.value)}
-                  placeholder="Alguma observação para o atendimento?"
-                />
-              </div>
-
-              <button
-                className="zunary-button"
-                type="submit"
-                disabled={submitting}
-              >
-                {submitting ? "Enviando..." : "Solicitar agendamento"}
-              </button>
-            </form>
-          )}
+          </div>
         </div>
+
+        {errorMessage && <div className="zunary-error">{errorMessage}</div>}
+
+        {successMessage && confirmedAppointment && (
+          <div className="zunary-public-success-card">
+            <CheckCircle2 size={28} />
+
+            <div>
+              <strong>{successMessage}</strong>
+              <span>
+                {confirmedAppointment.serviceName} •{" "}
+                {new Intl.DateTimeFormat("pt-BR", {
+                  dateStyle: "short",
+                }).format(new Date(`${confirmedAppointment.date}T00:00:00`))}{" "}
+                • {confirmedAppointment.startTime} até{" "}
+                {confirmedAppointment.endTime}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {services.length === 0 ? (
+          <div className="zunary-booking-card zunary-public-state-card">
+            <div className="zunary-public-state-icon">
+              <Scissors size={24} />
+            </div>
+
+            <div className="zunary-card-header">
+              <h2>Nenhum serviço disponível</h2>
+              <p>Esta empresa ainda não possui serviços ativos para agendamento.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="zunary-public-layout">
+            <aside className="zunary-public-services-panel">
+              <div className="zunary-card-header">
+                <h2>Escolha o serviço</h2>
+                <p>Selecione o atendimento que deseja agendar.</p>
+              </div>
+
+              <div className="zunary-public-services-list">
+                {services.map((service) => {
+                  const selected = service.id === serviceId;
+
+                  return (
+                    <button
+                      key={service.id}
+                      type="button"
+                      className={
+                        selected
+                          ? "zunary-public-service-card selected"
+                          : "zunary-public-service-card"
+                      }
+                      onClick={() => setServiceId(service.id)}
+                    >
+                      <div>
+                        <strong>{service.name}</strong>
+
+                        {service.description && <span>{service.description}</span>}
+                      </div>
+
+                      <footer>
+                        <span>{service.duration_minutes} min</span>
+                        <span>{formatCurrency(service.price)}</span>
+                      </footer>
+                    </button>
+                  );
+                })}
+              </div>
+            </aside>
+
+            <main className="zunary-booking-card">
+              <div className="zunary-card-header">
+                <h2>Dados do agendamento</h2>
+                <p>Preencha as informações para solicitar seu horário.</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="zunary-form">
+                <div className="zunary-form-grid">
+                  <div className="zunary-field">
+                    <label>Data</label>
+                    <input
+                      className="zunary-input"
+                      type="date"
+                      min={getTodayDate()}
+                      value={appointmentDate}
+                      onChange={(event) => setAppointmentDate(event.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="zunary-field">
+                    <label>Horário disponível</label>
+                    <select
+                      className="zunary-select"
+                      value={startTime}
+                      onChange={(event) => setStartTime(event.target.value)}
+                      required
+                      disabled={
+                        !appointmentDate ||
+                        loadingTimes ||
+                        availableTimeSlots.length === 0
+                      }
+                    >
+                      <option value="">
+                        {!appointmentDate
+                          ? "Escolha uma data primeiro"
+                          : loadingTimes
+                          ? "Carregando horários..."
+                          : availableTimeSlots.length === 0
+                          ? "Nenhum horário disponível"
+                          : "Escolha um horário"}
+                      </option>
+
+                      {availableTimeSlots.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {slot}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {appointmentDate && (
+                  <div className="zunary-availability-box">
+                    {availabilityForSelectedDay.length > 0 ? (
+                      <>
+                        <strong>
+                          Disponibilidade para{" "}
+                          {getDayName(selectedDateDay as number)}:
+                        </strong>
+
+                        <ul>
+                          {availabilityForSelectedDay.map((rule) => (
+                            <li key={rule.id}>
+                              {rule.start_time.slice(0, 5)} até{" "}
+                              {rule.end_time.slice(0, 5)}
+                            </li>
+                          ))}
+                        </ul>
+
+                        {selectedService && startTime && (
+                          <p>
+                            Este agendamento terminará às{" "}
+                            <strong>{selectedEndTime}</strong>.
+                          </p>
+                        )}
+
+                        {bookedTimes.length > 0 && (
+                          <p>Horários ocupados foram removidos da lista.</p>
+                        )}
+                      </>
+                    ) : (
+                      <p>Não há disponibilidade cadastrada para este dia.</p>
+                    )}
+                  </div>
+                )}
+
+                <div className="zunary-public-section-title">
+                  <User size={16} />
+                  Seus dados
+                </div>
+
+                <div className="zunary-field">
+                  <label>Seu nome</label>
+                  <input
+                    className="zunary-input"
+                    value={customerName}
+                    onChange={(event) => setCustomerName(event.target.value)}
+                    placeholder="Seu nome completo"
+                    required
+                  />
+                </div>
+
+                <div className="zunary-form-grid">
+                  <div className="zunary-field">
+                    <label>E-mail</label>
+                    <input
+                      className="zunary-input"
+                      type="email"
+                      value={customerEmail}
+                      onChange={(event) => setCustomerEmail(event.target.value)}
+                      placeholder="seu@email.com"
+                    />
+                  </div>
+
+                  <div className="zunary-field">
+                    <label>Telefone</label>
+                    <input
+                      className="zunary-input"
+                      value={customerPhone}
+                      onChange={(event) => setCustomerPhone(event.target.value)}
+                      placeholder="(11) 99999-9999"
+                    />
+                  </div>
+                </div>
+
+                <div className="zunary-field">
+                  <label>Observações</label>
+                  <textarea
+                    className="zunary-textarea"
+                    value={notes}
+                    onChange={(event) => setNotes(event.target.value)}
+                    placeholder="Alguma observação para o atendimento?"
+                  />
+                </div>
+
+                <button
+                  className="zunary-button"
+                  type="submit"
+                  disabled={submitting}
+                >
+                  {submitting ? "Enviando..." : "Solicitar agendamento"}
+                </button>
+              </form>
+            </main>
+          </div>
+        )}
       </div>
     </div>
   );
