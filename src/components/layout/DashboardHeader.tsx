@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { signOut } from "../../lib/auth";
 
-export function DashboardHeader() {
+type DashboardHeaderProps = {
+  onOpenMenu?: () => void;
+};
+
+export function DashboardHeader({ onOpenMenu }: DashboardHeaderProps) {
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -12,9 +16,20 @@ export function DashboardHeader() {
 
   return (
     <header className="zunary-header">
-      <div>
-        <p>Painel da Zunary</p>
-        <span>Agendamentos simples para negócios organizados.</span>
+      <div className="zunary-header-left">
+        <button
+          className="zunary-mobile-menu-button"
+          type="button"
+          onClick={onOpenMenu}
+          aria-label="Abrir menu"
+        >
+          <Menu size={20} />
+        </button>
+
+        <div>
+          <p>Painel da Zunary</p>
+          <span>Agendamentos simples para negócios organizados.</span>
+        </div>
       </div>
 
       <button onClick={handleLogout} className="zunary-header-button">

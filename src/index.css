@@ -3996,3 +3996,156 @@ a {
     width: 100%;
   }
 }
+
+/* ========================= */
+/* MOBILE SIDEBAR / DRAWER */
+/* ========================= */
+
+.zunary-sidebar-mobile-top {
+  display: none;
+}
+
+.zunary-sidebar-close,
+.zunary-mobile-menu-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.zunary-mobile-menu-button {
+  display: none;
+}
+
+.zunary-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.zunary-sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  body.zunary-menu-open {
+    overflow: hidden;
+  }
+
+  .zunary-app {
+    display: block;
+    min-height: 100vh;
+  }
+
+  .zunary-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 80;
+    width: min(86vw, 320px);
+    height: 100vh;
+    transform: translateX(-105%);
+    transition: transform 0.22s ease;
+    border-radius: 0 24px 24px 0;
+    box-shadow: 24px 0 80px rgba(15, 23, 42, 0.22);
+    overflow-y: auto;
+  }
+
+  .zunary-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .zunary-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    border: 0;
+    background: rgba(15, 23, 42, 0.48);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+  }
+
+  .zunary-sidebar-mobile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .zunary-sidebar-brand-desktop {
+    display: none;
+  }
+
+  .zunary-sidebar-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    color: #0f172a;
+    background: #f8fafc;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .zunary-mobile-menu-button {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #0f172a;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .zunary-mobile-menu-button:hover,
+  .zunary-sidebar-close:hover {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+
+  .zunary-main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .zunary-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 12px 14px;
+    backdrop-filter: blur(16px);
+  }
+
+  .zunary-header-left > div {
+    min-width: 0;
+  }
+
+  .zunary-header-left p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .zunary-header-left span {
+    display: none;
+  }
+
+  .zunary-header-button {
+    padding: 10px 12px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .zunary-header-button {
+    font-size: 0;
+    gap: 0;
+  }
+
+  .zunary-header-button svg {
+    margin: 0;
+  }
+}

@@ -1,22 +1,35 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
+  Activity,
   Building2,
   CalendarDays,
+  ClipboardList,
   Clock,
   CreditCard,
   Home,
+  Receipt,
   Scissors,
-  ClipboardList,
   Settings,
   Shield,
-  Receipt,
-  Activity,
   Users,
+  X,
 } from "lucide-react";
 import { isCurrentUserAdmin } from "../../lib/admin";
 
-const baseItems = [
+type SidebarItem = {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+  adminOnly?: boolean;
+};
+
+type DashboardSidebarProps = {
+  isMobileOpen?: boolean;
+  onClose?: () => void;
+};
+
+const baseItems: SidebarItem[] = [
   {
     label: "Dashboard",
     href: "/dashboard",
@@ -47,6 +60,15 @@ const baseItems = [
     href: "/settings",
     icon: Settings,
   },
+];
+
+const adminItems: SidebarItem[] = [
+  {
+    label: "Admin",
+    href: "/admin",
+    icon: Shield,
+    adminOnly: true,
+  },
   {
     label: "Empresas",
     href: "/admin/companies",
@@ -71,16 +93,12 @@ const baseItems = [
     icon: Users,
     adminOnly: true,
   },
-
 ];
 
-const adminItem = {
-  label: "Admin",
-  href: "/admin",
-  icon: Shield,
-};
-
-export function DashboardSidebar() {
+export function DashboardSidebar({
+  isMobileOpen = false,
+  onClose,
+}: DashboardSidebarProps) {
   const location = useLocation();
 
   const [isAdmin, setIsAdmin] = useState(false);
@@ -96,15 +114,41 @@ export function DashboardSidebar() {
 
   const items = useMemo(() => {
     if (isAdmin) {
-      return [...baseItems, adminItem];
+      return [...baseItems, ...adminItems];
     }
 
     return baseItems;
   }, [isAdmin]);
 
   return (
-    <aside className="zunary-sidebar">
-      <div className="zunary-sidebar-brand">
+    <aside
+      className={
+        isMobileOpen ? "zunary-sidebar mobile-open" : "zunary-sidebar"
+      }
+    >
+      <div className="zunary-sidebar-mobile-top">
+        <div className="zunary-sidebar-brand">
+          <div className="zunary-sidebar-logo">
+            <ClipboardList size={22} />
+          </div>
+
+          <div>
+            <strong>Zunary</strong>
+            <span>Agendamentos simples</span>
+          </div>
+        </div>
+
+        <button
+          className="zunary-sidebar-close"
+          type="button"
+          onClick={onClose}
+          aria-label="Fechar menu"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="zunary-sidebar-brand zunary-sidebar-brand-desktop">
         <div className="zunary-sidebar-logo">
           <ClipboardList size={22} />
         </div>
@@ -118,13 +162,17 @@ export function DashboardSidebar() {
       <nav className="zunary-sidebar-nav">
         {items.map((item) => {
           const Icon = item.icon;
-          const active = location.pathname === item.href;
+          const active =
+            location.pathname === item.href ||
+            (item.href !== "/dashboard" &&
+              location.pathname.startsWith(`${item.href}/`));
 
           return (
             <Link
               key={item.href}
               to={item.href}
               className={active ? "active" : ""}
+              onClick={onClose}
             >
               <Icon size={18} />
               {item.label}
@@ -143,9 +191,7 @@ export function DashboardSidebar() {
       ) : (
         <div className="zunary-sidebar-box">
           <p>MVP Zunary</p>
-          <span>
-            Organize serviços, horários e agendamentos em um só lugar.
-          </span>
+          <span>Organize serviços, horários e agendamentos em um só lugar.</span>
         </div>
       )}
     </aside>
