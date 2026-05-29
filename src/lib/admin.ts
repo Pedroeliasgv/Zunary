@@ -84,3 +84,27 @@ export async function getAdminCompanies() {
 
   return data as AdminCompany[];
 }
+
+export type AdminSubscription = {
+  id: string;
+  company_id: string;
+  company_name: string | null;
+  plan_name: string | null;
+  status: string;
+  billing_status: string | null;
+  checkout_url: string | null;
+  next_due_date: string | null;
+  created_at: string;
+  asaas_subscription_id: string | null;
+  asaas_payment_id: string | null;
+};
+
+export async function getAdminSubscriptions() {
+  const { data, error } = await supabase.rpc("get_admin_subscriptions");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as AdminSubscription[];
+}

@@ -4,12 +4,13 @@ import {
   Building2,
   CalendarDays,
   Clock,
+  CreditCard,
   Home,
   Scissors,
   ClipboardList,
   Settings,
-  CreditCard,
   Shield,
+  Receipt,
 } from "lucide-react";
 import { isCurrentUserAdmin } from "../../lib/admin";
 
@@ -48,6 +49,12 @@ const baseItems = [
     label: "Empresas",
     href: "/admin/companies",
     icon: Building2,
+    adminOnly: true,
+  },
+  {
+    label: "Assinaturas",
+    href: "/admin/subscriptions",
+    icon: Receipt,
     adminOnly: true,
   },
 ];

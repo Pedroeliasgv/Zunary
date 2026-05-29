@@ -16,6 +16,7 @@ import { Services } from "./pages/Services";
 import { Settings } from "./pages/Settings";
 import { Admin } from "./pages/Admin";
 import { AdminCompanies } from "./pages/AdminCompanies";
+import { AdminSubscriptions } from "./pages/AdminSubscriptions";
 
 function ProtectedPage({ children }: { children: React.ReactNode }) {
   return (
@@ -128,6 +129,15 @@ export function App() {
         element={
           <ProtectedPage>
             <AdminCompanies />
+          </ProtectedPage>
+        }
+      />
+
+      <Route
+        path="/admin/subscriptions"
+        element={
+          <ProtectedPage>
+            <AdminSubscriptions />
           </ProtectedPage>
         }
       />
