@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ExternalLink, Search, Shield } from "lucide-react";
 import {
   getAdminSubscriptions,
@@ -187,6 +188,13 @@ export function AdminSubscriptions() {
                   {subscription.asaas_payment_id && (
                     <span>Asaas payment: {subscription.asaas_payment_id}</span>
                   )}
+
+                  <Link
+                    to={`/admin/companies/${subscription.company_id}`}
+                    className="zunary-admin-inline-link"
+                    >
+                    Ver empresa
+                    </Link>
 
                   {subscription.checkout_url && (
                     <a
