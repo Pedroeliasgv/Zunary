@@ -2151,3 +2151,63 @@ a {
   align-items: center;
   gap: 6px;
 }
+
+/* ========================= */
+/* ADMIN COMPANY DETAILS */
+/* ========================= */
+
+.zunary-admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.zunary-admin-details-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 18px;
+}
+
+.zunary-admin-details-list {
+  display: grid;
+  gap: 12px;
+}
+
+.zunary-admin-details-list > div {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 14px;
+  display: grid;
+  gap: 4px;
+}
+
+.zunary-admin-details-list span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-details-list strong {
+  color: #020617;
+  font-size: 14px;
+  font-weight: 900;
+  word-break: break-word;
+}
+
+@media (max-width: 900px) {
+  .zunary-admin-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-header-actions {
+    width: 100%;
+  }
+
+  .zunary-admin-header-actions .zunary-button {
+    width: 100%;
+  }
+}

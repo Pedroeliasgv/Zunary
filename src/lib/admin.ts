@@ -160,3 +160,72 @@ export async function adminUpdateUserRole(userId: string, role: "user" | "admin"
     throw new Error(error.message);
   }
 }
+
+export type AdminCompanyDetailsCompany = {
+  id: string;
+  name: string;
+  slug: string;
+  business_type: string | null;
+  description: string | null;
+  public_booking_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+  owner_name: string | null;
+  owner_email: string | null;
+  owner_role: string | null;
+};
+
+export type AdminCompanyDetailsSubscription = {
+  id: string;
+  status: string;
+  billing_status: string | null;
+  checkout_url: string | null;
+  next_due_date: string | null;
+  created_at: string;
+  updated_at: string;
+  asaas_subscription_id: string | null;
+  asaas_payment_id: string | null;
+  plan_name: string | null;
+};
+
+export type AdminCompanyDetailsService = {
+  id: string;
+  name: string;
+  description: string | null;
+  duration_minutes: number;
+  price: number;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type AdminCompanyDetailsAppointment = {
+  id: string;
+  appointment_date: string;
+  start_time: string;
+  end_time: string;
+  status: string;
+  created_at: string;
+  service_name: string | null;
+  customer_name: string | null;
+  customer_email: string | null;
+  customer_phone: string | null;
+};
+
+export type AdminCompanyDetails = {
+  company: AdminCompanyDetailsCompany | null;
+  subscription: AdminCompanyDetailsSubscription | null;
+  services: AdminCompanyDetailsService[];
+  appointments: AdminCompanyDetailsAppointment[];
+};
+
+export async function getAdminCompanyDetails(companyId: string) {
+  const { data, error } = await supabase.rpc("get_admin_company_details", {
+    target_company_id: companyId,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as AdminCompanyDetails;
+}

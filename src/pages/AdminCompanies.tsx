@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ExternalLink, Search, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   getAdminCompanies,
   isCurrentUserAdmin,
@@ -138,18 +139,25 @@ export function AdminCompanies() {
                 </div>
 
                 <div className="zunary-admin-company-actions">
-                  <time>{formatDateTime(company.created_at)}</time>
+                    <time>{formatDateTime(company.created_at)}</time>
 
-                  <a
-                    href={`/booking/${company.slug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="zunary-admin-inline-link"
-                  >
-                    <ExternalLink size={13} />
-                    Abrir página
-                  </a>
-                </div>
+                    <Link
+                        to={`/admin/companies/${company.id}`}
+                        className="zunary-admin-inline-link"
+                    >
+                        Ver detalhes
+                    </Link>
+
+                    <a
+                        href={`/booking/${company.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="zunary-admin-inline-link"
+                    >
+                        <ExternalLink size={13} />
+                        Abrir página
+                    </a>
+                    </div>
               </div>
             ))}
           </div>

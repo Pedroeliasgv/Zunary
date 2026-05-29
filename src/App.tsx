@@ -19,6 +19,7 @@ import { AdminCompanies } from "./pages/AdminCompanies";
 import { AdminSubscriptions } from "./pages/AdminSubscriptions";
 import { AdminEvents } from "./pages/AdminEvents";
 import { AdminUsers } from "./pages/AdminUsers";
+import { AdminCompanyDetails } from "./pages/AdminCompanyDetails";
 
 function ProtectedPage({ children }: { children: React.ReactNode }) {
   return (
@@ -158,6 +159,15 @@ export function App() {
         element={
           <ProtectedPage>
             <AdminUsers />
+          </ProtectedPage>
+        }
+      />
+
+      <Route
+        path="/admin/companies/:id"
+        element={
+          <ProtectedPage>
+            <AdminCompanyDetails />
           </ProtectedPage>
         }
       />
