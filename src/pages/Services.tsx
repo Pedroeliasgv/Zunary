@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { RefreshCw, Scissors, ShieldCheck, ToggleLeft } from "lucide-react";
 import { ServiceForm } from "../components/services/ServiceForm";
 import { ServicesList } from "../components/services/ServicesList";
 import { isCurrentUserAdmin } from "../lib/admin";
@@ -20,29 +21,40 @@ export function Services() {
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function loadData() {
-    setLoading(true);
+    try {
+      setLoading(true);
+      setErrorMessage("");
 
-    const [companyData, adminStatus] = await Promise.all([
-      getCurrentUserCompany(),
-      isCurrentUserAdmin(),
-    ]);
-
-    setCompany(companyData);
-    setIsAdmin(adminStatus);
-
-    if (companyData) {
-      const [servicesData, subscriptionData] = await Promise.all([
-        getServicesByCompany(companyData.id),
-        getCompanyActiveSubscription(companyData.id),
+      const [companyData, adminStatus] = await Promise.all([
+        getCurrentUserCompany(),
+        isCurrentUserAdmin(),
       ]);
 
-      setServices(servicesData);
-      setSubscription(subscriptionData);
-    }
+      setCompany(companyData);
+      setIsAdmin(adminStatus);
 
-    setLoading(false);
+      if (companyData) {
+        const [servicesData, subscriptionData] = await Promise.all([
+          getServicesByCompany(companyData.id),
+          getCompanyActiveSubscription(companyData.id),
+        ]);
+
+        setServices(servicesData);
+        setSubscription(subscriptionData);
+      } else {
+        setServices([]);
+        setSubscription(null);
+      }
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao carregar serviços."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -51,6 +63,10 @@ export function Services() {
 
   const activeServicesCount = useMemo(() => {
     return services.filter((service) => service.is_active).length;
+  }, [services]);
+
+  const inactiveServicesCount = useMemo(() => {
+    return services.filter((service) => !service.is_active).length;
   }, [services]);
 
   const planLimit = useMemo(() => {
@@ -65,7 +81,23 @@ export function Services() {
   }, [isAdmin, subscription, activeServicesCount]);
 
   if (loading) {
-    return <p className="zunary-muted-text">Carregando...</p>;
+    return <p className="zunary-muted-text">Carregando serviços...</p>;
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="zunary-page">
+        <div className="zunary-error">{errorMessage}</div>
+
+        <button
+          className="zunary-button zunary-button-secondary"
+          onClick={loadData}
+        >
+          <RefreshCw size={16} />
+          Tentar novamente
+        </button>
+      </div>
+    );
   }
 
   if (!company) {
@@ -82,7 +114,43 @@ export function Services() {
         <div>
           <span>Serviços</span>
           <h1>Serviços cadastrados</h1>
-          <p>Gerencie os serviços que seus clientes poderão agendar.</p>
+          <p>
+            Gerencie os serviços que seus clientes poderão escolher na página
+            pública de agendamento.
+          </p>
+        </div>
+
+        <button
+          className="zunary-button zunary-button-secondary"
+          onClick={loadData}
+        >
+          <RefreshCw size={16} />
+          Atualizar
+        </button>
+      </div>
+
+      <div className="zunary-services-overview">
+        <div>
+          <Scissors size={20} />
+          <span>Total de serviços</span>
+          <strong>{services.length}</strong>
+        </div>
+
+        <div>
+          <ShieldCheck size={20} />
+          <span>Ativos</span>
+          <strong>
+            {activeServicesCount}
+            {!isAdmin && subscription?.plans?.max_services
+              ? `/${subscription.plans.max_services}`
+              : ""}
+          </strong>
+        </div>
+
+        <div>
+          <ToggleLeft size={20} />
+          <span>Inativos</span>
+          <strong>{inactiveServicesCount}</strong>
         </div>
       </div>
 
@@ -121,11 +189,7 @@ export function Services() {
             </strong>
           </div>
 
-          {isAdmin && (
-            <div className="zunary-admin-badge">
-              Modo admin
-            </div>
-          )}
+          {isAdmin && <div className="zunary-admin-badge">Modo admin</div>}
 
           {!isAdmin && !subscription && (
             <Link to="/plans" className="zunary-button">

@@ -2996,3 +2996,144 @@ a {
     width: 100%;
   }
 }
+
+/* ========================= */
+/* SERVICES IMPROVED */
+/* ========================= */
+
+.zunary-services-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.zunary-services-overview > div {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 20px;
+  padding: 16px;
+  display: grid;
+  gap: 7px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.04);
+}
+
+.zunary-services-overview svg {
+  color: #2563eb;
+}
+
+.zunary-services-overview span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-services-overview strong {
+  color: #020617;
+  font-size: 28px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.zunary-services-section {
+  display: grid;
+  gap: 14px;
+}
+
+.zunary-services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.zunary-service-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.04);
+  display: grid;
+  gap: 14px;
+}
+
+.zunary-service-card.inactive {
+  background: #f1f5f9;
+  opacity: 0.82;
+}
+
+.zunary-service-card header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.zunary-service-card h3 {
+  margin: 8px 0 0;
+  color: #020617;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.zunary-service-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.zunary-service-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.zunary-service-meta div {
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #334155;
+  padding: 8px 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.zunary-service-meta svg {
+  color: #2563eb;
+}
+
+.zunary-service-card footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.zunary-service-card footer .zunary-button {
+  flex: 1;
+}
+
+@media (max-width: 900px) {
+  .zunary-services-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-services-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .zunary-service-card footer {
+    flex-direction: column;
+  }
+
+  .zunary-service-card footer .zunary-button {
+    width: 100%;
+  }
+}
