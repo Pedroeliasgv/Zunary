@@ -1,5 +1,14 @@
-import { useEffect, useState } from "react";
-import { Check, ExternalLink, RefreshCw, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  AlertTriangle,
+  Check,
+  CreditCard,
+  ExternalLink,
+  RefreshCw,
+  ShieldCheck,
+  Sparkles,
+  X,
+} from "lucide-react";
 import {
   cancelAsaasSubscription,
   createAsaasCheckout,
@@ -125,6 +134,10 @@ function getPlanFeatures(plan: Plan) {
   ];
 }
 
+function onlyNumbers(value: string) {
+  return value.replace(/\D/g, "");
+}
+
 export function Plans() {
   const [company, setCompany] = useState<Company | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -147,6 +160,10 @@ export function Plans() {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const billingEnvironment = import.meta.env.VITE_BILLING_ENV || "sandbox";
+  const isSandbox = billingEnvironment === "sandbox";
+  const isProduction = billingEnvironment === "production";
 
   async function loadPlansPage() {
     try {
@@ -191,14 +208,31 @@ export function Plans() {
     loadPlansPage();
   }, []);
 
+  const currentPlanId = subscription?.plan_id;
+  const hasPendingSubscription = Boolean(pendingSubscription);
+
+  const sortedPlans = useMemo(() => {
+    return [...plans].sort((a, b) => a.price_monthly - b.price_monthly);
+  }, [plans]);
+
   function openCheckoutForm(plan: Plan) {
+    if (!company) {
+      setErrorMessage("Crie uma empresa antes de escolher um plano.");
+      return;
+    }
+
+    if (hasPendingSubscription) {
+      setErrorMessage(
+        "Você já possui uma assinatura pendente. Abra o pagamento ou cancele a pendente antes de escolher outro plano."
+      );
+      return;
+    }
+
     setSelectedPlan(plan);
     setErrorMessage("");
     setSuccessMessage("");
 
-    if (company) {
-      setCustomerName(company.name);
-    }
+    setCustomerName(company.name);
   }
 
   function closeCheckoutForm() {
@@ -223,6 +257,23 @@ export function Plans() {
       return;
     }
 
+    if (!customerName.trim()) {
+      setErrorMessage("Informe o nome completo ou razão social.");
+      return;
+    }
+
+    if (!customerEmail.trim()) {
+      setErrorMessage("Informe o e-mail de cobrança.");
+      return;
+    }
+
+    const cleanCpfCnpj = onlyNumbers(customerCpfCnpj);
+
+    if (cleanCpfCnpj.length < 11) {
+      setErrorMessage("Informe um CPF ou CNPJ válido, somente números.");
+      return;
+    }
+
     try {
       setCreatingCheckout(true);
       setErrorMessage("");
@@ -231,14 +282,14 @@ export function Plans() {
       const checkout = await createAsaasCheckout({
         company_id: company.id,
         plan_id: selectedPlan.id,
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_cpf_cnpj: customerCpfCnpj,
-        customer_phone: customerPhone || undefined,
+        customer_name: customerName.trim(),
+        customer_email: customerEmail.trim(),
+        customer_cpf_cnpj: cleanCpfCnpj,
+        customer_phone: customerPhone ? onlyNumbers(customerPhone) : undefined,
       });
 
       setSuccessMessage(
-        `Assinatura do plano ${selectedPlan.name} criada no Asaas. Você será redirecionado para o pagamento.`
+        `Assinatura do plano ${selectedPlan.name} criada. Você será redirecionado para o pagamento.`
       );
 
       closeCheckoutForm();
@@ -328,7 +379,7 @@ export function Plans() {
   function handleOpenPayment(url?: string | null) {
     if (!url) {
       setErrorMessage(
-        "Link de pagamento não encontrado. Gere uma nova assinatura."
+        "Link de pagamento não encontrado. Cancele esta pendente e gere uma nova assinatura."
       );
       return;
     }
@@ -340,23 +391,49 @@ export function Plans() {
     return <p className="zunary-muted-text">Carregando planos...</p>;
   }
 
-  const currentPlanId = subscription?.plan_id;
+  if (!company) {
+    return (
+      <div className="zunary-page">
+        <div className="zunary-page-header">
+          <div>
+            <span>Planos</span>
+            <h1>Escolha um plano</h1>
+            <p>Antes de assinar, crie uma empresa no dashboard.</p>
+          </div>
+
+          <button
+            className="zunary-button zunary-button-secondary"
+            onClick={loadPlansPage}
+          >
+            <RefreshCw size={16} />
+            Atualizar
+          </button>
+        </div>
+
+        <div className="zunary-empty-card">
+          Crie uma empresa primeiro no dashboard para conseguir contratar um
+          plano.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="zunary-page">
       <div className="zunary-page-header">
         <div>
           <span>Planos</span>
-          <h1>Escolha o melhor plano</h1>
+          <h1>Assinatura da Zunary</h1>
           <p>
-            A escolha do plano cria uma assinatura real no Asaas em modo
-            sandbox.
+            Escolha um plano, pague pelo Asaas e aguarde a confirmação
+            automática pelo webhook.
           </p>
         </div>
 
         <button
           className="zunary-button zunary-button-secondary"
           onClick={loadPlansPage}
+          disabled={creatingCheckout || canceling}
         >
           <RefreshCw size={16} />
           Atualizar
@@ -369,37 +446,43 @@ export function Plans() {
         <div className="zunary-success">{successMessage}</div>
       )}
 
-      {import.meta.env.VITE_BILLING_ENV === "sandbox" && (
-      <div className="zunary-sandbox-alert">
-        <strong>Ambiente sandbox</strong>
-        <span>
-          Os pagamentos estão em modo de teste/homologação. Nenhuma cobrança real
-          será feita enquanto o Asaas estiver configurado como sandbox.
-        </span>
-      </div>
-    )}
+      {isSandbox && (
+        <div className="zunary-sandbox-alert">
+          <strong>Ambiente sandbox</strong>
+          <span>
+            Os pagamentos estão em modo de teste/homologação. Nenhuma cobrança
+            real será feita enquanto o Asaas estiver configurado como sandbox.
+          </span>
+        </div>
+      )}
 
-    {import.meta.env.VITE_BILLING_ENV === "production" && (
-      <div className="zunary-production-alert">
-        <strong>Ambiente de produção</strong>
-        <span>
-          Os pagamentos estão em modo real. Assinaturas criadas aqui podem gerar
-          cobranças reais para o cliente.
-        </span>
-      </div>
-    )}
+      {isProduction && (
+        <div className="zunary-production-alert">
+          <strong>Ambiente de produção</strong>
+          <span>
+            Os pagamentos estão em modo real. Assinaturas criadas aqui podem
+            gerar cobranças reais para o cliente.
+          </span>
+        </div>
+      )}
 
-      {subscription?.plans ? (
-        <div className="zunary-subscription-status-card">
-          <div>
-            <span>Plano atual</span>
-            <h2>{subscription.plans.name}</h2>
+      <div className="zunary-plans-status-grid">
+        <section className="zunary-plans-status-card">
+          <div className="zunary-plans-status-icon">
+            <CreditCard size={22} />
+          </div>
 
-            <p>
-              Sua empresa está usando este plano. Se cancelar, a página pública
-              de agendamento ficará indisponível.
-            </p>
+          <span>Plano atual</span>
 
+          <h2>{subscription?.plans?.name || "Sem plano ativo"}</h2>
+
+          <p>
+            {subscription?.plans
+              ? "Sua empresa possui uma assinatura ativa e paga."
+              : "Seu plano só será ativado quando o pagamento for confirmado pelo webhook do Asaas."}
+          </p>
+
+          {subscription?.plans && (
             <div className="zunary-subscription-badges">
               <strong className="zunary-status-pill paid">
                 {getSubscriptionStatusLabel(subscription.status)}
@@ -413,71 +496,76 @@ export function Plans() {
                 {getBillingStatusLabel(subscription.billing_status)}
               </strong>
             </div>
-          </div>
+          )}
 
-          <button
-            className="zunary-button zunary-button-danger"
-            onClick={() => handleCancelSubscription(subscription.id)}
-            disabled={canceling}
-          >
-            {canceling ? "Cancelando..." : "Cancelar plano"}
-          </button>
-        </div>
-      ) : (
-        <div className="zunary-plan-limit-alert">
-          <strong>Nenhum plano ativo</strong>
-          <span>
-            Escolha um plano para criar a assinatura no Asaas. O plano será
-            ativado quando o pagamento for confirmado pelo webhook.
-          </span>
-        </div>
-      )}
-
-      {pendingSubscription?.plans && (
-        <div className="zunary-pending-subscription-card">
-          <div>
-            <span>Assinatura pendente</span>
-            <h2>{pendingSubscription.plans.name}</h2>
-
-            <p>
-              Aguardando pagamento da assinatura. Vencimento:{" "}
-              <strong>{formatDate(pendingSubscription.next_due_date)}</strong>.
-            </p>
-
-            <div className="zunary-subscription-badges">
-              <strong className="zunary-status-pill pending">
-                {getSubscriptionStatusLabel(pendingSubscription.status)}
-              </strong>
-
-              <strong
-                className={`zunary-status-pill ${getBillingStatusClass(
-                  pendingSubscription.billing_status
-                )}`}
-              >
-                {getBillingStatusLabel(pendingSubscription.billing_status)}
-              </strong>
-            </div>
-          </div>
-
-          <div className="zunary-pending-actions">
+          {subscription?.plans && (
             <button
-              className="zunary-button"
-              onClick={() => handleOpenPayment(pendingSubscription.checkout_url)}
-            >
-              <ExternalLink size={16} />
-              Abrir pagamento
-            </button>
-
-            <button
-              className="zunary-button zunary-button-secondary"
-              onClick={handleCancelPendingSubscription}
+              className="zunary-button zunary-button-danger"
+              onClick={() => handleCancelSubscription(subscription.id)}
               disabled={canceling}
             >
-              {canceling ? "Cancelando..." : "Cancelar pendente"}
+              {canceling ? "Cancelando..." : "Cancelar plano"}
             </button>
+          )}
+        </section>
+
+        <section className="zunary-plans-status-card">
+          <div className="zunary-plans-status-icon warning">
+            <AlertTriangle size={22} />
           </div>
-        </div>
-      )}
+
+          <span>Assinatura pendente</span>
+
+          <h2>{pendingSubscription?.plans?.name || "Nenhuma pendente"}</h2>
+
+          <p>
+            {pendingSubscription?.plans
+              ? `Aguardando pagamento. Vencimento: ${formatDate(
+                  pendingSubscription.next_due_date
+                )}.`
+              : "Quando você escolher um plano, a cobrança pendente aparecerá aqui."}
+          </p>
+
+          {pendingSubscription?.plans && (
+            <>
+              <div className="zunary-subscription-badges">
+                <strong className="zunary-status-pill pending">
+                  {getSubscriptionStatusLabel(pendingSubscription.status)}
+                </strong>
+
+                <strong
+                  className={`zunary-status-pill ${getBillingStatusClass(
+                    pendingSubscription.billing_status
+                  )}`}
+                >
+                  {getBillingStatusLabel(pendingSubscription.billing_status)}
+                </strong>
+              </div>
+
+              <div className="zunary-pending-actions">
+                <button
+                  className="zunary-button"
+                  onClick={() =>
+                    handleOpenPayment(pendingSubscription.checkout_url)
+                  }
+                  disabled={canceling}
+                >
+                  <ExternalLink size={16} />
+                  Abrir pagamento
+                </button>
+
+                <button
+                  className="zunary-button zunary-button-secondary"
+                  onClick={handleCancelPendingSubscription}
+                  disabled={canceling}
+                >
+                  {canceling ? "Cancelando..." : "Cancelar pendente"}
+                </button>
+              </div>
+            </>
+          )}
+        </section>
+      </div>
 
       {selectedPlan && (
         <div className="zunary-card">
@@ -494,6 +582,7 @@ export function Plans() {
               className="zunary-icon-button"
               onClick={closeCheckoutForm}
               type="button"
+              disabled={creatingCheckout}
             >
               <X size={18} />
             </button>
@@ -509,6 +598,7 @@ export function Plans() {
                   onChange={(event) => setCustomerName(event.target.value)}
                   placeholder="Nome do pagador"
                   required
+                  disabled={creatingCheckout}
                 />
               </div>
 
@@ -521,6 +611,7 @@ export function Plans() {
                   onChange={(event) => setCustomerEmail(event.target.value)}
                   placeholder="email@exemplo.com"
                   required
+                  disabled={creatingCheckout}
                 />
               </div>
             </div>
@@ -534,6 +625,7 @@ export function Plans() {
                   onChange={(event) => setCustomerCpfCnpj(event.target.value)}
                   placeholder="Somente números"
                   required
+                  disabled={creatingCheckout}
                 />
               </div>
 
@@ -544,16 +636,16 @@ export function Plans() {
                   value={customerPhone}
                   onChange={(event) => setCustomerPhone(event.target.value)}
                   placeholder="11999999999"
+                  disabled={creatingCheckout}
                 />
               </div>
             </div>
 
             <div className="zunary-plan-limit-alert">
-              <strong>Ambiente sandbox</strong>
+              <strong>Ativação via webhook</strong>
               <span>
-                Esta etapa cria a assinatura no Asaas. A ativação do plano
-                acontece quando o Asaas enviar o webhook de pagamento recebido ou
-                confirmado.
+                A assinatura será criada no Asaas, mas o plano só será ativado
+                após o Asaas enviar o evento de pagamento recebido ou confirmado.
               </span>
             </div>
 
@@ -562,16 +654,18 @@ export function Plans() {
               type="submit"
               disabled={creatingCheckout}
             >
-              {creatingCheckout ? "Criando assinatura..." : "Continuar"}
+              {creatingCheckout ? "Criando assinatura..." : "Criar assinatura"}
             </button>
           </form>
         </div>
       )}
 
       <div className="zunary-plans-grid">
-        {plans.map((plan) => {
+        {sortedPlans.map((plan) => {
           const isCurrentPlan = currentPlanId === plan.id;
           const isFeatured = plan.slug === "pro";
+          const disabled =
+            isCurrentPlan || creatingCheckout || canceling || hasPendingSubscription;
 
           return (
             <div
@@ -605,9 +699,13 @@ export function Plans() {
                     : "zunary-button"
                 }
                 onClick={() => openCheckoutForm(plan)}
-                disabled={isCurrentPlan}
+                disabled={disabled}
               >
-                {isCurrentPlan ? "Plano atual" : "Escolher plano"}
+                {isCurrentPlan
+                  ? "Plano atual"
+                  : hasPendingSubscription
+                  ? "Pendente em aberto"
+                  : "Escolher plano"}
               </button>
 
               <div className="zunary-plan-features">
@@ -621,6 +719,36 @@ export function Plans() {
             </div>
           );
         })}
+      </div>
+
+      <div className="zunary-card">
+        <div className="zunary-card-header">
+          <h2>Como a ativação funciona</h2>
+          <p>
+            O plano não é ativado manualmente. Ele depende da confirmação de
+            pagamento enviada pelo webhook do Asaas.
+          </p>
+        </div>
+
+        <div className="zunary-billing-flow">
+          <div>
+            <Sparkles size={18} />
+            <strong>1. Escolha o plano</strong>
+            <span>A Zunary cria uma assinatura no Asaas.</span>
+          </div>
+
+          <div>
+            <CreditCard size={18} />
+            <strong>2. Pague a cobrança</strong>
+            <span>O cliente conclui o pagamento no link do Asaas.</span>
+          </div>
+
+          <div>
+            <ShieldCheck size={18} />
+            <strong>3. Webhook ativa</strong>
+            <span>O plano fica ativo quando o evento chega na Zunary.</span>
+          </div>
+        </div>
       </div>
 
       <div className="zunary-card">
@@ -647,16 +775,6 @@ export function Plans() {
             ))}
           </div>
         )}
-      </div>
-
-      <div className="zunary-card">
-        <div className="zunary-card-header">
-          <h2>Observação importante</h2>
-          <p>
-            A assinatura é criada no Asaas, mas o plano só será ativado após
-            confirmação de pagamento pelo webhook.
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -3478,3 +3478,99 @@ a {
     width: 100%;
   }
 }
+
+/* ========================= */
+/* PLANS PROFESSIONAL */
+/* ========================= */
+
+.zunary-plans-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.zunary-plans-status-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 24px;
+  padding: 20px;
+  display: grid;
+  gap: 12px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.05);
+}
+
+.zunary-plans-status-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: grid;
+  place-items: center;
+}
+
+.zunary-plans-status-icon.warning {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.zunary-plans-status-card > span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-plans-status-card h2 {
+  margin: 0;
+  color: #020617;
+  font-size: 26px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.zunary-plans-status-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.zunary-billing-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.zunary-billing-flow div {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 16px;
+  display: grid;
+  gap: 7px;
+}
+
+.zunary-billing-flow svg {
+  color: #2563eb;
+}
+
+.zunary-billing-flow strong {
+  color: #020617;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.zunary-billing-flow span {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+  .zunary-plans-status-grid,
+  .zunary-billing-flow {
+    grid-template-columns: 1fr;
+  }
+}
