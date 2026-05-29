@@ -149,3 +149,14 @@ export async function getAdminUsers() {
 
   return data as AdminUser[];
 }
+
+export async function adminUpdateUserRole(userId: string, role: "user" | "admin") {
+  const { error } = await supabase.rpc("admin_update_user_role", {
+    target_user_id: userId,
+    target_role: role,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

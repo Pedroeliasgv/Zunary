@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search, Shield, Users } from "lucide-react";
 import {
+  adminUpdateUserRole,
   getAdminUsers,
   isCurrentUserAdmin,
   type AdminUser,
@@ -28,6 +29,8 @@ export function AdminUsers() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
 
   async function loadUsers() {
     try {
@@ -37,7 +40,10 @@ export function AdminUsers() {
       const adminStatus = await isCurrentUserAdmin();
       setAdmin(adminStatus);
 
-      if (!adminStatus) return;
+      if (!adminStatus) {
+        setUsers([]);
+        return;
+      }
 
       const data = await getAdminUsers();
       setUsers(data);
@@ -53,6 +59,42 @@ export function AdminUsers() {
   useEffect(() => {
     loadUsers();
   }, []);
+
+  async function handleToggleRole(user: AdminUser) {
+    const nextRole = user.role === "admin" ? "user" : "admin";
+
+    const confirmed = window.confirm(
+      `Tem certeza que deseja alterar ${
+        user.email || "este usuário"
+      } para ${getRoleLabel(nextRole)}?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setUpdatingUserId(user.id);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      await adminUpdateUserRole(user.id, nextRole);
+
+      setSuccessMessage(
+        `${user.email || "Usuário"} alterado para ${getRoleLabel(
+          nextRole
+        )} com sucesso.`
+      );
+
+      await loadUsers();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao alterar tipo de usuário."
+      );
+    } finally {
+      setUpdatingUserId(null);
+    }
+  }
 
   const filteredUsers = users.filter((user) => {
     const value = search.trim().toLowerCase();
@@ -85,10 +127,6 @@ export function AdminUsers() {
     );
   }
 
-  if (errorMessage) {
-    return <div className="zunary-error">{errorMessage}</div>;
-  }
-
   return (
     <div className="zunary-page">
       <div className="zunary-page-header">
@@ -101,10 +139,17 @@ export function AdminUsers() {
         <button
           className="zunary-button zunary-button-secondary"
           onClick={loadUsers}
+          disabled={Boolean(updatingUserId)}
         >
           Atualizar
         </button>
       </div>
+
+      {errorMessage && <div className="zunary-error">{errorMessage}</div>}
+
+      {successMessage && (
+        <div className="zunary-success">{successMessage}</div>
+      )}
 
       <div className="zunary-card">
         <div className="zunary-admin-toolbar">
@@ -149,6 +194,18 @@ export function AdminUsers() {
                     <Users size={13} />
                     {getRoleLabel(user.role)}
                   </div>
+
+                  <button
+                    className="zunary-button zunary-button-secondary"
+                    onClick={() => handleToggleRole(user)}
+                    disabled={updatingUserId === user.id}
+                  >
+                    {updatingUserId === user.id
+                      ? "Alterando..."
+                      : user.role === "admin"
+                      ? "Tornar usuário"
+                      : "Tornar admin"}
+                  </button>
 
                   <time>{formatDateTime(user.created_at)}</time>
                 </div>
