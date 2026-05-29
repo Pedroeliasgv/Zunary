@@ -60,13 +60,28 @@ serve(async (req) => {
       return jsonResponse({ error: "Usuário não autenticado." }, 401);
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
-      global: {
-        headers: {
-          Authorization: authorizationHeader,
-        },
-      },
-    });
+    const userToken = authorizationHeader.replace("Bearer ", "");
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseAdmin.auth.getUser(userToken);
+
+    if (userError || !user) {
+      return jsonResponse({ error: "Usuário não autenticado." }, 401);
+    }
+
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("id, role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile || profile.role !== "admin") {
+      return jsonResponse({ error: "Acesso negado." }, 403);
+    }
 
     const { company_id, subscription_id } = (await req.json()) as RequestBody;
 
@@ -77,24 +92,7 @@ serve(async (req) => {
       );
     }
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return jsonResponse({ error: "Usuário não autenticado." }, 401);
-    }
-
-    const { data: adminStatus, error: adminError } = await supabase.rpc(
-      "is_admin"
-    );
-
-    if (adminError || !adminStatus) {
-      return jsonResponse({ error: "Acesso negado." }, 403);
-    }
-
-    const { data: subscription, error: subscriptionError } = await supabase
+    const { data: subscription, error: subscriptionError } = await supabaseAdmin
       .from("company_subscriptions")
       .select("*")
       .eq("id", subscription_id)
@@ -112,17 +110,29 @@ serve(async (req) => {
       );
     }
 
-    const { data: updatedSubscription, error: updateError } = await supabase
-      .from("company_subscriptions")
-      .update({
-        status: "active",
-        billing_status: "paid",
-        ends_at: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", subscription.id)
-      .select("*")
-      .single();
+    if (
+      subscription.status === "active" &&
+      subscription.billing_status === "paid"
+    ) {
+      return jsonResponse({
+        success: true,
+        message: "Assinatura já está ativa e paga.",
+        subscription,
+      });
+    }
+
+    const { data: updatedSubscription, error: updateError } =
+      await supabaseAdmin
+        .from("company_subscriptions")
+        .update({
+          status: "active",
+          billing_status: "paid",
+          ends_at: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", subscription.id)
+        .select("*")
+        .single();
 
     if (updateError) {
       return jsonResponse(
@@ -134,7 +144,7 @@ serve(async (req) => {
       );
     }
 
-    await supabase.from("billing_events").insert({
+    await supabaseAdmin.from("billing_events").insert({
       company_id,
       company_subscription_id: subscription.id,
       provider: "asaas",
@@ -147,6 +157,7 @@ serve(async (req) => {
         action: "simulate_payment",
         environment: "sandbox",
         local_subscription_id: subscription.id,
+        simulated_by_user_id: user.id,
       },
     });
 
