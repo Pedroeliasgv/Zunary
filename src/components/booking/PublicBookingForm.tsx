@@ -63,6 +63,17 @@ function formatDateLabel(date?: string) {
   }).format(new Date(`${date}T00:00:00`));
 }
 
+function formatLongDateLabel(date?: string) {
+  if (!date) return "-";
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${date}T00:00:00`));
+}
+
 function timeToMinutes(time: string) {
   const [hours, minutes] = time.split(":").map(Number);
   return hours * 60 + minutes;
@@ -117,12 +128,12 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
   const [submitting, setSubmitting] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [confirmedAppointment, setConfirmedAppointment] = useState<{
     serviceName: string;
     date: string;
     startTime: string;
     endTime: string;
+    customerName: string;
   } | null>(null);
 
   const [publicErrorReason, setPublicErrorReason] =
@@ -132,7 +143,6 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
     try {
       setLoading(true);
       setErrorMessage("");
-      setSuccessMessage("");
       setPublicErrorReason(undefined);
       setConfirmedAppointment(null);
 
@@ -188,6 +198,22 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
       setBookedTimes([]);
     } finally {
       setLoadingTimes(false);
+    }
+  }
+
+  function resetFormForAnotherAppointment() {
+    setConfirmedAppointment(null);
+    setErrorMessage("");
+    setCustomerName("");
+    setCustomerEmail("");
+    setCustomerPhone("");
+    setAppointmentDate("");
+    setStartTime("");
+    setNotes("");
+    setBookedTimes([]);
+
+    if (services.length > 0) {
+      setServiceId(services[0].id);
     }
   }
 
@@ -274,7 +300,6 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
     try {
       setSubmitting(true);
       setErrorMessage("");
-      setSuccessMessage("");
       setConfirmedAppointment(null);
 
       const endTime = addMinutesToTime(
@@ -285,13 +310,13 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
       await createPublicAppointment({
         company_id: company.id,
         service_id: selectedService.id,
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
+        customer_name: customerName.trim(),
+        customer_email: customerEmail.trim(),
+        customer_phone: customerPhone.trim(),
         appointment_date: appointmentDate,
         start_time: startTime,
         end_time: endTime,
-        notes,
+        notes: notes.trim(),
       });
 
       setConfirmedAppointment({
@@ -299,9 +324,8 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
         date: appointmentDate,
         startTime,
         endTime,
+        customerName: customerName.trim(),
       });
-
-      setSuccessMessage("Agendamento solicitado com sucesso.");
 
       setCustomerName("");
       setCustomerEmail("");
@@ -312,25 +336,25 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
       setBookedTimes([]);
     } catch (error) {
       const message =
-    error instanceof Error ? error.message : "Erro ao criar agendamento.";
+        error instanceof Error ? error.message : "Erro ao criar agendamento.";
 
-    if (
-      message.toLowerCase().includes("duplicate") ||
-      message.toLowerCase().includes("unique") ||
-      message.toLowerCase().includes("unique_company_appointment_time_active")
-    ) {
-      setErrorMessage(
-        "Este horário acabou de ser reservado por outra pessoa. Escolha outro horário."
-      );
+      if (
+        message.toLowerCase().includes("duplicate") ||
+        message.toLowerCase().includes("unique") ||
+        message.toLowerCase().includes("unique_company_appointment_time_active")
+      ) {
+        setErrorMessage(
+          "Este horário acabou de ser reservado por outra pessoa. Escolha outro horário."
+        );
 
-      if (company && appointmentDate) {
-        await loadBookedTimes(company.id, appointmentDate);
+        if (company && appointmentDate) {
+          await loadBookedTimes(company.id, appointmentDate);
+        }
+
+        return;
       }
 
-      return;
-    }
-
-    setErrorMessage(message);
+      setErrorMessage(message);
     } finally {
       setSubmitting(false);
     }
@@ -365,6 +389,67 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
     );
   }
 
+  if (confirmedAppointment) {
+    return (
+      <div className="zunary-booking-page">
+        <div className="zunary-public-minimal-container">
+          <header className="zunary-public-minimal-header">
+            <span>Agendamento online</span>
+            <h1>{company.name}</h1>
+          </header>
+
+          <div className="zunary-public-success-screen">
+            <div className="zunary-public-success-icon">
+              <CheckCircle2 size={34} />
+            </div>
+
+            <span>Solicitação enviada</span>
+
+            <h2>Agendamento solicitado com sucesso</h2>
+
+            <p>
+              {confirmedAppointment.customerName}, sua solicitação foi enviada
+              para a empresa. Aguarde a confirmação do atendimento.
+            </p>
+
+            <div className="zunary-public-success-summary">
+              <div>
+                <span>Serviço</span>
+                <strong>{confirmedAppointment.serviceName}</strong>
+              </div>
+
+              <div>
+                <span>Data</span>
+                <strong>{formatLongDateLabel(confirmedAppointment.date)}</strong>
+              </div>
+
+              <div>
+                <span>Horário</span>
+                <strong>
+                  {confirmedAppointment.startTime} até{" "}
+                  {confirmedAppointment.endTime}
+                </strong>
+              </div>
+
+              <div>
+                <span>Status</span>
+                <strong>Aguardando confirmação</strong>
+              </div>
+            </div>
+
+            <button
+              className="zunary-button"
+              type="button"
+              onClick={resetFormForAnotherAppointment}
+            >
+              Fazer outro agendamento
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="zunary-booking-page">
       <div className="zunary-public-minimal-container">
@@ -376,22 +461,6 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
         </header>
 
         {errorMessage && <div className="zunary-error">{errorMessage}</div>}
-
-        {successMessage && confirmedAppointment && (
-          <div className="zunary-public-minimal-success">
-            <CheckCircle2 size={22} />
-
-            <div>
-              <strong>{successMessage}</strong>
-              <span>
-                {confirmedAppointment.serviceName} •{" "}
-                {formatDateLabel(confirmedAppointment.date)} •{" "}
-                {confirmedAppointment.startTime} até{" "}
-                {confirmedAppointment.endTime}
-              </span>
-            </div>
-          </div>
-        )}
 
         {services.length === 0 ? (
           <div className="zunary-public-minimal-card center">

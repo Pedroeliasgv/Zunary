@@ -80,39 +80,23 @@ export async function getBookedTimesByCompanyAndDate(
 }
 
 export async function createPublicAppointment(data: CreateAppointmentData) {
-  const { data: customer, error: customerError } = await supabase
-    .from("customers")
-    .insert({
-      company_id: data.company_id,
-      name: data.customer_name,
-      email: data.customer_email || null,
-      phone: data.customer_phone || null,
-    })
-    .select("*")
-    .single();
+  const { data: appointment, error } = await supabase.rpc(
+    "create_public_appointment",
+    {
+      target_company_id: data.company_id,
+      target_service_id: data.service_id,
+      target_customer_name: data.customer_name,
+      target_customer_email: data.customer_email || "",
+      target_customer_phone: data.customer_phone || "",
+      target_appointment_date: data.appointment_date,
+      target_start_time: data.start_time,
+      target_end_time: data.end_time,
+      target_notes: data.notes || "",
+    }
+  );
 
-  if (customerError) {
-    throw new Error(customerError.message);
-  }
-
-  const { data: appointment, error: appointmentError } = await supabase
-    .from("appointments")
-    .insert({
-      company_id: data.company_id,
-      service_id: data.service_id,
-      customer_id: customer.id,
-      appointment_date: data.appointment_date,
-      start_time: data.start_time,
-      end_time: data.end_time,
-      status: "pending",
-      notes: data.notes || null,
-      cancellation_reason: null,
-    })
-    .select("*")
-    .single();
-
-  if (appointmentError) {
-    throw new Error(appointmentError.message);
+  if (error) {
+    throw new Error(error.message);
   }
 
   return appointment;

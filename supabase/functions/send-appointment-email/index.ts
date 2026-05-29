@@ -273,22 +273,23 @@ serve(async (req) => {
     }
 
     const authorizationHeader = req.headers.get("Authorization");
-
-    if (!authorizationHeader) {
-      return jsonResponse({ error: "Usuário não autenticado." }, 401);
-    }
-
-    const userToken = authorizationHeader.replace("Bearer ", "");
-
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseAdmin.auth.getUser(userToken);
+    let user: { id: string } | null = null;
 
-    if (userError || !user) {
-      return jsonResponse({ error: "Usuário não autenticado." }, 401);
+    if (authorizationHeader) {
+      const userToken = authorizationHeader.replace("Bearer ", "");
+
+      const {
+        data: { user: authenticatedUser },
+        error: userError,
+      } = await supabaseAdmin.auth.getUser(userToken);
+
+      if (userError || !authenticatedUser) {
+        return jsonResponse({ error: "Usuário não autenticado." }, 401);
+      }
+
+      user = authenticatedUser;
     }
 
     const { appointment_id, type } = (await req.json()) as RequestBody;
@@ -331,16 +332,23 @@ serve(async (req) => {
       return jsonResponse({ error: "Agendamento não encontrado." }, 404);
     }
 
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("id, email, role")
-      .eq("id", user.id)
-      .single();
+    let profile: { id: string; email: string | null; role: string | null } | null =
+      null;
+
+    if (user) {
+      const { data: profileData } = await supabaseAdmin
+        .from("profiles")
+        .select("id, email, role")
+        .eq("id", user.id)
+        .single();
+
+      profile = profileData;
+    }
 
     const isAdmin = profile?.role === "admin";
-    const isOwner = appointment.companies?.owner_id === user.id;
+    const isOwner = user ? appointment.companies?.owner_id === user.id : false;
 
-    if (!isAdmin && !isOwner) {
+    if (type !== "created" && !isAdmin && !isOwner) {
       return jsonResponse(
         { error: "Você não tem permissão para enviar esta notificação." },
         403
@@ -350,7 +358,18 @@ serve(async (req) => {
     const companyName = appointment.companies?.name || "Empresa";
     const customerName = appointment.customers?.name || "Cliente";
     const customerEmail = appointment.customers?.email || null;
-    const ownerEmail = profile?.email || null;
+    
+    let ownerEmail = profile?.email || null;
+
+      if (!ownerEmail && appointment.companies?.owner_id) {
+        const { data: ownerProfile } = await supabaseAdmin
+          .from("profiles")
+          .select("email")
+          .eq("id", appointment.companies.owner_id)
+          .single();
+
+        ownerEmail = ownerProfile?.email || null;
+      }
     const serviceName = appointment.services?.name || "Serviço";
 
     const content = buildEmailContent({
@@ -383,6 +402,20 @@ serve(async (req) => {
     }
 
     if (recipients.length === 0) {
+      await supabaseAdmin.from("email_events").insert({
+        company_id: appointment.companies?.id || null,
+        appointment_id,
+        event_type: type,
+        recipient_email: null,
+        status: "skipped",
+        provider: "resend",
+        error_message: "Nenhum destinatário encontrado.",
+        payload: {
+          type,
+          reason: "missing_recipient",
+        },
+      });
+
       return jsonResponse({
         success: true,
         skipped: true,
@@ -392,17 +425,49 @@ serve(async (req) => {
 
     const sentEmails = [];
 
-    for (const recipient of recipients) {
-      const sent = await sendEmail({
-        resendApiKey,
-        from: mailFrom,
-        to: recipient,
-        subject: content.subject,
-        html,
-      });
+for (const recipient of recipients) {
+  try {
+    const sent = await sendEmail({
+      resendApiKey,
+      from: mailFrom,
+      to: recipient,
+      subject: content.subject,
+      html,
+    });
 
-      sentEmails.push(sent);
-    }
+    await supabaseAdmin.from("email_events").insert({
+      company_id: appointment.companies?.id || null,
+      appointment_id,
+      event_type: type,
+      recipient_email: recipient,
+      status: "sent",
+      provider: "resend",
+      provider_message_id: sent?.id || null,
+      payload: sent,
+    });
+
+    sentEmails.push(sent);
+  } catch (emailError) {
+    await supabaseAdmin.from("email_events").insert({
+      company_id: appointment.companies?.id || null,
+      appointment_id,
+      event_type: type,
+      recipient_email: recipient,
+      status: "failed",
+      provider: "resend",
+      error_message:
+        emailError instanceof Error
+          ? emailError.message
+          : "Erro desconhecido ao enviar e-mail.",
+      payload: {
+        type,
+        recipient,
+      },
+    });
+
+    throw emailError;
+  }
+}
 
     return jsonResponse({
       success: true,
