@@ -1,5 +1,13 @@
-import { useEffect, useState } from "react";
-import { Save } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Check,
+  Copy,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  Save,
+} from "lucide-react";
 import { BUSINESS_TYPES } from "../constants/business-types";
 import { getCurrentUserCompany, updateCompany } from "../lib/company";
 import { slugify } from "../lib/utils";
@@ -16,12 +24,15 @@ export function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   async function loadCompany() {
     try {
       setLoading(true);
+      setErrorMessage("");
+      setSuccessMessage("");
 
       const data = await getCurrentUserCompany();
 
@@ -46,10 +57,51 @@ export function Settings() {
     loadCompany();
   }, []);
 
+  const generatedSlug = useMemo(() => {
+    return slugify(name);
+  }, [name]);
+
+  const currentPublicBookingPath = company ? `/booking/${company.slug}` : "";
+  const newPublicBookingPath = `/booking/${generatedSlug}`;
+
+  const currentPublicBookingUrl =
+    company && typeof window !== "undefined"
+      ? `${window.location.origin}${currentPublicBookingPath}`
+      : "";
+
+  const newPublicBookingUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}${newPublicBookingPath}`
+      : "";
+
+  const slugWillChange = Boolean(company) && generatedSlug !== company?.slug;
+
+  async function handleCopyPublicLink() {
+    if (!currentPublicBookingUrl) return;
+
+    await navigator.clipboard.writeText(currentPublicBookingUrl);
+
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 1800);
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!company) return;
+
+    if (!name.trim()) {
+      setErrorMessage("Informe o nome da empresa.");
+      return;
+    }
+
+    if (!generatedSlug) {
+      setErrorMessage("O nome da empresa precisa gerar um link válido.");
+      return;
+    }
 
     try {
       setSaving(true);
@@ -57,10 +109,10 @@ export function Settings() {
       setSuccessMessage("");
 
       await updateCompany(company.id, {
-        name,
-        slug: slugify(name),
+        name: name.trim(),
+        slug: generatedSlug,
         business_type: businessType,
-        description: description || null,
+        description: description.trim() || null,
         public_booking_enabled: publicBookingEnabled,
       });
 
@@ -81,6 +133,22 @@ export function Settings() {
     return <p className="zunary-muted-text">Carregando configurações...</p>;
   }
 
+  if (errorMessage && !company) {
+    return (
+      <div className="zunary-page">
+        <div className="zunary-error">{errorMessage}</div>
+
+        <button
+          className="zunary-button zunary-button-secondary"
+          onClick={loadCompany}
+        >
+          <RefreshCw size={16} />
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
   if (!company) {
     return (
       <div className="zunary-empty-card">
@@ -89,108 +157,196 @@ export function Settings() {
     );
   }
 
-  const publicBookingPath = `/booking/${company.slug}`;
-
   return (
     <div className="zunary-page">
       <div className="zunary-page-header">
         <div>
           <span>Configurações</span>
           <h1>Empresa</h1>
-          <p>Edite as informações principais da sua empresa.</p>
-        </div>
-      </div>
-
-      <div className="zunary-card">
-        <div className="zunary-card-header">
-          <h2>Dados da empresa</h2>
           <p>
-            Essas informações aparecem na página pública de agendamento.
+            Controle os dados públicos, o link de agendamento e a visibilidade
+            da sua empresa.
           </p>
         </div>
 
-        {errorMessage && <div className="zunary-error">{errorMessage}</div>}
-        {successMessage && (
-          <div className="zunary-success">{successMessage}</div>
-        )}
+        <button
+          className="zunary-button zunary-button-secondary"
+          onClick={loadCompany}
+          disabled={saving}
+        >
+          <RefreshCw size={16} />
+          Atualizar
+        </button>
+      </div>
 
-        <form onSubmit={handleSubmit} className="zunary-form">
-          <div className="zunary-field">
-            <label>Nome da empresa</label>
-            <input
-              className="zunary-input"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Nome da empresa"
-              required
-            />
+      {errorMessage && <div className="zunary-error">{errorMessage}</div>}
 
-            <p className="zunary-help-text">
-              Novo link público: /booking/{slugify(name)}
+      {successMessage && (
+        <div className="zunary-success">{successMessage}</div>
+      )}
+
+      <div className="zunary-settings-grid">
+        <section className="zunary-card">
+          <div className="zunary-card-header">
+            <h2>Dados públicos</h2>
+            <p>
+              Essas informações aparecem para seus clientes na página pública de
+              agendamento.
             </p>
           </div>
 
-          <div className="zunary-field">
-            <label>Tipo de negócio</label>
-            <select
-              className="zunary-select"
-              value={businessType}
-              onChange={(event) => setBusinessType(event.target.value)}
-            >
-              {BUSINESS_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
+          <form onSubmit={handleSubmit} className="zunary-form">
+            <div className="zunary-field">
+              <label>Nome da empresa</label>
+              <input
+                className="zunary-input"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Nome da empresa"
+                required
+              />
 
-          <div className="zunary-field">
-            <label>Descrição</label>
-            <textarea
-              className="zunary-textarea"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Descrição curta da empresa"
-            />
-          </div>
-
-          <label className="zunary-toggle-row">
-            <div>
-              <strong>Página pública de agendamento</strong>
-              <span>
-                Quando estiver desativada, clientes não conseguirão acessar o
-                link público.
-              </span>
+              <p className="zunary-help-text">
+                Novo link: /booking/{generatedSlug || "nome-da-empresa"}
+              </p>
             </div>
 
-            <input
-              type="checkbox"
-              checked={publicBookingEnabled}
-              onChange={(event) =>
-                setPublicBookingEnabled(event.target.checked)
-              }
-            />
-          </label>
+            <div className="zunary-field">
+              <label>Tipo de negócio</label>
+              <select
+                className="zunary-select"
+                value={businessType}
+                onChange={(event) => setBusinessType(event.target.value)}
+              >
+                {BUSINESS_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className="zunary-link-box">
-            <span>{window.location.origin}{publicBookingPath}</span>
+            <div className="zunary-field">
+              <label>Descrição pública</label>
+              <textarea
+                className="zunary-textarea"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder="Descrição curta da empresa"
+              />
+            </div>
 
-            <a
-              className="zunary-button"
-              href={publicBookingPath}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Abrir página
-            </a>
+            <button className="zunary-button" type="submit" disabled={saving}>
+              <Save size={16} />
+              {saving ? "Salvando..." : "Salvar alterações"}
+            </button>
+          </form>
+        </section>
+
+        <aside className="zunary-settings-side">
+          <div
+            className={
+              publicBookingEnabled
+                ? "zunary-settings-status-card active"
+                : "zunary-settings-status-card inactive"
+            }
+          >
+            <div>
+              {publicBookingEnabled ? <Eye size={20} /> : <EyeOff size={20} />}
+
+              <span>Página pública</span>
+            </div>
+
+            <strong>{publicBookingEnabled ? "Ativa" : "Desativada"}</strong>
+
+            <p>
+              {publicBookingEnabled
+                ? "Clientes podem acessar seu link público e solicitar agendamentos."
+                : "Clientes não conseguirão acessar sua página pública de agendamento."}
+            </p>
           </div>
 
-          <button className="zunary-button" type="submit" disabled={saving}>
-            <Save size={16} />
-            {saving ? "Salvando..." : "Salvar configurações"}
-          </button>
-        </form>
+          <div className="zunary-card">
+            <div className="zunary-card-header">
+              <h2>Link público</h2>
+              <p>Compartilhe este endereço com seus clientes.</p>
+            </div>
+
+            <div className="zunary-settings-link-preview">
+              <span>Link atual</span>
+              <strong>{currentPublicBookingPath}</strong>
+            </div>
+
+            {slugWillChange && (
+              <div className="zunary-settings-link-warning">
+                <strong>O link será alterado ao salvar</strong>
+                <span>{newPublicBookingUrl}</span>
+              </div>
+            )}
+
+            <div className="zunary-settings-actions">
+              <button
+                className="zunary-button zunary-button-secondary"
+                onClick={handleCopyPublicLink}
+                type="button"
+              >
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+                {copied ? "Copiado" : "Copiar link"}
+              </button>
+
+              <a
+                className="zunary-button"
+                href={currentPublicBookingPath}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <ExternalLink size={16} />
+                Abrir página
+              </a>
+            </div>
+          </div>
+
+          <div className="zunary-card">
+            <div className="zunary-card-header">
+              <h2>Publicação</h2>
+              <p>Controle se sua página pública pode receber visitantes.</p>
+            </div>
+
+            <label className="zunary-settings-toggle">
+              <div>
+                <strong>Receber agendamentos</strong>
+                <span>
+                  Ative ou desative o acesso público ao link de agendamento.
+                </span>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={publicBookingEnabled}
+                onChange={(event) =>
+                  setPublicBookingEnabled(event.target.checked)
+                }
+              />
+            </label>
+
+            {!publicBookingEnabled && (
+              <div className="zunary-settings-danger-note">
+                Sua página pública ficará indisponível até você ativar novamente
+                e salvar as configurações.
+              </div>
+            )}
+
+            <button
+              className="zunary-button"
+              type="button"
+              onClick={handleSubmit as unknown as () => void}
+              disabled={saving}
+            >
+              <Save size={16} />
+              {saving ? "Salvando..." : "Salvar publicação"}
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   );
