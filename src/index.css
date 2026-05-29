@@ -3998,23 +3998,232 @@ a {
 }
 
 /* ========================= */
-/* MOBILE SIDEBAR / DRAWER */
+/* MOBILE SIDEBAR FINAL FIX */
 /* ========================= */
 
-.zunary-sidebar-mobile-top {
-  display: none;
+@media (max-width: 900px) {
+  .zunary-sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 999 !important;
+
+    width: min(86vw, 320px) !important;
+    height: 100vh !important;
+
+    padding: 20px !important;
+    background: #ffffff !important;
+    color: #020617 !important;
+
+    transform: translateX(-105%) !important;
+    transition: transform 0.22s ease !important;
+
+    border-radius: 0 24px 24px 0 !important;
+    box-shadow: 24px 0 80px rgba(15, 23, 42, 0.25) !important;
+    overflow-y: auto !important;
+  }
+
+  .zunary-sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .zunary-sidebar-overlay {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 998 !important;
+    border: 0 !important;
+    background: rgba(15, 23, 42, 0.52) !important;
+    backdrop-filter: blur(4px) !important;
+  }
+
+  .zunary-sidebar-mobile-top {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+    width: 100% !important;
+  }
+
+  .zunary-sidebar-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  .zunary-sidebar-brand-desktop {
+    display: none !important;
+  }
+
+  .zunary-sidebar-logo {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 16px !important;
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    display: grid !important;
+    place-items: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .zunary-sidebar-brand strong {
+    display: block !important;
+    color: #020617 !important;
+    font-size: 16px !important;
+    font-weight: 950 !important;
+  }
+
+  .zunary-sidebar-brand span {
+    display: block !important;
+    color: #64748b !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+  }
+
+  .zunary-sidebar-close {
+    width: 40px !important;
+    height: 40px !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: #f8fafc !important;
+    color: #020617 !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  .zunary-sidebar-nav {
+    display: grid !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .zunary-sidebar-nav a {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+
+    width: 100% !important;
+    padding: 12px 13px !important;
+
+    border-radius: 14px !important;
+    color: #334155 !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 850 !important;
+  }
+
+  .zunary-sidebar-nav a svg {
+    color: #64748b !important;
+    flex-shrink: 0 !important;
+  }
+
+  .zunary-sidebar-nav a.active,
+  .zunary-sidebar-nav a:hover {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+  }
+
+  .zunary-sidebar-nav a.active svg,
+  .zunary-sidebar-nav a:hover svg {
+    color: #2563eb !important;
+  }
+
+  .zunary-sidebar-box {
+    display: block !important;
+    margin-top: auto !important;
+    border-radius: 18px !important;
+    padding: 14px !important;
+    background: #f8fafc !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  }
+
+  .zunary-sidebar-box p {
+    margin: 0 0 4px !important;
+    color: #020617 !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+  }
+
+  .zunary-sidebar-box span {
+    color: #64748b !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
 }
 
-.zunary-sidebar-close,
-.zunary-mobile-menu-button {
-  border: 0;
-  background: transparent;
-  cursor: pointer;
+/* ========================================================= */
+/* ZUNARY RESPONSIVE SYSTEM - FINAL MOBILE POLISH */
+/* ========================================================= */
+
+* {
+  box-sizing: border-box;
 }
 
-.zunary-mobile-menu-button {
-  display: none;
+html,
+body,
+#root {
+  min-height: 100%;
+  width: 100%;
+  overflow-x: hidden;
 }
+
+body.zunary-menu-open {
+  overflow: hidden;
+}
+
+/* ========================= */
+/* TABLET AND MOBILE BASE */
+/* ========================= */
+
+@media (max-width: 1024px) {
+  .zunary-app {
+    display: block !important;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  .zunary-main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .zunary-content {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .zunary-page {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .zunary-grid,
+  .zunary-admin-grid,
+  .zunary-dashboard-top-grid,
+  .zunary-plans-grid,
+  .zunary-plans-status-grid,
+  .zunary-services-overview,
+  .zunary-services-grid,
+  .zunary-availability-overview,
+  .zunary-settings-grid,
+  .zunary-system-health-grid,
+  .zunary-billing-flow,
+  .zunary-public-layout,
+  .zunary-public-layout-v2,
+  .zunary-public-hero,
+  .zunary-form-grid,
+  .zunary-filters {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ========================= */
+/* HEADER MOBILE */
+/* ========================= */
 
 .zunary-header-left {
   display: flex;
@@ -4023,100 +4232,38 @@ a {
   min-width: 0;
 }
 
-.zunary-sidebar-overlay {
+.zunary-mobile-menu-button {
   display: none;
 }
 
 @media (max-width: 900px) {
-  body.zunary-menu-open {
-    overflow: hidden;
-  }
-
-  .zunary-app {
-    display: block;
-    min-height: 100vh;
-  }
-
-  .zunary-sidebar {
-    position: fixed;
+  .zunary-header {
+    position: sticky;
     top: 0;
-    left: 0;
-    z-index: 80;
-    width: min(86vw, 320px);
-    height: 100vh;
-    transform: translateX(-105%);
-    transition: transform 0.22s ease;
-    border-radius: 0 24px 24px 0;
-    box-shadow: 24px 0 80px rgba(15, 23, 42, 0.22);
-    overflow-y: auto;
-  }
-
-  .zunary-sidebar.mobile-open {
-    transform: translateX(0);
-  }
-
-  .zunary-sidebar-overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 70;
-    border: 0;
-    background: rgba(15, 23, 42, 0.48);
-    backdrop-filter: blur(4px);
-    cursor: pointer;
-  }
-
-  .zunary-sidebar-mobile-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    margin-bottom: 18px;
-  }
-
-  .zunary-sidebar-brand-desktop {
-    display: none;
-  }
-
-  .zunary-sidebar-close {
-    width: 40px;
-    height: 40px;
-    border-radius: 14px;
-    color: #0f172a;
-    background: #f8fafc;
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
+    z-index: 60;
+    min-height: 64px;
+    padding: 12px 14px !important;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
   }
 
   .zunary-mobile-menu-button {
     width: 42px;
     height: 42px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 14px;
     background: #f8fafc;
     color: #0f172a;
     display: grid;
     place-items: center;
     flex-shrink: 0;
+    cursor: pointer;
   }
 
-  .zunary-mobile-menu-button:hover,
-  .zunary-sidebar-close:hover {
+  .zunary-mobile-menu-button:hover {
     background: #eff6ff;
     color: #2563eb;
-  }
-
-  .zunary-main {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .zunary-header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    padding: 12px 14px;
-    backdrop-filter: blur(16px);
   }
 
   .zunary-header-left > div {
@@ -4124,6 +4271,7 @@ a {
   }
 
   .zunary-header-left p {
+    max-width: 52vw;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -4134,12 +4282,13 @@ a {
   }
 
   .zunary-header-button {
-    padding: 10px 12px;
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
     flex-shrink: 0;
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 430px) {
   .zunary-header-button {
     font-size: 0;
     gap: 0;
@@ -4147,5 +4296,694 @@ a {
 
   .zunary-header-button svg {
     margin: 0;
+  }
+
+  .zunary-header-left p {
+    max-width: 58vw;
+  }
+}
+
+/* ========================= */
+/* SIDEBAR DRAWER MOBILE */
+/* ========================= */
+
+.zunary-sidebar-mobile-top {
+  display: none;
+}
+
+.zunary-sidebar-close {
+  display: none;
+}
+
+.zunary-sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .zunary-sidebar {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    z-index: 999 !important;
+
+    width: min(86vw, 330px) !important;
+    height: 100vh !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+
+    padding: 20px !important;
+    background: #ffffff !important;
+    color: #020617 !important;
+
+    transform: translateX(-105%) !important;
+    transition: transform 0.22s ease !important;
+
+    border-right: 1px solid rgba(148, 163, 184, 0.22) !important;
+    border-radius: 0 26px 26px 0 !important;
+    box-shadow: 28px 0 90px rgba(15, 23, 42, 0.26) !important;
+    overflow-y: auto !important;
+  }
+
+  .zunary-sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .zunary-sidebar-overlay {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 998 !important;
+    border: 0 !important;
+    background: rgba(15, 23, 42, 0.54) !important;
+    backdrop-filter: blur(5px) !important;
+    cursor: pointer !important;
+  }
+
+  .zunary-sidebar-mobile-top {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+    width: 100% !important;
+  }
+
+  .zunary-sidebar-brand-desktop {
+    display: none !important;
+  }
+
+  .zunary-sidebar-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    min-width: 0 !important;
+  }
+
+  .zunary-sidebar-logo {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 16px !important;
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    display: grid !important;
+    place-items: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .zunary-sidebar-brand strong {
+    display: block !important;
+    color: #020617 !important;
+    font-size: 16px !important;
+    font-weight: 950 !important;
+  }
+
+  .zunary-sidebar-brand span {
+    display: block !important;
+    color: #64748b !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+  }
+
+  .zunary-sidebar-close {
+    width: 40px !important;
+    height: 40px !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: #f8fafc !important;
+    color: #020617 !important;
+    display: grid !important;
+    place-items: center !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+  }
+
+  .zunary-sidebar-close:hover {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+  }
+
+  .zunary-sidebar-nav {
+    display: grid !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .zunary-sidebar-nav a {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+
+    padding: 12px 13px !important;
+    border-radius: 15px !important;
+
+    color: #334155 !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 850 !important;
+    line-height: 1.2 !important;
+  }
+
+  .zunary-sidebar-nav a svg {
+    color: #64748b !important;
+    flex-shrink: 0 !important;
+  }
+
+  .zunary-sidebar-nav a.active,
+  .zunary-sidebar-nav a:hover {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+  }
+
+  .zunary-sidebar-nav a.active svg,
+  .zunary-sidebar-nav a:hover svg {
+    color: #2563eb !important;
+  }
+
+  .zunary-sidebar-box {
+    display: block !important;
+    margin-top: auto !important;
+    border-radius: 18px !important;
+    padding: 14px !important;
+    background: #f8fafc !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  }
+
+  .zunary-sidebar-box p {
+    margin: 0 0 4px !important;
+    color: #020617 !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+  }
+
+  .zunary-sidebar-box span {
+    color: #64748b !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+}
+
+/* ========================= */
+/* PAGE MOBILE POLISH */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-content {
+    padding: 0 !important;
+  }
+
+  .zunary-page {
+    padding: 20px 14px !important;
+    gap: 16px !important;
+  }
+
+  .zunary-page-header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  .zunary-page-header h1 {
+    font-size: clamp(28px, 9vw, 36px) !important;
+    line-height: 0.98 !important;
+    letter-spacing: -0.06em !important;
+  }
+
+  .zunary-page-header p {
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+  }
+
+  .zunary-page-header .zunary-button,
+  .zunary-page-header a.zunary-button,
+  .zunary-dashboard-header-actions,
+  .zunary-dashboard-header-actions .zunary-button {
+    width: 100% !important;
+  }
+
+  .zunary-dashboard-header-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .zunary-card,
+  .zunary-empty-card,
+  .zunary-stat-card,
+  .zunary-hero-card,
+  .zunary-plan-status-card,
+  .zunary-subscription-status-card,
+  .zunary-pending-subscription-card,
+  .zunary-plan-card,
+  .zunary-service-card,
+  .zunary-availability-day-card,
+  .zunary-appointment-card {
+    border-radius: 22px !important;
+    padding: 18px !important;
+  }
+
+  .zunary-card-header h2 {
+    font-size: 22px !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.04em !important;
+  }
+
+  .zunary-card-header p {
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+  }
+}
+
+/* ========================= */
+/* FORMS / BUTTONS MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-form,
+  .zunary-form-grid,
+  .zunary-form-grid-4,
+  .zunary-filters,
+  .zunary-availability-form {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .zunary-field {
+    min-width: 0 !important;
+  }
+
+  .zunary-field label {
+    font-size: 13px !important;
+  }
+
+  .zunary-input,
+  .zunary-select,
+  .zunary-textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 16px !important;
+  }
+
+  .zunary-textarea {
+    min-height: 110px !important;
+  }
+
+  .zunary-button,
+  .zunary-button-secondary,
+  .zunary-button-danger,
+  a.zunary-button {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+  }
+
+  .zunary-filter-actions,
+  .zunary-list-actions,
+  .zunary-hero-actions,
+  .zunary-pending-actions,
+  .zunary-settings-actions,
+  .zunary-appointment-actions,
+  .zunary-availability-rule-actions,
+  .zunary-service-card footer {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+}
+
+/* ========================= */
+/* LINK BOX / TEXT WRAPPING */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-link-box {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .zunary-link-box span,
+  .zunary-hero-card h2,
+  .zunary-settings-link-preview strong,
+  .zunary-settings-link-warning span {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+}
+
+/* ========================= */
+/* DASHBOARD MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-onboarding-hero,
+  .zunary-onboarding-card {
+    border-radius: 22px !important;
+    padding: 18px !important;
+  }
+
+  .zunary-onboarding-hero {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .zunary-onboarding-hero h2,
+  .zunary-onboarding-card-main h2 {
+    font-size: 25px !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.05em !important;
+  }
+
+  .zunary-onboarding-mini-steps {
+    justify-content: flex-start !important;
+  }
+
+  .zunary-onboarding-mini-steps div {
+    font-size: 11px !important;
+    padding: 8px 10px !important;
+  }
+
+  .zunary-onboarding-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  .zunary-onboarding-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .zunary-checklist {
+    gap: 10px !important;
+  }
+
+  .zunary-checklist-item {
+    align-items: flex-start !important;
+    padding: 13px !important;
+    border-radius: 16px !important;
+  }
+}
+
+/* ========================= */
+/* APPOINTMENTS MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-appointments-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .zunary-appointments-summary button {
+    padding: 13px !important;
+    border-radius: 16px !important;
+  }
+
+  .zunary-appointments-summary span {
+    font-size: 10px !important;
+  }
+
+  .zunary-appointments-summary strong {
+    font-size: 23px !important;
+  }
+
+  .zunary-appointment-card {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .zunary-appointment-top {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .zunary-appointment-date {
+    width: fit-content !important;
+  }
+
+  .zunary-appointment-info-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .zunary-appointment-actions {
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .zunary-appointments-summary {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ========================= */
+/* SERVICES / AVAILABILITY MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-service-card footer {
+    flex-direction: column !important;
+  }
+
+  .zunary-service-card footer .zunary-button {
+    width: 100% !important;
+  }
+
+  .zunary-service-meta {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .zunary-service-meta div {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .zunary-availability-day-card > header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .zunary-availability-rule {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .zunary-availability-rule-actions .zunary-button {
+    width: 100% !important;
+  }
+}
+
+/* ========================= */
+/* PLANS MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-plan-card {
+    gap: 16px !important;
+  }
+
+  .zunary-plan-price strong {
+    font-size: 32px !important;
+  }
+
+  .zunary-subscription-badges {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .zunary-billing-events-list {
+    gap: 10px !important;
+  }
+
+  .zunary-billing-event-item {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+}
+
+/* ========================= */
+/* SETTINGS MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-settings-status-card {
+    border-radius: 22px !important;
+    padding: 18px !important;
+  }
+
+  .zunary-settings-status-card strong {
+    font-size: 24px !important;
+  }
+
+  .zunary-settings-toggle {
+    align-items: flex-start !important;
+    border-radius: 16px !important;
+  }
+
+  .zunary-settings-actions {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ========================= */
+/* PUBLIC BOOKING MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-booking-page {
+    min-height: 100vh !important;
+    padding: 0 !important;
+  }
+
+  .zunary-public-minimal-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 24px 12px !important;
+  }
+
+  .zunary-public-minimal-header {
+    margin-bottom: 14px !important;
+    padding: 0 2px !important;
+  }
+
+  .zunary-public-minimal-header span {
+    font-size: 10px !important;
+  }
+
+  .zunary-public-minimal-header h1 {
+    font-size: clamp(32px, 11vw, 42px) !important;
+    line-height: 0.95 !important;
+    letter-spacing: -0.07em !important;
+  }
+
+  .zunary-public-minimal-header p {
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+  }
+
+  .zunary-public-minimal-card {
+    border-radius: 22px !important;
+    padding: 18px !important;
+    gap: 20px !important;
+  }
+
+  .zunary-public-minimal-section {
+    gap: 11px !important;
+  }
+
+  .zunary-public-minimal-services {
+    gap: 8px !important;
+  }
+
+  .zunary-public-minimal-service {
+    padding: 13px !important;
+    border-radius: 15px !important;
+  }
+
+  .zunary-public-minimal-times {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .zunary-public-minimal-time {
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+
+  .zunary-public-minimal-summary {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 20 !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(14px) !important;
+    margin: 0 -18px -18px !important;
+    padding: 16px 18px 18px !important;
+    border-top: 1px solid rgba(148, 163, 184, 0.18) !important;
+    border-radius: 0 0 22px 22px !important;
+  }
+
+  .zunary-public-success-screen {
+    border-radius: 22px !important;
+    padding: 22px 18px !important;
+  }
+
+  .zunary-public-success-screen h2 {
+    font-size: 30px !important;
+    line-height: 1 !important;
+  }
+
+  .zunary-public-success-summary {
+    gap: 8px !important;
+  }
+
+  .zunary-public-success-summary div {
+    padding: 12px !important;
+  }
+}
+
+/* ========================= */
+/* ADMIN MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .zunary-admin-toolbar,
+  .zunary-admin-company-actions,
+  .zunary-admin-header-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .zunary-admin-list-item {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .zunary-admin-list-item > div {
+    min-width: 0 !important;
+  }
+
+  .zunary-admin-list-item span,
+  .zunary-admin-list-item strong {
+    overflow-wrap: anywhere !important;
+  }
+}
+
+/* ========================= */
+/* VERY SMALL PHONES */
+/* ========================= */
+
+@media (max-width: 380px) {
+  .zunary-page {
+    padding: 18px 10px !important;
+  }
+
+  .zunary-public-minimal-container {
+    padding: 20px 10px !important;
+  }
+
+  .zunary-card,
+  .zunary-empty-card,
+  .zunary-public-minimal-card {
+    padding: 16px !important;
+  }
+
+  .zunary-public-minimal-times {
+    grid-template-columns: 1fr !important;
+  }
+
+  .zunary-page-header h1 {
+    font-size: 28px !important;
   }
 }
