@@ -2319,220 +2319,269 @@ a {
 }
 
 /* ========================= */
-/* PUBLIC BOOKING IMPROVED */
+/* PUBLIC BOOKING MINIMAL */
 /* ========================= */
 
-.zunary-booking-shell-wide {
-  width: min(1120px, calc(100% - 32px));
+.zunary-public-minimal-container {
+  width: min(720px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 56px 0;
 }
 
-.zunary-public-loading {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  gap: 12px;
+.zunary-public-minimal-loading {
   color: #64748b;
   text-align: center;
+  font-size: 14px;
+  font-weight: 800;
 }
 
-.zunary-public-hero {
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  gap: 18px;
-  align-items: stretch;
+.zunary-public-minimal-header {
+  margin-bottom: 18px;
 }
 
-.zunary-public-company-card {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background:
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.1), transparent 34%),
-    rgba(255, 255, 255, 0.94);
-  border-radius: 28px;
-  padding: 28px;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
-}
-
-.zunary-public-company-card > span {
-  color: #2563eb;
-  font-size: 12px;
+.zunary-public-minimal-header span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
   font-weight: 950;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
 
-.zunary-public-company-card h2 {
-  margin: 10px 0 8px;
-  color: #020617;
-  font-size: clamp(32px, 5vw, 52px);
+.zunary-public-minimal-header h1 {
+  margin: 6px 0 6px;
+  color: #ffffff;
+  font-size: clamp(30px, 6vw, 46px);
   font-weight: 950;
   letter-spacing: -0.06em;
 }
 
-.zunary-public-company-card p {
+.zunary-public-minimal-header p {
   margin: 0;
-  max-width: 680px;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.72);
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
-.zunary-public-company-meta {
-  margin-top: 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.zunary-public-company-meta div {
+.zunary-public-minimal-card {
   border: 1px solid rgba(148, 163, 184, 0.22);
-  background: #f8fafc;
-  color: #334155;
-  border-radius: 999px;
-  padding: 9px 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.zunary-public-layout {
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: 18px;
-  align-items: start;
-}
-
-.zunary-public-services-panel {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.96);
   border-radius: 28px;
-  padding: 22px;
+  padding: 24px;
   box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
-}
-
-.zunary-public-services-list {
   display: grid;
-  gap: 10px;
+  gap: 22px;
 }
 
-.zunary-public-service-card {
-  width: 100%;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: #f8fafc;
-  border-radius: 20px;
-  padding: 16px;
-  text-align: left;
-  cursor: pointer;
-  transition: 0.2s ease;
+.zunary-public-minimal-card.center {
+  min-height: 280px;
+  place-items: center;
+  text-align: center;
 }
 
-.zunary-public-service-card:hover {
-  transform: translateY(-1px);
-  border-color: rgba(37, 99, 235, 0.35);
-  background: #eff6ff;
+.zunary-public-minimal-card.center svg {
+  color: #2563eb;
 }
 
-.zunary-public-service-card.selected {
-  border-color: rgba(37, 99, 235, 0.65);
-  background:
-    radial-gradient(circle at top right, rgba(6, 214, 255, 0.12), transparent 34%),
-    #eff6ff;
-  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.12);
-}
-
-.zunary-public-service-card strong {
-  display: block;
-  color: #020617;
-  font-size: 15px;
-  font-weight: 950;
-}
-
-.zunary-public-service-card span {
-  display: block;
-  margin-top: 4px;
-  color: #64748b;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.zunary-public-service-card footer {
-  margin-top: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.zunary-public-service-card footer span {
+.zunary-public-minimal-card.center h1,
+.zunary-public-minimal-card.center h2 {
   margin: 0;
-  border-radius: 999px;
-  background: white;
-  color: #1e293b;
-  padding: 7px 10px;
-  font-size: 11px;
-  font-weight: 900;
+  color: #020617;
+  font-size: 28px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
 }
 
-.zunary-public-success-card {
-  border: 1px solid rgba(34, 197, 94, 0.28);
-  background:
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.1), transparent 32%),
-    #f0fdf4;
-  color: #166534;
-  border-radius: 24px;
-  padding: 18px;
-  display: flex;
-  align-items: flex-start;
+.zunary-public-minimal-card.center p {
+  max-width: 420px;
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.zunary-public-minimal-section {
+  display: grid;
   gap: 12px;
 }
 
-.zunary-public-success-card strong {
-  display: block;
-  color: #047857;
-  font-size: 15px;
-  font-weight: 950;
-}
-
-.zunary-public-success-card span {
-  display: block;
-  margin-top: 4px;
-  color: #166534;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.zunary-public-section-title {
-  margin-top: 4px;
-  color: #020617;
-  font-size: 13px;
-  font-weight: 950;
-  display: inline-flex;
+.zunary-public-minimal-title {
+  display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.zunary-public-state-card {
-  text-align: center;
-  display: grid;
-  justify-items: center;
-}
-
-.zunary-public-state-icon {
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
+.zunary-public-minimal-title span {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
   background: #eff6ff;
   color: #2563eb;
   display: grid;
   place-items: center;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.zunary-public-minimal-title strong {
+  color: #020617;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.zunary-public-minimal-services {
+  display: grid;
+  gap: 8px;
+}
+
+.zunary-public-minimal-service {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.zunary-public-minimal-service:hover {
+  border-color: rgba(37, 99, 235, 0.35);
+  background: #eff6ff;
+}
+
+.zunary-public-minimal-service.selected {
+  border-color: rgba(37, 99, 235, 0.65);
+  background: #eff6ff;
+}
+
+.zunary-public-minimal-service strong {
+  display: block;
+  color: #020617;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.zunary-public-minimal-service span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.zunary-public-minimal-availability,
+.zunary-public-minimal-empty {
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 12px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.zunary-public-minimal-availability {
+  display: grid;
+  gap: 4px;
+}
+
+.zunary-public-minimal-availability strong {
+  color: #020617;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.zunary-public-minimal-times {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.zunary-public-minimal-time {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: #f8fafc;
+  color: #020617;
+  border-radius: 14px;
+  padding: 11px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.zunary-public-minimal-time:hover {
+  border-color: rgba(37, 99, 235, 0.35);
+  background: #eff6ff;
+}
+
+.zunary-public-minimal-time.selected {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: white;
+}
+
+.zunary-public-minimal-summary {
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  padding-top: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.zunary-public-minimal-summary span {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-public-minimal-summary strong {
+  display: block;
+  margin-top: 4px;
+  color: #020617;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.zunary-public-minimal-success {
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  background: #f0fdf4;
+  color: #166534;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   margin-bottom: 14px;
 }
 
-@media (max-width: 920px) {
-  .zunary-public-hero,
-  .zunary-public-layout {
-    grid-template-columns: 1fr;
+.zunary-public-minimal-success strong {
+  display: block;
+  color: #047857;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.zunary-public-minimal-success span {
+  display: block;
+  margin-top: 3px;
+  color: #166534;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .zunary-public-minimal-container {
+    width: min(100% - 20px, 720px);
+    padding: 28px 0;
+  }
+
+  .zunary-public-minimal-card {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .zunary-public-minimal-times {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
