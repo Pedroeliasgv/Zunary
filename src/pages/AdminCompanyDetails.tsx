@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { ExternalLink, Shield } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import {
+  adminUpdateCompanyPublicBooking,
   getAdminCompanyDetails,
   isCurrentUserAdmin,
   type AdminCompanyDetails as AdminCompanyDetailsType,
 } from "../lib/admin";
+import { cancelAsaasSubscription } from "../lib/billing";
 import { formatCurrency } from "../lib/utils";
 
 function formatDateTime(date?: string | null) {
@@ -49,7 +51,12 @@ export function AdminCompanyDetails() {
   const [details, setDetails] = useState<AdminCompanyDetailsType | null>(null);
   const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const [updatingPublicBooking, setUpdatingPublicBooking] = useState(false);
+  const [cancelingSubscription, setCancelingSubscription] = useState(false);
+
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   async function loadCompanyDetails() {
     if (!id) {
@@ -84,6 +91,75 @@ export function AdminCompanyDetails() {
     loadCompanyDetails();
   }, [id]);
 
+  async function handleTogglePublicBooking() {
+    if (!details?.company) return;
+
+    const nextValue = !details.company.public_booking_enabled;
+
+    const confirmed = window.confirm(
+      nextValue
+        ? "Tem certeza que deseja ativar a página pública desta empresa?"
+        : "Tem certeza que deseja desativar a página pública desta empresa?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setUpdatingPublicBooking(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      await adminUpdateCompanyPublicBooking(details.company.id, nextValue);
+
+      setSuccessMessage(
+        nextValue
+          ? "Página pública ativada com sucesso."
+          : "Página pública desativada com sucesso."
+      );
+
+      await loadCompanyDetails();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao atualizar página pública."
+      );
+    } finally {
+      setUpdatingPublicBooking(false);
+    }
+  }
+
+  async function handleCancelSubscription() {
+    if (!details?.company || !details.subscription) return;
+
+    const confirmed = window.confirm(
+      "Tem certeza que deseja cancelar a assinatura desta empresa? Ela também será cancelada no Asaas e a empresa perderá o acesso aos recursos pagos."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setCancelingSubscription(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      await cancelAsaasSubscription({
+        company_id: details.company.id,
+        subscription_id: details.subscription.id,
+      });
+
+      setSuccessMessage("Assinatura cancelada com sucesso no Asaas e na Zunary.");
+
+      await loadCompanyDetails();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao cancelar assinatura."
+      );
+    } finally {
+      setCancelingSubscription(false);
+    }
+  }
+
   if (loading) {
     return <p className="zunary-muted-text">Carregando empresa...</p>;
   }
@@ -101,16 +177,8 @@ export function AdminCompanyDetails() {
     );
   }
 
-  if (errorMessage) {
-    return <div className="zunary-error">{errorMessage}</div>;
-  }
-
   if (!details?.company) {
-    return (
-      <div className="zunary-empty-card">
-        Empresa não encontrada.
-      </div>
-    );
+    return <div className="zunary-empty-card">Empresa não encontrada.</div>;
   }
 
   const { company, subscription, services, appointments } = details;
@@ -125,7 +193,10 @@ export function AdminCompanyDetails() {
         </div>
 
         <div className="zunary-admin-header-actions">
-          <Link to="/admin/companies" className="zunary-button zunary-button-secondary">
+          <Link
+            to="/admin/companies"
+            className="zunary-button zunary-button-secondary"
+          >
             Voltar
           </Link>
 
@@ -140,6 +211,12 @@ export function AdminCompanyDetails() {
           </a>
         </div>
       </div>
+
+      {errorMessage && <div className="zunary-error">{errorMessage}</div>}
+
+      {successMessage && (
+        <div className="zunary-success">{successMessage}</div>
+      )}
 
       <div className="zunary-admin-details-grid">
         <div className="zunary-card">
@@ -180,6 +257,24 @@ export function AdminCompanyDetails() {
               <span>Atualizada em</span>
               <strong>{formatDateTime(company.updated_at)}</strong>
             </div>
+          </div>
+
+          <div style={{ marginTop: 16 }}>
+            <button
+              className={
+                company.public_booking_enabled
+                  ? "zunary-button zunary-button-danger"
+                  : "zunary-button"
+              }
+              onClick={handleTogglePublicBooking}
+              disabled={updatingPublicBooking}
+            >
+              {updatingPublicBooking
+                ? "Atualizando..."
+                : company.public_booking_enabled
+                ? "Desativar página pública"
+                : "Ativar página pública"}
+            </button>
           </div>
         </div>
 
@@ -262,6 +357,22 @@ export function AdminCompanyDetails() {
                 </a>
               </div>
             )}
+
+            {subscription.status !== "canceled" && (
+              <div>
+                <span>Ação administrativa</span>
+
+                <button
+                  className="zunary-button zunary-button-danger"
+                  onClick={handleCancelSubscription}
+                  disabled={cancelingSubscription}
+                >
+                  {cancelingSubscription
+                    ? "Cancelando..."
+                    : "Cancelar assinatura"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -312,10 +423,13 @@ export function AdminCompanyDetails() {
             {appointments.map((appointment) => (
               <div key={appointment.id} className="zunary-admin-list-item">
                 <div>
-                  <strong>{appointment.customer_name || "Cliente sem nome"}</strong>
+                  <strong>
+                    {appointment.customer_name || "Cliente sem nome"}
+                  </strong>
 
                   <span>
-                    Serviço: {appointment.service_name || "Serviço não encontrado"}
+                    Serviço:{" "}
+                    {appointment.service_name || "Serviço não encontrado"}
                   </span>
 
                   <span>

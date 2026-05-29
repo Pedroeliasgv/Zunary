@@ -229,3 +229,17 @@ export async function getAdminCompanyDetails(companyId: string) {
 
   return data as AdminCompanyDetails;
 }
+
+export async function adminUpdateCompanyPublicBooking(
+  companyId: string,
+  publicBookingEnabled: boolean
+) {
+  const { error } = await supabase.rpc("admin_update_company_public_booking", {
+    target_company_id: companyId,
+    target_public_booking_enabled: publicBookingEnabled,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
