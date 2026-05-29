@@ -5719,4 +5719,15 @@ canvas {
   }
 }
 
+@media (max-width: 768px) {
+  .zunary-public-success-summary div,
+  .zunary-public-minimal-summary div {
+    display: block !important;
+  }
 
+  .zunary-public-success-summary strong,
+  .zunary-public-minimal-summary strong {
+    display: block !important;
+    max-width: 100% !important;
+  }
+}
