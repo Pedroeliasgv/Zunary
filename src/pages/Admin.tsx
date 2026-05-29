@@ -40,6 +40,7 @@ function getEventLabel(eventType: string) {
     PAYMENT_DELETED: "Cobrança removida",
     PAYMENT_REFUNDED: "Pagamento estornado",
     SUBSCRIPTION_CANCELED_MANUALLY: "Assinatura cancelada manualmente",
+    SIMULATED_PAYMENT_RECEIVED: "Pagamento simulado",
   };
 
   return labels[eventType] || eventType;
