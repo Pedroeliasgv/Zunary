@@ -98,3 +98,29 @@ export async function cancelAsaasSubscription(data: {
 
   return response;
 }
+
+export async function simulateAsaasPayment(data: {
+  company_id: string;
+  subscription_id: string;
+}) {
+  const { data: response, error } = await supabase.functions.invoke(
+    "simulate-asaas-payment",
+    {
+      body: data,
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message || "Erro ao simular pagamento.");
+  }
+
+  if (response?.error) {
+    const details = response?.details
+      ? ` Detalhes: ${JSON.stringify(response.details)}`
+      : "";
+
+    throw new Error(`${response.error}${details}`);
+  }
+
+  return response;
+}

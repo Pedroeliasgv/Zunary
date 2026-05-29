@@ -7,7 +7,10 @@ import {
   isCurrentUserAdmin,
   type AdminCompanyDetails as AdminCompanyDetailsType,
 } from "../lib/admin";
-import { cancelAsaasSubscription } from "../lib/billing";
+import {
+  cancelAsaasSubscription,
+  simulateAsaasPayment,
+} from "../lib/billing";
 import { formatCurrency } from "../lib/utils";
 
 function formatDateTime(date?: string | null) {
@@ -45,6 +48,13 @@ function getStatusLabel(status?: string | null) {
   return status ? labels[status] || status : "-";
 }
 
+function canSimulatePayment(status?: string | null, billingStatus?: string | null) {
+  if (status === "canceled") return false;
+  if (status === "active" && billingStatus === "paid") return false;
+
+  return true;
+}
+
 export function AdminCompanyDetails() {
   const { id } = useParams();
 
@@ -54,6 +64,7 @@ export function AdminCompanyDetails() {
 
   const [updatingPublicBooking, setUpdatingPublicBooking] = useState(false);
   const [cancelingSubscription, setCancelingSubscription] = useState(false);
+  const [simulatingPayment, setSimulatingPayment] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -160,6 +171,39 @@ export function AdminCompanyDetails() {
     }
   }
 
+  async function handleSimulatePayment() {
+    if (!details?.company || !details.subscription) return;
+
+    const confirmed = window.confirm(
+      "Tem certeza que deseja simular o pagamento desta assinatura? Essa ação deve ser usada apenas em ambiente sandbox."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setSimulatingPayment(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      await simulateAsaasPayment({
+        company_id: details.company.id,
+        subscription_id: details.subscription.id,
+      });
+
+      setSuccessMessage(
+        "Pagamento simulado com sucesso. A assinatura foi ativada."
+      );
+
+      await loadCompanyDetails();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao simular pagamento."
+      );
+    } finally {
+      setSimulatingPayment(false);
+    }
+  }
+
   if (loading) {
     return <p className="zunary-muted-text">Carregando empresa...</p>;
   }
@@ -182,6 +226,9 @@ export function AdminCompanyDetails() {
   }
 
   const { company, subscription, services, appointments } = details;
+  const showSimulatePaymentButton =
+    subscription &&
+    canSimulatePayment(subscription.status, subscription.billing_status);
 
   return (
     <div className="zunary-page">
@@ -355,6 +402,22 @@ export function AdminCompanyDetails() {
                   <ExternalLink size={13} />
                   Abrir pagamento
                 </a>
+              </div>
+            )}
+
+            {showSimulatePaymentButton && (
+              <div>
+                <span>Teste sandbox</span>
+
+                <button
+                  className="zunary-button"
+                  onClick={handleSimulatePayment}
+                  disabled={simulatingPayment}
+                >
+                  {simulatingPayment
+                    ? "Simulando..."
+                    : "Simular pagamento"}
+                </button>
               </div>
             )}
 
