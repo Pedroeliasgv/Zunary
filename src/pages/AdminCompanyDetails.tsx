@@ -226,7 +226,12 @@ export function AdminCompanyDetails() {
   }
 
   const { company, subscription, services, appointments } = details;
+
+  const billingEnvironment = import.meta.env.VITE_BILLING_ENV || "sandbox";
+  const isSandbox = billingEnvironment === "sandbox";
+
   const showSimulatePaymentButton =
+    isSandbox &&
     subscription &&
     canSimulatePayment(subscription.status, subscription.billing_status);
 
@@ -414,9 +419,7 @@ export function AdminCompanyDetails() {
                   onClick={handleSimulatePayment}
                   disabled={simulatingPayment}
                 >
-                  {simulatingPayment
-                    ? "Simulando..."
-                    : "Simular pagamento"}
+                  {simulatingPayment ? "Simulando..." : "Simular pagamento"}
                 </button>
               </div>
             )}

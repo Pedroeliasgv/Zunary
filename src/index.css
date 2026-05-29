@@ -2211,3 +2211,56 @@ a {
     width: 100%;
   }
 }
+
+/* ========================= */
+/* ADMIN ENVIRONMENT CARD */
+/* ========================= */
+
+.zunary-admin-env-card {
+  border-radius: 22px;
+  padding: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.zunary-admin-env-card strong {
+  font-size: 14px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-env-card span {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.zunary-admin-env-card.sandbox {
+  border: 1px solid rgba(37, 99, 235, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(6, 214, 255, 0.12), transparent 32%),
+    #eff6ff;
+}
+
+.zunary-admin-env-card.sandbox strong {
+  color: #1d4ed8;
+}
+
+.zunary-admin-env-card.sandbox span {
+  color: #1e40af;
+}
+
+.zunary-admin-env-card.production {
+  border: 1px solid rgba(220, 38, 38, 0.28);
+  background:
+    radial-gradient(circle at top right, rgba(239, 68, 68, 0.12), transparent 32%),
+    #fef2f2;
+}
+
+.zunary-admin-env-card.production strong {
+  color: #b91c1c;
+}
+
+.zunary-admin-env-card.production span {
+  color: #991b1b;
+}

@@ -72,6 +72,9 @@ export function Admin() {
   const [subscriptionStatusFilter, setSubscriptionStatusFilter] =
     useState("all");
 
+  const billingEnvironment = import.meta.env.VITE_BILLING_ENV || "sandbox";
+  const isSandbox = billingEnvironment === "sandbox";
+
   async function loadAdminPage() {
     try {
       setLoading(true);
@@ -169,6 +172,22 @@ export function Admin() {
         >
           Atualizar
         </button>
+      </div>
+
+      <div
+        className={
+          isSandbox
+            ? "zunary-admin-env-card sandbox"
+            : "zunary-admin-env-card production"
+        }
+      >
+        <strong>Ambiente de cobrança: {isSandbox ? "Sandbox" : "Produção"}</strong>
+
+        <span>
+          {isSandbox
+            ? "Os pagamentos estão em modo de teste. Simulações estão liberadas apenas para uso interno."
+            : "Os pagamentos estão em modo real. Ações de cobrança podem impactar clientes de verdade."}
+        </span>
       </div>
 
       <div className="zunary-admin-grid">
