@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
   Check,
@@ -6,7 +6,9 @@ import {
   Copy,
   CreditCard,
   ExternalLink,
+  RefreshCw,
   Scissors,
+  Settings,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CompanyForm } from "../components/company/CompanyForm";
@@ -29,6 +31,14 @@ type DashboardStats = {
   appointmentsCount: number;
 };
 
+type ChecklistItem = {
+  title: string;
+  description: string;
+  done: boolean;
+  href: string;
+  action: string;
+};
+
 export function Dashboard() {
   const [company, setCompany] = useState<Company | null>(null);
   const [subscription, setSubscription] =
@@ -45,9 +55,11 @@ export function Dashboard() {
 
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function loadDashboard() {
     setLoading(true);
+    setErrorMessage("");
 
     try {
       const [companyData, adminStatus] = await Promise.all([
@@ -94,6 +106,10 @@ export function Dashboard() {
           appointmentsCount: 0,
         });
       }
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao carregar dashboard."
+      );
     } finally {
       setLoading(false);
     }
@@ -117,8 +133,106 @@ export function Dashboard() {
     }, 1800);
   }
 
+  const hasPlanAccess = isAdmin || Boolean(subscription);
+
+  const checklist: ChecklistItem[] = useMemo(() => {
+    if (!company) return [];
+
+    return [
+      {
+        title: "Empresa criada",
+        description: "Sua empresa já está vinculada à sua conta.",
+        done: Boolean(company),
+        href: "/settings",
+        action: "Editar empresa",
+      },
+      {
+        title: "Plano ativo",
+        description: isAdmin
+          ? "Conta admin liberada para testes internos."
+          : subscription?.plans
+          ? `Plano ${subscription.plans.name} ativo.`
+          : "Escolha um plano para liberar os recursos.",
+        done: hasPlanAccess,
+        href: "/plans",
+        action: subscription || isAdmin ? "Ver plano" : "Escolher plano",
+      },
+      {
+        title: "Serviços cadastrados",
+        description:
+          stats.activeServicesCount > 0
+            ? `${stats.activeServicesCount} serviço(s) ativo(s).`
+            : "Cadastre pelo menos um serviço ativo.",
+        done: stats.activeServicesCount > 0,
+        href: "/services",
+        action: stats.activeServicesCount > 0 ? "Ver serviços" : "Criar serviço",
+      },
+      {
+        title: "Disponibilidade definida",
+        description:
+          stats.activeAvailabilityCount > 0
+            ? `${stats.activeAvailabilityCount} regra(s) ativa(s).`
+            : "Defina pelo menos um horário de atendimento.",
+        done: stats.activeAvailabilityCount > 0,
+        href: "/availability",
+        action:
+          stats.activeAvailabilityCount > 0 ? "Ver horários" : "Definir horários",
+      },
+      {
+        title: "Página pública pronta",
+        description:
+          company.public_booking_enabled && hasPlanAccess
+            ? "Seu link público está ativo para clientes."
+            : "Ative sua página pública e mantenha um plano ativo.",
+        done: company.public_booking_enabled && hasPlanAccess,
+        href: "/settings",
+        action: "Ajustar página",
+      },
+      {
+        title: "Primeiro agendamento recebido",
+        description:
+          stats.appointmentsCount > 0
+            ? `${stats.appointmentsCount} agendamento(s) recebido(s).`
+            : "Compartilhe o link para receber o primeiro agendamento.",
+        done: stats.appointmentsCount > 0,
+        href: "/appointments",
+        action: "Ver agendamentos",
+      },
+    ];
+  }, [
+    company,
+    hasPlanAccess,
+    isAdmin,
+    subscription,
+    stats.activeServicesCount,
+    stats.activeAvailabilityCount,
+    stats.appointmentsCount,
+  ]);
+
+  const completedSteps = checklist.filter((item) => item.done).length;
+  const totalSteps = checklist.length || 1;
+  const progressPercent = Math.round((completedSteps / totalSteps) * 100);
+
+  const nextStep = checklist.find((item) => !item.done);
+
   if (loading) {
-    return <p className="zunary-muted-text">Carregando...</p>;
+    return <p className="zunary-muted-text">Carregando dashboard...</p>;
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="zunary-page">
+        <div className="zunary-error">{errorMessage}</div>
+
+        <button
+          className="zunary-button zunary-button-secondary"
+          onClick={loadDashboard}
+        >
+          <RefreshCw size={16} />
+          Tentar novamente
+        </button>
+      </div>
+    );
   }
 
   if (!company) {
@@ -129,8 +243,39 @@ export function Dashboard() {
             <span>Primeiro passo</span>
             <h1>Crie sua empresa</h1>
             <p>
-              Para começar, cadastre as informações básicas do seu negócio.
+              Para começar, cadastre as informações básicas do seu negócio e
+              gere sua página pública de agendamento.
             </p>
+          </div>
+        </div>
+
+        <div className="zunary-onboarding-hero">
+          <div>
+            <span>Configuração inicial</span>
+            <h2>Sua agenda online começa aqui</h2>
+            <p>
+              Crie a empresa, cadastre serviços, defina horários e compartilhe o
+              link com seus clientes.
+            </p>
+          </div>
+
+          <div className="zunary-onboarding-mini-steps">
+            <div>
+              <Check size={15} />
+              Empresa
+            </div>
+            <div>
+              <Scissors size={15} />
+              Serviços
+            </div>
+            <div>
+              <Clock size={15} />
+              Horários
+            </div>
+            <div>
+              <ExternalLink size={15} />
+              Link público
+            </div>
           </div>
         </div>
 
@@ -142,84 +287,34 @@ export function Dashboard() {
   const publicBookingPath = `/booking/${company.slug}`;
   const publicBookingUrl = `${window.location.origin}${publicBookingPath}`;
 
-  const hasPlanAccess = isAdmin || Boolean(subscription);
-
-  const checklist = [
-    {
-      title: "Empresa criada",
-      description: "Sua empresa já está vinculada à sua conta.",
-      done: Boolean(company),
-      href: "/settings",
-    },
-    {
-      title: "Plano ativo",
-      description: isAdmin
-        ? "Conta admin liberada para testes internos."
-        : subscription?.plans
-        ? `Plano ${subscription.plans.name} ativo.`
-        : "Escolha um plano para liberar os recursos.",
-      done: hasPlanAccess,
-      href: "/plans",
-    },
-    {
-      title: "Serviços cadastrados",
-      description:
-        stats.activeServicesCount > 0
-          ? `${stats.activeServicesCount} serviço(s) ativo(s).`
-          : "Cadastre pelo menos um serviço ativo.",
-      done: stats.activeServicesCount > 0,
-      href: "/services",
-    },
-    {
-      title: "Disponibilidade definida",
-      description:
-        stats.activeAvailabilityCount > 0
-          ? `${stats.activeAvailabilityCount} regra(s) ativa(s).`
-          : "Defina pelo menos um horário de atendimento.",
-      done: stats.activeAvailabilityCount > 0,
-      href: "/availability",
-    },
-    {
-      title: "Página pública pronta",
-      description:
-        company.public_booking_enabled && hasPlanAccess
-          ? "Seu link público está ativo para clientes."
-          : "Ative sua página pública e mantenha um plano ativo.",
-      done: company.public_booking_enabled && hasPlanAccess,
-      href: "/settings",
-    },
-    {
-      title: "Primeiro agendamento recebido",
-      description:
-        stats.appointmentsCount > 0
-          ? `${stats.appointmentsCount} agendamento(s) recebido(s).`
-          : "Compartilhe o link para receber o primeiro agendamento.",
-      done: stats.appointmentsCount > 0,
-      href: "/appointments",
-    },
-  ];
-
-  const completedSteps = checklist.filter((item) => item.done).length;
-  const totalSteps = checklist.length;
-
   return (
     <div className="zunary-page">
       <div className="zunary-page-header">
         <div>
           <span>Dashboard</span>
           <h1>{company.name}</h1>
-          <p>Gerencie seus serviços, horários e agendamentos.</p>
+          <p>Configure sua agenda online e acompanhe seus agendamentos.</p>
         </div>
 
-        <a
-          href={publicBookingPath}
-          target="_blank"
-          rel="noreferrer"
-          className="zunary-public-link"
-        >
-          <ExternalLink size={16} />
-          Página pública
-        </a>
+        <div className="zunary-dashboard-header-actions">
+          <button
+            className="zunary-button zunary-button-secondary"
+            onClick={loadDashboard}
+          >
+            <RefreshCw size={16} />
+            Atualizar
+          </button>
+
+          <a
+            href={publicBookingPath}
+            target="_blank"
+            rel="noreferrer"
+            className="zunary-button"
+          >
+            <ExternalLink size={16} />
+            Página pública
+          </a>
+        </div>
       </div>
 
       {isAdmin && (
@@ -231,6 +326,53 @@ export function Dashboard() {
           </span>
         </div>
       )}
+
+      <div className="zunary-onboarding-card">
+        <div className="zunary-onboarding-card-main">
+          <span>Primeiros passos</span>
+          <h2>
+            {nextStep
+              ? `Próximo passo: ${nextStep.title}`
+              : "Sua agenda está pronta para receber clientes"}
+          </h2>
+          <p>
+            {nextStep
+              ? nextStep.description
+              : "Compartilhe seu link público e acompanhe as solicitações recebidas pelo painel."}
+          </p>
+
+          <div className="zunary-onboarding-actions">
+            {nextStep ? (
+              <Link to={nextStep.href} className="zunary-button">
+                {nextStep.action}
+              </Link>
+            ) : (
+              <button className="zunary-button" onClick={handleCopyPublicLink}>
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+                {copied ? "Link copiado" : "Copiar link"}
+              </button>
+            )}
+
+            <Link
+              to="/appointments"
+              className="zunary-button zunary-button-secondary"
+            >
+              Ver agendamentos
+            </Link>
+          </div>
+        </div>
+
+        <div className="zunary-onboarding-progress">
+          <strong>{progressPercent}%</strong>
+          <span>
+            {completedSteps} de {checklist.length} etapas concluídas
+          </span>
+
+          <div className="zunary-progress-bar">
+            <div style={{ width: `${progressPercent}%` }} />
+          </div>
+        </div>
+      </div>
 
       <div className="zunary-dashboard-top-grid">
         <div className="zunary-hero-card">
@@ -280,26 +422,18 @@ export function Dashboard() {
 
       <div className="zunary-card">
         <div className="zunary-card-header">
-          <h2>Checklist do MVP</h2>
+          <h2>Checklist de configuração</h2>
           <p>
-            Progresso da configuração: {completedSteps} de {totalSteps} etapas
-            concluídas.
+            Complete as etapas abaixo para deixar sua agenda pronta para os
+            clientes.
           </p>
-        </div>
-
-        <div className="zunary-progress-bar">
-          <div
-            style={{
-              width: `${(completedSteps / totalSteps) * 100}%`,
-            }}
-          />
         </div>
 
         <div className="zunary-checklist">
           {checklist.map((item) => (
-            <a
+            <Link
               key={item.title}
-              href={item.href}
+              to={item.href}
               className="zunary-checklist-item"
             >
               <div className={item.done ? "done" : ""}>
@@ -310,7 +444,7 @@ export function Dashboard() {
                 <strong>{item.title}</strong>
                 <span>{item.description}</span>
               </section>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -360,6 +494,15 @@ export function Dashboard() {
           <span>Agendamentos</span>
           <h3>{stats.appointmentsCount}</h3>
           <p>Total de solicitações recebidas.</p>
+        </div>
+
+        <div className="zunary-stat-card">
+          <div>
+            <Settings size={20} />
+          </div>
+          <span>Página pública</span>
+          <h3>{company.public_booking_enabled ? "Ativa" : "Off"}</h3>
+          <p>{hasPlanAccess ? "Plano liberado" : "Plano pendente"}</p>
         </div>
       </div>
     </div>
