@@ -5731,3 +5731,93 @@ canvas {
     max-width: 100% !important;
   }
 }
+
+/* ========================= */
+/* GLOBAL DATE OVERFLOW HARD FIX */
+/* ========================= */
+
+@media (max-width: 768px) {
+  input[type="date"],
+  input[type="time"],
+  .zunary-input[type="date"],
+  .zunary-input[type="time"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+  }
+
+  .zunary-field,
+  .zunary-card,
+  .zunary-page,
+  .zunary-form,
+  .zunary-form-grid,
+  .zunary-filters,
+  .zunary-public-minimal-card,
+  .zunary-public-minimal-section,
+  .zunary-public-success-summary,
+  .zunary-public-success-summary div,
+  .zunary-public-minimal-summary,
+  .zunary-public-minimal-summary div,
+  .zunary-appointment-card,
+  .zunary-appointment-main,
+  .zunary-appointment-top,
+  .zunary-appointment-info-grid,
+  .zunary-appointment-info-grid div,
+  .zunary-appointment-date,
+  .zunary-billing-event-item,
+  .zunary-admin-list-item {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .zunary-appointment-date {
+    width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    justify-content: flex-start !important;
+    border-radius: 14px !important;
+  }
+
+  .zunary-appointment-date svg {
+    flex-shrink: 0 !important;
+  }
+
+  .zunary-public-success-summary strong,
+  .zunary-public-minimal-summary strong,
+  .zunary-appointment-date,
+  .zunary-billing-event-item time,
+  .zunary-admin-list-item time,
+  .zunary-appointment-info-grid span {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+  }
+
+  .zunary-billing-event-item time,
+  .zunary-admin-list-item time {
+    white-space: normal !important;
+  }
+
+  .zunary-public-success-summary {
+    width: 100% !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .zunary-public-success-summary div {
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .zunary-public-success-summary strong {
+    display: block !important;
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+  }
+}
