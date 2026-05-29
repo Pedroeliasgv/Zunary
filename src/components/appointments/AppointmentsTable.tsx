@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  CheckCircle2,
+  Clock,
+  Mail,
+  Phone,
+  RefreshCw,
+  X,
+} from "lucide-react";
 import { APPOINTMENT_STATUS_LABELS } from "../../constants/appointment-status";
 import {
   getAppointmentsByCompany,
@@ -13,19 +22,73 @@ type AppointmentsTableProps = {
 
 type StatusFilter = AppointmentStatus | "all";
 
+type AppointmentWithRelations = {
+  id: string;
+  appointment_date: string;
+  start_time: string;
+  end_time: string;
+  status: AppointmentStatus;
+  notes?: string | null;
+  services?: {
+    name?: string | null;
+    duration_minutes?: number | null;
+    price?: number | null;
+  } | null;
+  customers?: {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  } | null;
+};
+
+function formatDate(date: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(`${date}T00:00:00`));
+}
+
+function getStatusClass(status: AppointmentStatus) {
+  if (status === "pending") return "pending";
+  if (status === "confirmed") return "confirmed";
+  if (status === "canceled") return "canceled";
+  if (status === "completed") return "completed";
+
+  return "default";
+}
+
+function getStatusLabel(status: AppointmentStatus) {
+  return APPOINTMENT_STATUS_LABELS[status] || status;
+}
+
 export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
-  const [appointments, setAppointments] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentWithRelations[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
+  const [updatingAppointmentId, setUpdatingAppointmentId] = useState<
+    string | null
+  >(null);
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [dateFilter, setDateFilter] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function loadAppointments() {
-    setLoading(true);
-
     try {
+      setLoading(true);
+      setErrorMessage("");
+
       const data = await getAppointmentsByCompany(companyId);
-      setAppointments(data || []);
+      setAppointments((data || []) as AppointmentWithRelations[]);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao carregar agendamentos."
+      );
     } finally {
       setLoading(false);
     }
@@ -39,8 +102,21 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
     appointmentId: string,
     status: AppointmentStatus
   ) {
-    await updateAppointmentStatus(appointmentId, status);
-    await loadAppointments();
+    try {
+      setUpdatingAppointmentId(appointmentId);
+      setErrorMessage("");
+
+      await updateAppointmentStatus(appointmentId, status);
+      await loadAppointments();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao atualizar agendamento."
+      );
+    } finally {
+      setUpdatingAppointmentId(null);
+    }
   }
 
   function clearFilters() {
@@ -87,31 +163,53 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
 
   return (
     <div className="zunary-page">
+      {errorMessage && <div className="zunary-error">{errorMessage}</div>}
+
       <div className="zunary-appointments-summary">
-        <div>
+        <button
+          className={statusFilter === "all" ? "active" : ""}
+          onClick={() => setStatusFilter("all")}
+          type="button"
+        >
           <span>Total</span>
           <strong>{statusCounts.total}</strong>
-        </div>
+        </button>
 
-        <div>
+        <button
+          className={statusFilter === "pending" ? "active" : ""}
+          onClick={() => setStatusFilter("pending")}
+          type="button"
+        >
           <span>Pendentes</span>
           <strong>{statusCounts.pending}</strong>
-        </div>
+        </button>
 
-        <div>
+        <button
+          className={statusFilter === "confirmed" ? "active" : ""}
+          onClick={() => setStatusFilter("confirmed")}
+          type="button"
+        >
           <span>Confirmados</span>
           <strong>{statusCounts.confirmed}</strong>
-        </div>
+        </button>
 
-        <div>
+        <button
+          className={statusFilter === "canceled" ? "active" : ""}
+          onClick={() => setStatusFilter("canceled")}
+          type="button"
+        >
           <span>Cancelados</span>
           <strong>{statusCounts.canceled}</strong>
-        </div>
+        </button>
 
-        <div>
+        <button
+          className={statusFilter === "completed" ? "active" : ""}
+          onClick={() => setStatusFilter("completed")}
+          type="button"
+        >
           <span>Concluídos</span>
           <strong>{statusCounts.completed}</strong>
-        </div>
+        </button>
       </div>
 
       <div className="zunary-card">
@@ -152,11 +250,16 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
             <button
               className="zunary-button zunary-button-secondary"
               onClick={clearFilters}
+              type="button"
             >
               Limpar filtros
             </button>
 
-            <button className="zunary-button" onClick={loadAppointments}>
+            <button
+              className="zunary-button"
+              onClick={loadAppointments}
+              type="button"
+            >
               <RefreshCw size={16} />
               Atualizar
             </button>
@@ -169,42 +272,136 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
           Nenhum agendamento encontrado com os filtros selecionados.
         </div>
       ) : (
-        <div className="zunary-table-wrapper">
-          <table className="zunary-table">
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Serviço</th>
-                <th>Data</th>
-                <th>Horário</th>
-                <th>Contato</th>
-                <th>Status</th>
-              </tr>
-            </thead>
+        <div className="zunary-appointments-list">
+          {filteredAppointments.map((appointment) => {
+            const customerName =
+              appointment.customers?.name || "Cliente sem nome";
+            const customerPhone = appointment.customers?.phone || "";
+            const customerEmail = appointment.customers?.email || "";
+            const serviceName =
+              appointment.services?.name || "Serviço não encontrado";
 
-            <tbody>
-              {filteredAppointments.map((appointment) => (
-                <tr key={appointment.id}>
-                  <td>
-                    <strong>{appointment.customers?.name || "-"}</strong>
-                  </td>
+            return (
+              <article
+                key={appointment.id}
+                className="zunary-appointment-card"
+              >
+                <div className="zunary-appointment-main">
+                  <div className="zunary-appointment-top">
+                    <div>
+                      <span
+                        className={`zunary-appointment-status ${getStatusClass(
+                          appointment.status
+                        )}`}
+                      >
+                        {getStatusLabel(appointment.status)}
+                      </span>
 
-                  <td>{appointment.services?.name || "-"}</td>
+                      <h3>{customerName}</h3>
+                    </div>
 
-                  <td>{appointment.appointment_date}</td>
+                    <div className="zunary-appointment-date">
+                      <CalendarDays size={16} />
+                      {formatDate(appointment.appointment_date)}
+                    </div>
+                  </div>
 
-                  <td>
-                    {appointment.start_time.slice(0, 5)} até{" "}
-                    {appointment.end_time.slice(0, 5)}
-                  </td>
+                  <div className="zunary-appointment-info-grid">
+                    <div>
+                      <Clock size={16} />
+                      <span>
+                        {appointment.start_time.slice(0, 5)} até{" "}
+                        {appointment.end_time.slice(0, 5)}
+                      </span>
+                    </div>
 
-                  <td>
-                    {appointment.customers?.phone ||
-                      appointment.customers?.email ||
-                      "-"}
-                  </td>
+                    <div>
+                      <CheckCircle2 size={16} />
+                      <span>{serviceName}</span>
+                    </div>
 
-                  <td>
+                    {customerPhone && (
+                      <div>
+                        <Phone size={16} />
+                        <span>{customerPhone}</span>
+                      </div>
+                    )}
+
+                    {customerEmail && (
+                      <div>
+                        <Mail size={16} />
+                        <span>{customerEmail}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {appointment.notes && (
+                    <div className="zunary-appointment-notes">
+                      <strong>Observações</strong>
+                      <p>{appointment.notes}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="zunary-appointment-actions">
+                  {appointment.status === "pending" && (
+                    <>
+                      <button
+                        className="zunary-button"
+                        onClick={() =>
+                          handleStatusChange(appointment.id, "confirmed")
+                        }
+                        disabled={updatingAppointmentId === appointment.id}
+                        type="button"
+                      >
+                        <Check size={16} />
+                        Confirmar
+                      </button>
+
+                      <button
+                        className="zunary-button zunary-button-secondary"
+                        onClick={() =>
+                          handleStatusChange(appointment.id, "canceled")
+                        }
+                        disabled={updatingAppointmentId === appointment.id}
+                        type="button"
+                      >
+                        <X size={16} />
+                        Cancelar
+                      </button>
+                    </>
+                  )}
+
+                  {appointment.status === "confirmed" && (
+                    <>
+                      <button
+                        className="zunary-button"
+                        onClick={() =>
+                          handleStatusChange(appointment.id, "completed")
+                        }
+                        disabled={updatingAppointmentId === appointment.id}
+                        type="button"
+                      >
+                        <CheckCircle2 size={16} />
+                        Concluir
+                      </button>
+
+                      <button
+                        className="zunary-button zunary-button-secondary"
+                        onClick={() =>
+                          handleStatusChange(appointment.id, "canceled")
+                        }
+                        disabled={updatingAppointmentId === appointment.id}
+                        type="button"
+                      >
+                        <X size={16} />
+                        Cancelar
+                      </button>
+                    </>
+                  )}
+
+                  {(appointment.status === "canceled" ||
+                    appointment.status === "completed") && (
                     <select
                       className="zunary-select"
                       value={appointment.status}
@@ -214,6 +411,7 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
                           event.target.value as AppointmentStatus
                         )
                       }
+                      disabled={updatingAppointmentId === appointment.id}
                     >
                       {Object.entries(APPOINTMENT_STATUS_LABELS).map(
                         ([value, label]) => (
@@ -223,11 +421,11 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
                         )
                       )}
                     </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  )}
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </div>
