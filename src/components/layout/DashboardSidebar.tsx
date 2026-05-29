@@ -11,6 +11,7 @@ import {
   Settings,
   Shield,
   Receipt,
+  Activity,
 } from "lucide-react";
 import { isCurrentUserAdmin } from "../../lib/admin";
 
@@ -55,6 +56,12 @@ const baseItems = [
     label: "Assinaturas",
     href: "/admin/subscriptions",
     icon: Receipt,
+    adminOnly: true,
+  },
+  {
+    label: "Eventos",
+    href: "/admin/events",
+    icon: Activity,
     adminOnly: true,
   },
 ];

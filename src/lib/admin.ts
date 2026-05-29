@@ -108,3 +108,26 @@ export async function getAdminSubscriptions() {
 
   return data as AdminSubscription[];
 }
+
+export type AdminBillingEvent = {
+  id: string;
+  company_id: string | null;
+  company_name: string | null;
+  company_subscription_id: string | null;
+  provider: string;
+  event_type: string;
+  asaas_payment_id: string | null;
+  asaas_subscription_id: string | null;
+  asaas_customer_id: string | null;
+  created_at: string;
+};
+
+export async function getAdminBillingEvents() {
+  const { data, error } = await supabase.rpc("get_admin_billing_events");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as AdminBillingEvent[];
+}
