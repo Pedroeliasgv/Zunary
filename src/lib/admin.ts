@@ -131,3 +131,21 @@ export async function getAdminBillingEvents() {
 
   return data as AdminBillingEvent[];
 }
+
+export type AdminUser = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  role: "user" | "admin";
+  created_at: string;
+};
+
+export async function getAdminUsers() {
+  const { data, error } = await supabase.rpc("get_admin_users");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as AdminUser[];
+}
