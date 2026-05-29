@@ -3574,3 +3574,38 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========================= */
+/* APPOINTMENT CANCEL REASON */
+/* ========================= */
+
+.zunary-appointment-cancel-reason {
+  border-left: 3px solid rgba(239, 68, 68, 0.55);
+  background: #fef2f2;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.zunary-appointment-cancel-reason strong {
+  display: block;
+  color: #991b1b;
+  font-size: 12px;
+  font-weight: 950;
+  margin-bottom: 4px;
+}
+
+.zunary-appointment-cancel-reason p {
+  margin: 0;
+  color: #7f1d1d;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.zunary-appointment-cancel-box {
+  border: 1px solid rgba(239, 68, 68, 0.24);
+  background: #fff7f7;
+  border-radius: 18px;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}

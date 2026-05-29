@@ -13,6 +13,7 @@ import { APPOINTMENT_STATUS_LABELS } from "../../constants/appointment-status";
 import {
   getAppointmentsByCompany,
   updateAppointmentStatus,
+  updateAppointmentStatusWithReason,
 } from "../../lib/appointments";
 import type { AppointmentStatus } from "../../types";
 
@@ -29,6 +30,7 @@ type AppointmentWithRelations = {
   end_time: string;
   status: AppointmentStatus;
   notes?: string | null;
+  cancellation_reason?: string | null;
   services?: {
     name?: string | null;
     duration_minutes?: number | null;
@@ -67,6 +69,7 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
   const [appointments, setAppointments] = useState<AppointmentWithRelations[]>(
     []
   );
+
   const [loading, setLoading] = useState(true);
   const [updatingAppointmentId, setUpdatingAppointmentId] = useState<
     string | null
@@ -74,7 +77,14 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [dateFilter, setDateFilter] = useState("");
+
+  const [cancelingAppointmentId, setCancelingAppointmentId] = useState<
+    string | null
+  >(null);
+  const [cancellationReason, setCancellationReason] = useState("");
+
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   async function loadAppointments() {
     try {
@@ -102,17 +112,83 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
     appointmentId: string,
     status: AppointmentStatus
   ) {
+    const needsConfirmation =
+      status === "completed" || status === "confirmed" || status === "pending";
+
+    if (needsConfirmation) {
+      const confirmed = window.confirm(
+        `Deseja alterar este agendamento para "${getStatusLabel(status)}"?`
+      );
+
+      if (!confirmed) return;
+    }
+
     try {
       setUpdatingAppointmentId(appointmentId);
       setErrorMessage("");
+      setSuccessMessage("");
 
       await updateAppointmentStatus(appointmentId, status);
+
+      setSuccessMessage("Status do agendamento atualizado com sucesso.");
       await loadAppointments();
     } catch (error) {
       setErrorMessage(
         error instanceof Error
           ? error.message
           : "Erro ao atualizar agendamento."
+      );
+    } finally {
+      setUpdatingAppointmentId(null);
+    }
+  }
+
+  function startCancelingAppointment(appointmentId: string) {
+    setCancelingAppointmentId(appointmentId);
+    setCancellationReason("");
+    setErrorMessage("");
+    setSuccessMessage("");
+  }
+
+  function cancelCancelingAppointment() {
+    setCancelingAppointmentId(null);
+    setCancellationReason("");
+    setErrorMessage("");
+  }
+
+  async function handleCancelAppointment(appointmentId: string) {
+    const trimmedReason = cancellationReason.trim();
+
+    if (!trimmedReason) {
+      setErrorMessage("Informe o motivo do cancelamento.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Tem certeza que deseja cancelar este agendamento?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setUpdatingAppointmentId(appointmentId);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      await updateAppointmentStatusWithReason({
+        appointmentId,
+        status: "canceled",
+        cancellationReason: trimmedReason,
+      });
+
+      setSuccessMessage("Agendamento cancelado com sucesso.");
+      setCancelingAppointmentId(null);
+      setCancellationReason("");
+
+      await loadAppointments();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao cancelar agendamento."
       );
     } finally {
       setUpdatingAppointmentId(null);
@@ -164,6 +240,10 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
   return (
     <div className="zunary-page">
       {errorMessage && <div className="zunary-error">{errorMessage}</div>}
+
+      {successMessage && (
+        <div className="zunary-success">{successMessage}</div>
+      )}
 
       <div className="zunary-appointments-summary">
         <button
@@ -280,6 +360,8 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
             const customerEmail = appointment.customers?.email || "";
             const serviceName =
               appointment.services?.name || "Serviço não encontrado";
+            const isCanceling = cancelingAppointmentId === appointment.id;
+            const isUpdating = updatingAppointmentId === appointment.id;
 
             return (
               <article
@@ -341,29 +423,71 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
                       <p>{appointment.notes}</p>
                     </div>
                   )}
+
+                  {appointment.cancellation_reason && (
+                    <div className="zunary-appointment-cancel-reason">
+                      <strong>Motivo do cancelamento</strong>
+                      <p>{appointment.cancellation_reason}</p>
+                    </div>
+                  )}
+
+                  {isCanceling && (
+                    <div className="zunary-appointment-cancel-box">
+                      <div className="zunary-field">
+                        <label>Motivo do cancelamento</label>
+                        <textarea
+                          className="zunary-textarea"
+                          value={cancellationReason}
+                          onChange={(event) =>
+                            setCancellationReason(event.target.value)
+                          }
+                          placeholder="Ex: Cliente pediu cancelamento, horário indisponível, imprevisto..."
+                          autoFocus
+                        />
+                      </div>
+
+                      <div className="zunary-list-actions">
+                        <button
+                          className="zunary-button zunary-button-danger"
+                          type="button"
+                          onClick={() => handleCancelAppointment(appointment.id)}
+                          disabled={isUpdating}
+                        >
+                          {isUpdating ? "Cancelando..." : "Confirmar cancelamento"}
+                        </button>
+
+                        <button
+                          className="zunary-button zunary-button-secondary"
+                          type="button"
+                          onClick={cancelCancelingAppointment}
+                          disabled={isUpdating}
+                        >
+                          Voltar
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="zunary-appointment-actions">
-                  {appointment.status === "pending" && (
+                  {appointment.status === "pending" && !isCanceling && (
                     <>
                       <button
                         className="zunary-button"
                         onClick={() =>
                           handleStatusChange(appointment.id, "confirmed")
                         }
-                        disabled={updatingAppointmentId === appointment.id}
+                        disabled={isUpdating}
                         type="button"
                       >
                         <Check size={16} />
-                        Confirmar
+                        {isUpdating ? "Atualizando..." : "Confirmar"}
                       </button>
 
                       <button
                         className="zunary-button zunary-button-secondary"
-                        onClick={() =>
-                          handleStatusChange(appointment.id, "canceled")
-                        }
-                        disabled={updatingAppointmentId === appointment.id}
+                        onClick={() => startCancelingAppointment(appointment.id)}
+                        disabled={isUpdating}
                         type="button"
                       >
                         <X size={16} />
@@ -372,26 +496,24 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
                     </>
                   )}
 
-                  {appointment.status === "confirmed" && (
+                  {appointment.status === "confirmed" && !isCanceling && (
                     <>
                       <button
                         className="zunary-button"
                         onClick={() =>
                           handleStatusChange(appointment.id, "completed")
                         }
-                        disabled={updatingAppointmentId === appointment.id}
+                        disabled={isUpdating}
                         type="button"
                       >
                         <CheckCircle2 size={16} />
-                        Concluir
+                        {isUpdating ? "Atualizando..." : "Concluir"}
                       </button>
 
                       <button
                         className="zunary-button zunary-button-secondary"
-                        onClick={() =>
-                          handleStatusChange(appointment.id, "canceled")
-                        }
-                        disabled={updatingAppointmentId === appointment.id}
+                        onClick={() => startCancelingAppointment(appointment.id)}
+                        disabled={isUpdating}
                         type="button"
                       >
                         <X size={16} />
@@ -411,7 +533,7 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
                           event.target.value as AppointmentStatus
                         )
                       }
-                      disabled={updatingAppointmentId === appointment.id}
+                      disabled={isUpdating}
                     >
                       {Object.entries(APPOINTMENT_STATUS_LABELS).map(
                         ([value, label]) => (

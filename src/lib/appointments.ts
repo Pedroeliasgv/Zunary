@@ -13,6 +13,12 @@ type CreateAppointmentData = {
   notes?: string;
 };
 
+type UpdateAppointmentStatusData = {
+  appointmentId: string;
+  status: AppointmentStatus;
+  cancellationReason?: string | null;
+};
+
 export async function getAppointmentsByCompany(companyId: string) {
   const { data, error } = await supabase
     .from("appointments")
@@ -100,6 +106,7 @@ export async function createPublicAppointment(data: CreateAppointmentData) {
       end_time: data.end_time,
       status: "pending",
       notes: data.notes || null,
+      cancellation_reason: null,
     })
     .select("*")
     .single();
@@ -115,9 +122,36 @@ export async function updateAppointmentStatus(
   appointmentId: string,
   status: AppointmentStatus
 ) {
+  return updateAppointmentStatusWithReason({
+    appointmentId,
+    status,
+    cancellationReason: null,
+  });
+}
+
+export async function updateAppointmentStatusWithReason({
+  appointmentId,
+  status,
+  cancellationReason,
+}: UpdateAppointmentStatusData) {
+  const updateData: {
+    status: AppointmentStatus;
+    cancellation_reason?: string | null;
+  } = {
+    status,
+  };
+
+  if (status === "canceled") {
+    updateData.cancellation_reason = cancellationReason?.trim() || null;
+  }
+
+  if (status !== "canceled") {
+    updateData.cancellation_reason = null;
+  }
+
   const { error } = await supabase
     .from("appointments")
-    .update({ status })
+    .update(updateData)
     .eq("id", appointmentId);
 
   if (error) {
