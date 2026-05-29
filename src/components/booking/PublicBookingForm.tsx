@@ -311,11 +311,26 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
       setNotes("");
       setBookedTimes([]);
     } catch (error) {
+      const message =
+    error instanceof Error ? error.message : "Erro ao criar agendamento.";
+
+    if (
+      message.toLowerCase().includes("duplicate") ||
+      message.toLowerCase().includes("unique") ||
+      message.toLowerCase().includes("unique_company_appointment_time_active")
+    ) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Erro ao criar agendamento."
+        "Este horário acabou de ser reservado por outra pessoa. Escolha outro horário."
       );
+
+      if (company && appointmentDate) {
+        await loadBookedTimes(company.id, appointmentDate);
+      }
+
+      return;
+    }
+
+    setErrorMessage(message);
     } finally {
       setSubmitting(false);
     }
