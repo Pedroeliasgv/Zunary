@@ -63,3 +63,24 @@ export async function getAdminOverview() {
 
   return data as AdminOverview;
 }
+
+export type AdminCompany = {
+  id: string;
+  name: string;
+  slug: string;
+  business_type: string | null;
+  public_booking_enabled: boolean;
+  created_at: string;
+  owner_name: string | null;
+  owner_email: string | null;
+};
+
+export async function getAdminCompanies() {
+  const { data, error } = await supabase.rpc("get_admin_companies");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as AdminCompany[];
+}

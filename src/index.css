@@ -2082,3 +2082,53 @@ a {
   }
 }
 
+/* ========================= */
+/* ADMIN COMPANIES */
+/* ========================= */
+
+.zunary-search-field {
+  width: min(100%, 480px);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: white;
+  border-radius: 16px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.zunary-search-field svg {
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.zunary-search-field input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 13px 0;
+  color: #020617;
+  font-size: 14px;
+}
+
+.zunary-search-field input::placeholder {
+  color: #94a3b8;
+}
+
+.zunary-admin-company-actions {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 700px) {
+  .zunary-search-field {
+    width: 100%;
+  }
+
+  .zunary-admin-company-actions {
+    align-items: flex-start;
+  }
+}

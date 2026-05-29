@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
+  Building2,
   CalendarDays,
   Clock,
   Home,
@@ -42,6 +43,12 @@ const baseItems = [
     label: "Configurações",
     href: "/settings",
     icon: Settings,
+  },
+  {
+    label: "Empresas",
+    href: "/admin/companies",
+    icon: Building2,
+    adminOnly: true,
   },
 ];
 
