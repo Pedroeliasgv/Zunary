@@ -49,10 +49,7 @@ serve(async (req) => {
     }
 
     if (!asaasApiKey) {
-      return jsonResponse(
-        { error: "ASAAS_API_KEY não configurada." },
-        500
-      );
+      return jsonResponse({ error: "ASAAS_API_KEY não configurada." }, 500);
     }
 
     const authorizationHeader = req.headers.get("Authorization");
@@ -61,13 +58,18 @@ serve(async (req) => {
       return jsonResponse({ error: "Usuário não autenticado." }, 401);
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
-      global: {
-        headers: {
-          Authorization: authorizationHeader,
-        },
-      },
-    });
+    const userToken = authorizationHeader.replace("Bearer ", "");
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseAdmin.auth.getUser(userToken);
+
+    if (userError || !user) {
+      return jsonResponse({ error: "Usuário não autenticado." }, 401);
+    }
 
     const { company_id, subscription_id } = (await req.json()) as RequestBody;
 
@@ -78,30 +80,37 @@ serve(async (req) => {
       );
     }
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return jsonResponse({ error: "Usuário não autenticado." }, 401);
-    }
-
-    const { data: company, error: companyError } = await supabase
+    const { data: company, error: companyError } = await supabaseAdmin
       .from("companies")
       .select("id, owner_id")
       .eq("id", company_id)
-      .eq("owner_id", user.id)
       .single();
 
     if (companyError || !company) {
+      return jsonResponse({ error: "Empresa não encontrada." }, 404);
+    }
+
+    const { data: isAdmin, error: adminError } = await supabaseAdmin.rpc(
+      "is_admin"
+    );
+
+    if (adminError) {
       return jsonResponse(
-        { error: "Empresa não encontrada ou sem permissão." },
+        { error: "Erro ao verificar permissão de admin." },
+        500
+      );
+    }
+
+    const isOwner = company.owner_id === user.id;
+
+    if (!isOwner && !isAdmin) {
+      return jsonResponse(
+        { error: "Você não tem permissão para cancelar esta assinatura." },
         403
       );
     }
 
-    const { data: subscription, error: subscriptionError } = await supabase
+    const { data: subscription, error: subscriptionError } = await supabaseAdmin
       .from("company_subscriptions")
       .select("*")
       .eq("id", subscription_id)
@@ -109,10 +118,15 @@ serve(async (req) => {
       .single();
 
     if (subscriptionError || !subscription) {
-      return jsonResponse(
-        { error: "Assinatura local não encontrada." },
-        404
-      );
+      return jsonResponse({ error: "Assinatura local não encontrada." }, 404);
+    }
+
+    if (subscription.status === "canceled") {
+      return jsonResponse({
+        success: true,
+        message: "Assinatura já estava cancelada.",
+        subscription,
+      });
     }
 
     if (subscription.asaas_subscription_id) {
@@ -140,17 +154,18 @@ serve(async (req) => {
       }
     }
 
-    const { data: updatedSubscription, error: updateError } = await supabase
-      .from("company_subscriptions")
-      .update({
-        status: "canceled",
-        billing_status: "canceled",
-        ends_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", subscription.id)
-      .select("*")
-      .single();
+    const { data: updatedSubscription, error: updateError } =
+      await supabaseAdmin
+        .from("company_subscriptions")
+        .update({
+          status: "canceled",
+          billing_status: "canceled",
+          ends_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", subscription.id)
+        .select("*")
+        .single();
 
     if (updateError) {
       return jsonResponse(
@@ -162,7 +177,7 @@ serve(async (req) => {
       );
     }
 
-    await supabase.from("billing_events").insert({
+    await supabaseAdmin.from("billing_events").insert({
       company_id: company.id,
       company_subscription_id: subscription.id,
       provider: "asaas",
@@ -171,10 +186,11 @@ serve(async (req) => {
       asaas_customer_id: subscription.asaas_customer_id || null,
       asaas_payment_id: subscription.asaas_payment_id || null,
       payload: {
-        source: "zunary",
+        source: isAdmin ? "zunary_admin" : "zunary_user",
         action: "cancel_subscription",
         local_subscription_id: subscription.id,
         asaas_subscription_id: subscription.asaas_subscription_id,
+        canceled_by_user_id: user.id,
       },
     });
 

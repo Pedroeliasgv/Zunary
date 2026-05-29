@@ -60,7 +60,6 @@ serve(async (req) => {
     const asaasApiKey = Deno.env.get("ASAAS_API_KEY");
     const asaasApiUrl =
       Deno.env.get("ASAAS_API_URL") || "https://api-sandbox.asaas.com/v3";
-    const appUrl = Deno.env.get("APP_URL");
 
     if (!supabaseUrl || !supabaseServiceRoleKey) {
       return jsonResponse(
@@ -69,7 +68,7 @@ serve(async (req) => {
       );
     }
 
-    if (!asaasApiKey || !appUrl) {
+    if (!asaasApiKey) {
       return jsonResponse(
         { error: "Variáveis do Asaas não configuradas." },
         500
@@ -82,13 +81,21 @@ serve(async (req) => {
       return jsonResponse({ error: "Usuário não autenticado." }, 401);
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
-      global: {
-        headers: {
-          Authorization: authorizationHeader,
-        },
-      },
-    });
+    const userToken = authorizationHeader.replace("Bearer ", "");
+
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      supabaseServiceRoleKey
+    );
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseAdmin.auth.getUser(userToken);
+
+    if (userError || !user) {
+      return jsonResponse({ error: "Usuário não autenticado." }, 401);
+    }
 
     const {
       company_id,
@@ -110,16 +117,7 @@ serve(async (req) => {
       );
     }
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return jsonResponse({ error: "Usuário não autenticado." }, 401);
-    }
-
-    const { data: company, error: companyError } = await supabase
+    const { data: company, error: companyError } = await supabaseAdmin
       .from("companies")
       .select("*")
       .eq("id", company_id)
@@ -133,7 +131,7 @@ serve(async (req) => {
       );
     }
 
-    const { data: plan, error: planError } = await supabase
+    const { data: plan, error: planError } = await supabaseAdmin
       .from("plans")
       .select("*")
       .eq("id", plan_id)
@@ -226,7 +224,7 @@ serve(async (req) => {
     const firstPayment = paymentsData?.data?.[0] || null;
     const paymentUrl = getFirstPaymentUrl(firstPayment);
 
-    await supabase
+    await supabaseAdmin
       .from("company_subscriptions")
       .update({
         status: "canceled",
@@ -237,7 +235,7 @@ serve(async (req) => {
       .eq("status", "active");
 
     const { data: localSubscription, error: localSubscriptionError } =
-      await supabase
+      await supabaseAdmin
         .from("company_subscriptions")
         .insert({
           company_id: company.id,
