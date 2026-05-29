@@ -12,6 +12,7 @@ import {
 import { APPOINTMENT_STATUS_LABELS } from "../../constants/appointment-status";
 import {
   getAppointmentsByCompany,
+  sendAppointmentEmail,
   updateAppointmentStatus,
   updateAppointmentStatusWithReason,
 } from "../../lib/appointments";
@@ -130,6 +131,20 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
 
       await updateAppointmentStatus(appointmentId, status);
 
+      if (status === "confirmed") {
+        try {
+          await sendAppointmentEmail({
+            appointmentId,
+            type: "confirmed",
+          });
+        } catch (emailError) {
+          console.warn(
+            "Status atualizado, mas o e-mail de confirmação não foi enviado:",
+            emailError
+          );
+        }
+      }
+
       setSuccessMessage("Status do agendamento atualizado com sucesso.");
       await loadAppointments();
     } catch (error) {
@@ -180,6 +195,18 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
         status: "canceled",
         cancellationReason: trimmedReason,
       });
+
+      try {
+        await sendAppointmentEmail({
+          appointmentId,
+          type: "canceled",
+        });
+      } catch (emailError) {
+        console.warn(
+          "Agendamento cancelado, mas o e-mail de cancelamento não foi enviado:",
+          emailError
+        );
+      }
 
       setSuccessMessage("Agendamento cancelado com sucesso.");
       setCancelingAppointmentId(null);
@@ -453,7 +480,9 @@ export function AppointmentsTable({ companyId }: AppointmentsTableProps) {
                           onClick={() => handleCancelAppointment(appointment.id)}
                           disabled={isUpdating}
                         >
-                          {isUpdating ? "Cancelando..." : "Confirmar cancelamento"}
+                          {isUpdating
+                            ? "Cancelando..."
+                            : "Confirmar cancelamento"}
                         </button>
 
                         <button

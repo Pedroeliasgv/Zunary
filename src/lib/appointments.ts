@@ -158,3 +158,28 @@ export async function updateAppointmentStatusWithReason({
     throw new Error(error.message);
   }
 }
+
+export async function sendAppointmentEmail(data: {
+  appointmentId: string;
+  type: "created" | "confirmed" | "canceled";
+}) {
+  const { data: response, error } = await supabase.functions.invoke(
+    "send-appointment-email",
+    {
+      body: {
+        appointment_id: data.appointmentId,
+        type: data.type,
+      },
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message || "Erro ao enviar notificação por e-mail.");
+  }
+
+  if (response?.error) {
+    throw new Error(response.error);
+  }
+
+  return response;
+}
