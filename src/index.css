@@ -5821,3 +5821,154 @@ canvas {
     line-height: 1.45 !important;
   }
 }
+
+/* ========================= */
+/* APPOINTMENTS + AVAILABILITY MOBILE HARD FIX */
+/* ========================= */
+
+@media (max-width: 768px) {
+  /* AGENDAMENTOS */
+  .zunary-appointments-list,
+  .zunary-appointment-card,
+  .zunary-appointment-main,
+  .zunary-appointment-top,
+  .zunary-appointment-info-grid,
+  .zunary-appointment-info-grid div,
+  .zunary-appointment-notes,
+  .zunary-appointment-cancel-reason,
+  .zunary-appointment-cancel-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .zunary-appointment-card {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .zunary-appointment-top {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .zunary-appointment-date {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    justify-content: flex-start !important;
+  }
+
+  .zunary-appointment-date svg {
+    flex-shrink: 0 !important;
+  }
+
+  .zunary-appointment-info-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .zunary-appointment-info-grid div {
+    display: flex !important;
+    align-items: flex-start !important;
+  }
+
+  .zunary-appointment-info-grid span,
+  .zunary-appointment-notes p,
+  .zunary-appointment-cancel-reason p {
+    display: block !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    line-height: 1.45 !important;
+  }
+
+  .zunary-appointment-actions {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .zunary-appointment-actions .zunary-button,
+  .zunary-appointment-actions .zunary-select {
+    width: 100% !important;
+  }
+
+  /* DISPONIBILIDADE */
+  .zunary-availability-week,
+  .zunary-availability-day-card,
+  .zunary-availability-rules,
+  .zunary-availability-rule,
+  .zunary-availability-rule-info,
+  .zunary-availability-rule-actions,
+  .zunary-availability-edit {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .zunary-availability-day-card {
+    display: grid !important;
+    gap: 14px !important;
+  }
+
+  .zunary-availability-day-card > header {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    align-items: start !important;
+  }
+
+  .zunary-availability-day-card > header strong {
+    width: fit-content !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
+  .zunary-availability-rule {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .zunary-availability-rule-info strong {
+    display: block !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    line-height: 1.4 !important;
+  }
+
+  .zunary-availability-rule-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .zunary-availability-rule-actions .zunary-button {
+    width: 100% !important;
+  }
+
+  .zunary-availability-empty-day {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+}
