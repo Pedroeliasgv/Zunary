@@ -1,24 +1,28 @@
 import { Link } from "react-router-dom";
 import {
+  ArrowRight,
   CalendarDays,
   CheckCircle2,
   Clock,
   Link as LinkIcon,
+  MessageCircle,
   Scissors,
   Smartphone,
+  Sparkles,
 } from "lucide-react";
 
 export function Home() {
   return (
     <div className="zunary-home">
       <header className="zunary-home-header">
-        <div className="zunary-home-brand">
+        <Link to="/" className="zunary-home-brand">
           <div>Z</div>
           <strong>Zunary</strong>
-        </div>
+        </Link>
 
         <nav>
           <a href="#como-funciona">Como funciona</a>
+          <a href="#beneficios">Benefícios</a>
           <a href="#para-quem">Para quem é</a>
           <Link to="/login">Entrar</Link>
           <Link to="/register" className="zunary-home-nav-cta">
@@ -32,7 +36,7 @@ export function Home() {
           <div>
             <span>Agendamento online para negócios locais</span>
 
-            <h1>Organize seus agendamentos sem bagunça no WhatsApp.</h1>
+            <h1>Organize seus agendamentos sem depender da bagunça do WhatsApp.</h1>
 
             <p>
               A Zunary ajuda barbearias, salões, estúdios, clínicas e
@@ -43,11 +47,29 @@ export function Home() {
             <div className="zunary-home-actions">
               <Link to="/register" className="zunary-home-button">
                 Quero testar gratuitamente
+                <ArrowRight size={17} />
               </Link>
 
               <a href="#como-funciona" className="zunary-home-button secondary">
                 Ver como funciona
               </a>
+            </div>
+
+            <div className="zunary-home-trust-row">
+              <span>
+                <CheckCircle2 size={15} />
+                Beta gratuito
+              </span>
+
+              <span>
+                <CheckCircle2 size={15} />
+                Sem instalação
+              </span>
+
+              <span>
+                <CheckCircle2 size={15} />
+                Feito para negócios locais
+              </span>
             </div>
           </div>
 
@@ -77,6 +99,35 @@ export function Home() {
                 Agendamento solicitado
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="zunary-home-problem">
+          <div>
+            <MessageCircle size={24} />
+            <strong>Cliente perguntando horário toda hora</strong>
+            <p>
+              A Zunary reduz mensagens repetidas, porque o cliente vê os
+              serviços e horários disponíveis sozinho.
+            </p>
+          </div>
+
+          <div>
+            <Clock size={24} />
+            <strong>Agenda manual desorganizada</strong>
+            <p>
+              Você centraliza as solicitações em um painel simples, sem depender
+              de bloco de notas ou conversa perdida.
+            </p>
+          </div>
+
+          <div>
+            <CalendarDays size={24} />
+            <strong>Esquecimento de horários</strong>
+            <p>
+              Cada agendamento fica registrado com serviço, data, horário e
+              dados do cliente.
+            </p>
           </div>
         </section>
 
@@ -117,10 +168,50 @@ export function Home() {
           </div>
         </section>
 
+        <section id="beneficios" className="zunary-home-section">
+          <div className="zunary-home-section-header">
+            <span>Benefícios</span>
+            <h2>Mais organização sem complicar sua rotina.</h2>
+          </div>
+
+          <div className="zunary-home-benefits">
+            <div>
+              <Smartphone size={24} />
+              <strong>Menos mensagens repetidas</strong>
+              <p>
+                O cliente vê serviços, datas e horários sem precisar perguntar
+                tudo pelo WhatsApp.
+              </p>
+            </div>
+
+            <div>
+              <CheckCircle2 size={24} />
+              <strong>Painel simples</strong>
+              <p>
+                Todos os agendamentos ficam organizados em um só lugar para você
+                acompanhar.
+              </p>
+            </div>
+
+            <div>
+              <Sparkles size={24} />
+              <strong>Imagem mais profissional</strong>
+              <p>
+                Seu negócio ganha uma página própria para receber solicitações
+                de agendamento.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section id="para-quem" className="zunary-home-section">
           <div className="zunary-home-section-header">
             <span>Para quem é</span>
             <h2>Feita para negócios que vivem de horário marcado.</h2>
+            <p>
+              A Zunary funciona bem para serviços locais, profissionais
+              autônomos e pequenos negócios que precisam organizar atendimentos.
+            </p>
           </div>
 
           <div className="zunary-home-segments">
@@ -135,39 +226,60 @@ export function Home() {
           </div>
         </section>
 
-        <section className="zunary-home-benefits">
-          <div>
-            <Smartphone size={24} />
-            <strong>Menos mensagens repetidas</strong>
-            <p>O cliente vê serviços, datas e horários sem precisar perguntar tudo no WhatsApp.</p>
-          </div>
-
-          <div>
-            <CheckCircle2 size={24} />
-            <strong>Mais organização</strong>
-            <p>Todos os agendamentos ficam centralizados no painel da empresa.</p>
-          </div>
-
-          <div>
-            <CalendarDays size={24} />
-            <strong>Página própria</strong>
-            <p>Cada negócio ganha um link público simples para receber agendamentos.</p>
-          </div>
-        </section>
-
         <section className="zunary-home-final-cta">
           <span>Beta gratuito</span>
           <h2>Teste a Zunary no seu negócio.</h2>
           <p>
             Estamos liberando poucas vagas para negócios locais testarem a
-            primeira versão gratuitamente.
+            primeira versão gratuitamente e enviarem feedback.
           </p>
 
           <Link to="/register" className="zunary-home-button">
             Criar minha conta
+            <ArrowRight size={17} />
           </Link>
         </section>
       </main>
+
+      <footer className="zunary-home-footer">
+        <div className="zunary-home-footer-content">
+          <div>
+            <Link to="/" className="zunary-home-brand">
+              <div>Z</div>
+              <strong>Zunary</strong>
+            </Link>
+
+            <p>
+              Agendamentos online simples para negócios locais organizarem
+              serviços, horários e clientes em uma página própria.
+            </p>
+          </div>
+
+          <div>
+            <strong>Produto</strong>
+            <a href="#como-funciona">Como funciona</a>
+            <a href="#beneficios">Benefícios</a>
+            <a href="#para-quem">Para quem é</a>
+          </div>
+
+          <div>
+            <strong>Acesso</strong>
+            <Link to="/login">Entrar</Link>
+            <Link to="/register">Criar conta</Link>
+          </div>
+
+          <div>
+            <strong>Beta</strong>
+            <span>Primeira versão em teste</span>
+            <span>Vagas limitadas para negócios locais</span>
+          </div>
+        </div>
+
+        <div className="zunary-home-footer-bottom">
+          <span>© {new Date().getFullYear()} Zunary. Todos os direitos reservados.</span>
+          <span>Construído para negócios locais.</span>
+        </div>
+      </footer>
     </div>
   );
 }
