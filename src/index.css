@@ -6006,3 +6006,136 @@ canvas {
     margin-top: 14px !important;
   }
 }
+
+/* ========================= */
+/* ADMIN MASTER DASHBOARD */
+/* ========================= */
+
+.zunary-admin-master-hero {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(6, 214, 255, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.94);
+  border-radius: 28px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr minmax(240px, 0.35fr);
+  gap: 18px;
+  align-items: stretch;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.05);
+}
+
+.zunary-admin-master-hero > div:first-child {
+  display: grid;
+  align-content: center;
+}
+
+.zunary-admin-master-hero > div:first-child > span {
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.zunary-admin-master-hero h2 {
+  margin: 8px 0;
+  color: #020617;
+  font-size: clamp(30px, 4vw, 46px);
+  font-weight: 950;
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+}
+
+.zunary-admin-master-hero p {
+  margin: 0;
+  max-width: 640px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.zunary-admin-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.zunary-admin-quick-actions a {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 20px;
+  padding: 16px;
+  text-decoration: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: 0.18s ease;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.04);
+}
+
+.zunary-admin-quick-actions a:hover {
+  border-color: rgba(37, 99, 235, 0.35);
+  background: #eff6ff;
+  transform: translateY(-1px);
+}
+
+.zunary-admin-quick-actions svg {
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.zunary-admin-quick-actions strong {
+  display: block;
+  color: #020617;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.zunary-admin-quick-actions span {
+  display: block;
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.zunary-admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.zunary-admin-clickable-item {
+  text-decoration: none;
+  transition: 0.18s ease;
+}
+
+.zunary-admin-clickable-item:hover {
+  border-color: rgba(37, 99, 235, 0.35);
+  background: #eff6ff;
+}
+
+@media (max-width: 1100px) {
+  .zunary-admin-master-hero,
+  .zunary-admin-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .zunary-admin-quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-master-hero {
+    border-radius: 22px;
+    padding: 18px;
+  }
+}
