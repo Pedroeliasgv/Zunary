@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { PublicOnlyRoute } from "./components/auth/PublicOnlyRoute";
@@ -20,6 +20,7 @@ import { AdminSubscriptions } from "./pages/AdminSubscriptions";
 import { AdminEvents } from "./pages/AdminEvents";
 import { AdminUsers } from "./pages/AdminUsers";
 import { AdminCompanyDetails } from "./pages/AdminCompanyDetails";
+import { Home } from "./pages/Home";
 
 function ProtectedPage({ children }: { children: React.ReactNode }) {
   return (
@@ -42,7 +43,7 @@ function ProtectedPlanPage({ children }: { children: React.ReactNode }) {
 export function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Home />} />
 
       <Route
         path="/login"
