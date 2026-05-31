@@ -1,6 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ExternalLink, Search, Shield } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CreditCard,
+  ExternalLink,
+  RefreshCw,
+  Search,
+  Shield,
+  XCircle,
+} from "lucide-react";
 import {
   getAdminSubscriptions,
   isCurrentUserAdmin,
@@ -40,6 +49,18 @@ function getStatusLabel(status?: string | null) {
   return status ? labels[status] || status : "-";
 }
 
+function getStatusClass(status?: string | null) {
+  if (status === "active" || status === "paid") return "paid";
+  if (status === "inactive" || status === "pending") return "pending";
+  if (status === "past_due" || status === "overdue" || status === "failed") {
+    return "failed";
+  }
+  if (status === "canceled") return "canceled";
+  if (status === "refunded") return "refunded";
+
+  return "default";
+}
+
 export function AdminSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<AdminSubscription[]>([]);
   const [admin, setAdmin] = useState(false);
@@ -76,22 +97,36 @@ export function AdminSubscriptions() {
     loadSubscriptions();
   }, []);
 
-  const filteredSubscriptions = subscriptions.filter((subscription) => {
-    const value = search.trim().toLowerCase();
+  const summary = useMemo(() => {
+    return {
+      total: subscriptions.length,
+      active: subscriptions.filter((item) => item.status === "active").length,
+      pending: subscriptions.filter((item) => item.status === "inactive").length,
+      canceled: subscriptions.filter((item) => item.status === "canceled")
+        .length,
+      pastDue: subscriptions.filter((item) => item.status === "past_due").length,
+    };
+  }, [subscriptions]);
 
-    const matchesSearch =
-      !value ||
-      subscription.company_name?.toLowerCase().includes(value) ||
-      subscription.plan_name?.toLowerCase().includes(value) ||
-      subscription.status.toLowerCase().includes(value) ||
-      subscription.billing_status?.toLowerCase().includes(value) ||
-      subscription.asaas_subscription_id?.toLowerCase().includes(value);
+  const filteredSubscriptions = useMemo(() => {
+    return subscriptions.filter((subscription) => {
+      const value = search.trim().toLowerCase();
 
-    const matchesStatus =
-      statusFilter === "all" || subscription.status === statusFilter;
+      const matchesSearch =
+        !value ||
+        subscription.company_name?.toLowerCase().includes(value) ||
+        subscription.plan_name?.toLowerCase().includes(value) ||
+        subscription.status.toLowerCase().includes(value) ||
+        subscription.billing_status?.toLowerCase().includes(value) ||
+        subscription.asaas_subscription_id?.toLowerCase().includes(value) ||
+        subscription.asaas_payment_id?.toLowerCase().includes(value);
 
-    return matchesSearch && matchesStatus;
-  });
+      const matchesStatus =
+        statusFilter === "all" || subscription.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [subscriptions, search, statusFilter]);
 
   if (loading) {
     return <p className="zunary-muted-text">Carregando assinaturas...</p>;
@@ -111,7 +146,19 @@ export function AdminSubscriptions() {
   }
 
   if (errorMessage) {
-    return <div className="zunary-error">{errorMessage}</div>;
+    return (
+      <div className="zunary-page">
+        <div className="zunary-error">{errorMessage}</div>
+
+        <button
+          className="zunary-button zunary-button-secondary"
+          onClick={loadSubscriptions}
+        >
+          <RefreshCw size={16} />
+          Tentar novamente
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -120,18 +167,79 @@ export function AdminSubscriptions() {
         <div>
           <span>Admin</span>
           <h1>Assinaturas</h1>
-          <p>Acompanhe todas as assinaturas criadas na Zunary.</p>
+          <p>Acompanhe planos, cobranças e status das empresas da Zunary.</p>
         </div>
 
         <button
           className="zunary-button zunary-button-secondary"
           onClick={loadSubscriptions}
         >
+          <RefreshCw size={16} />
           Atualizar
         </button>
       </div>
 
+      <div className="zunary-admin-subscriptions-overview">
+        <button
+          className={statusFilter === "all" ? "active" : ""}
+          type="button"
+          onClick={() => setStatusFilter("all")}
+        >
+          <CreditCard size={20} />
+          <span>Total</span>
+          <strong>{summary.total}</strong>
+        </button>
+
+        <button
+          className={statusFilter === "active" ? "active" : ""}
+          type="button"
+          onClick={() => setStatusFilter("active")}
+        >
+          <CheckCircle2 size={20} />
+          <span>Ativas</span>
+          <strong>{summary.active}</strong>
+        </button>
+
+        <button
+          className={statusFilter === "inactive" ? "active" : ""}
+          type="button"
+          onClick={() => setStatusFilter("inactive")}
+        >
+          <AlertTriangle size={20} />
+          <span>Pendentes</span>
+          <strong>{summary.pending}</strong>
+        </button>
+
+        <button
+          className={statusFilter === "past_due" ? "active" : ""}
+          type="button"
+          onClick={() => setStatusFilter("past_due")}
+        >
+          <AlertTriangle size={20} />
+          <span>Vencidas</span>
+          <strong>{summary.pastDue}</strong>
+        </button>
+
+        <button
+          className={statusFilter === "canceled" ? "active" : ""}
+          type="button"
+          onClick={() => setStatusFilter("canceled")}
+        >
+          <XCircle size={20} />
+          <span>Canceladas</span>
+          <strong>{summary.canceled}</strong>
+        </button>
+      </div>
+
       <div className="zunary-card">
+        <div className="zunary-card-header">
+          <h2>Lista de assinaturas</h2>
+          <p>
+            Busque por empresa, plano, status, cobrança ou identificadores do
+            Asaas.
+          </p>
+        </div>
+
         <div className="zunary-admin-toolbar">
           <div className="zunary-search-field">
             <Search size={16} />
@@ -160,57 +268,86 @@ export function AdminSubscriptions() {
             Nenhuma assinatura encontrada.
           </div>
         ) : (
-          <div className="zunary-admin-list">
+          <div className="zunary-admin-subscriptions-list">
             {filteredSubscriptions.map((subscription) => (
-              <div key={subscription.id} className="zunary-admin-list-item">
-                <div>
-                  <strong>
-                    {subscription.company_name || "Empresa sem nome"}
-                  </strong>
+              <article
+                key={subscription.id}
+                className="zunary-admin-subscription-card"
+              >
+                <div className="zunary-admin-subscription-card-main">
+                  <div className="zunary-admin-subscription-card-top">
+                    <div>
+                      <span className="zunary-admin-subscription-eyebrow">
+                        {subscription.plan_name || "Plano não encontrado"}
+                      </span>
 
-                  <span>
-                    Plano: {subscription.plan_name || "Plano não encontrado"} •{" "}
-                    Status: {getStatusLabel(subscription.status)} /{" "}
-                    {getStatusLabel(subscription.billing_status)}
-                  </span>
+                      <h3>
+                        {subscription.company_name || "Empresa sem nome"}
+                      </h3>
+                    </div>
 
-                  <span>
-                    Vencimento: {formatDate(subscription.next_due_date)} •
-                    Criada em: {formatDateTime(subscription.created_at)}
-                  </span>
+                    <time>{formatDateTime(subscription.created_at)}</time>
+                  </div>
 
-                  {subscription.asaas_subscription_id && (
-                    <span>
-                      Asaas subscription: {subscription.asaas_subscription_id}
-                    </span>
-                  )}
+                  <div className="zunary-subscription-badges">
+                    <strong
+                      className={`zunary-status-pill ${getStatusClass(
+                        subscription.status
+                      )}`}
+                    >
+                      {getStatusLabel(subscription.status)}
+                    </strong>
 
-                  {subscription.asaas_payment_id && (
-                    <span>Asaas payment: {subscription.asaas_payment_id}</span>
-                  )}
+                    <strong
+                      className={`zunary-status-pill ${getStatusClass(
+                        subscription.billing_status
+                      )}`}
+                    >
+                      {getStatusLabel(subscription.billing_status)}
+                    </strong>
+                  </div>
 
+                  <div className="zunary-admin-subscription-info-grid">
+                    <div>
+                      <span>Vencimento</span>
+                      <strong>{formatDate(subscription.next_due_date)}</strong>
+                    </div>
+
+                    <div>
+                      <span>Asaas subscription</span>
+                      <strong>
+                        {subscription.asaas_subscription_id || "-"}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>Asaas payment</span>
+                      <strong>{subscription.asaas_payment_id || "-"}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="zunary-admin-subscription-card-actions">
                   <Link
                     to={`/admin/companies/${subscription.company_id}`}
-                    className="zunary-admin-inline-link"
-                    >
+                    className="zunary-button"
+                  >
                     Ver empresa
-                    </Link>
+                  </Link>
 
                   {subscription.checkout_url && (
                     <a
                       href={subscription.checkout_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="zunary-admin-inline-link"
+                      className="zunary-button zunary-button-secondary"
                     >
-                      <ExternalLink size={13} />
+                      <ExternalLink size={15} />
                       Abrir pagamento
                     </a>
                   )}
                 </div>
-
-                <time>{formatDateTime(subscription.created_at)}</time>
-              </div>
+              </article>
             ))}
           </div>
         )}

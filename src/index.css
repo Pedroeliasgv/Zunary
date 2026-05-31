@@ -6419,3 +6419,170 @@ canvas {
     white-space: normal;
   }
 }
+
+/* ========================= */
+/* ADMIN SUBSCRIPTIONS IMPROVED */
+/* ========================= */
+
+.zunary-admin-subscriptions-overview {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.zunary-admin-subscriptions-overview button {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 20px;
+  padding: 16px;
+  text-align: left;
+  display: grid;
+  gap: 7px;
+  cursor: pointer;
+  transition: 0.18s ease;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.04);
+}
+
+.zunary-admin-subscriptions-overview button:hover,
+.zunary-admin-subscriptions-overview button.active {
+  border-color: rgba(37, 99, 235, 0.38);
+  background: #eff6ff;
+}
+
+.zunary-admin-subscriptions-overview svg {
+  color: #2563eb;
+}
+
+.zunary-admin-subscriptions-overview span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-subscriptions-overview strong {
+  color: #020617;
+  font-size: 26px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.zunary-admin-subscriptions-list {
+  display: grid;
+  gap: 12px;
+}
+
+.zunary-admin-subscription-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 22px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+}
+
+.zunary-admin-subscription-card-main {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.zunary-admin-subscription-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.zunary-admin-subscription-card-top h3 {
+  margin: 5px 0 0;
+  color: #020617;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.zunary-admin-subscription-card-top time {
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.zunary-admin-subscription-eyebrow {
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-subscription-info-grid {
+  display: grid;
+  grid-template-columns: 0.6fr 1fr 1fr;
+  gap: 10px;
+}
+
+.zunary-admin-subscription-info-grid div {
+  border-radius: 16px;
+  background: white;
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.zunary-admin-subscription-info-grid span {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-subscription-info-grid strong {
+  color: #020617;
+  font-size: 13px;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.zunary-admin-subscription-card-actions {
+  min-width: 170px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+@media (max-width: 1100px) {
+  .zunary-admin-subscriptions-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .zunary-admin-subscription-card {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-subscription-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-subscription-card-actions {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .zunary-admin-subscriptions-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-subscription-card-top {
+    flex-direction: column;
+  }
+
+  .zunary-admin-subscription-card-top time {
+    white-space: normal;
+  }
+}
