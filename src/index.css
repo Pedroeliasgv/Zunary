@@ -7350,3 +7350,102 @@ canvas {
     white-space: nowrap;
   }
 }
+
+/* ========================= */
+/* AUTH BETA REGISTER */
+/* ========================= */
+
+.zunary-auth-beta-layout {
+  width: min(1040px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  gap: 32px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.zunary-auth-beta-copy {
+  color: white;
+  display: grid;
+  gap: 16px;
+}
+
+.zunary-auth-beta-copy > span {
+  color: #67e8f9;
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.zunary-auth-beta-copy h1 {
+  margin: 0;
+  max-width: 580px;
+  color: white;
+  font-size: clamp(38px, 6vw, 68px);
+  line-height: 0.95;
+  font-weight: 950;
+  letter-spacing: -0.08em;
+}
+
+.zunary-auth-beta-copy p {
+  margin: 0;
+  max-width: 560px;
+  color: #cbd5e1;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.zunary-auth-beta-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.zunary-auth-beta-list div {
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.zunary-auth-beta-list svg {
+  color: #22f5d2;
+  flex-shrink: 0;
+}
+
+.zunary-auth-beta-list strong {
+  color: white;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.zunary-auth-beta-copy small {
+  max-width: 520px;
+  color: rgba(203, 213, 225, 0.82);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .zunary-auth-beta-layout {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .zunary-auth-beta-copy {
+    text-align: center;
+    justify-items: center;
+  }
+
+  .zunary-auth-beta-list div {
+    width: 100%;
+    justify-content: center;
+    border-radius: 18px;
+  }
+}

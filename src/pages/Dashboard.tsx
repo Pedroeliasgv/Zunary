@@ -176,7 +176,9 @@ export function Dashboard() {
         done: stats.activeAvailabilityCount > 0,
         href: "/availability",
         action:
-          stats.activeAvailabilityCount > 0 ? "Ver horários" : "Definir horários",
+          stats.activeAvailabilityCount > 0
+            ? "Ver horários"
+            : "Definir horários",
       },
       {
         title: "Página pública pronta",
@@ -227,6 +229,7 @@ export function Dashboard() {
         <button
           className="zunary-button zunary-button-secondary"
           onClick={loadDashboard}
+          type="button"
         >
           <RefreshCw size={16} />
           Tentar novamente
@@ -241,10 +244,10 @@ export function Dashboard() {
         <div className="zunary-page-header">
           <div>
             <span>Primeiro passo</span>
-            <h1>Crie sua empresa</h1>
+            <h1>Configure seu negócio</h1>
             <p>
-              Para começar, cadastre as informações básicas do seu negócio e
-              gere sua página pública de agendamento.
+              Em poucos minutos você cadastra sua empresa, organiza seus
+              serviços e gera um link público para receber agendamentos.
             </p>
           </div>
         </div>
@@ -252,10 +255,10 @@ export function Dashboard() {
         <div className="zunary-onboarding-hero">
           <div>
             <span>Configuração inicial</span>
-            <h2>Sua agenda online começa aqui</h2>
+            <h2>Seu sistema de agendamento começa aqui</h2>
             <p>
-              Crie a empresa, cadastre serviços, defina horários e compartilhe o
-              link com seus clientes.
+              Cadastre sua empresa, defina os serviços, escolha os horários de
+              atendimento e compartilhe sua página pública com os clientes.
             </p>
           </div>
 
@@ -264,14 +267,17 @@ export function Dashboard() {
               <Check size={15} />
               Empresa
             </div>
+
             <div>
               <Scissors size={15} />
               Serviços
             </div>
+
             <div>
               <Clock size={15} />
               Horários
             </div>
+
             <div>
               <ExternalLink size={15} />
               Link público
@@ -293,13 +299,17 @@ export function Dashboard() {
         <div>
           <span>Dashboard</span>
           <h1>{company.name}</h1>
-          <p>Configure sua agenda online e acompanhe seus agendamentos.</p>
+          <p>
+            Organize serviços, horários e solicitações recebidas em um painel
+            simples.
+          </p>
         </div>
 
         <div className="zunary-dashboard-header-actions">
           <button
             className="zunary-button zunary-button-secondary"
             onClick={loadDashboard}
+            type="button"
           >
             <RefreshCw size={16} />
             Atualizar
@@ -330,11 +340,13 @@ export function Dashboard() {
       <div className="zunary-onboarding-card">
         <div className="zunary-onboarding-card-main">
           <span>Primeiros passos</span>
+
           <h2>
             {nextStep
               ? `Próximo passo: ${nextStep.title}`
               : "Sua agenda está pronta para receber clientes"}
           </h2>
+
           <p>
             {nextStep
               ? nextStep.description
@@ -347,7 +359,11 @@ export function Dashboard() {
                 {nextStep.action}
               </Link>
             ) : (
-              <button className="zunary-button" onClick={handleCopyPublicLink}>
+              <button
+                className="zunary-button"
+                onClick={handleCopyPublicLink}
+                type="button"
+              >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
                 {copied ? "Link copiado" : "Copiar link"}
               </button>
@@ -364,6 +380,7 @@ export function Dashboard() {
 
         <div className="zunary-onboarding-progress">
           <strong>{progressPercent}%</strong>
+
           <span>
             {completedSteps} de {checklist.length} etapas concluídas
           </span>
@@ -378,7 +395,9 @@ export function Dashboard() {
         <div className="zunary-hero-card">
           <div>
             <span>Link público de agendamento</span>
+
             <h2>{publicBookingPath}</h2>
+
             <p>
               Compartilhe esse link com seus clientes para receber solicitações
               de agendamento.
@@ -386,7 +405,7 @@ export function Dashboard() {
           </div>
 
           <div className="zunary-hero-actions">
-            <button onClick={handleCopyPublicLink}>
+            <button onClick={handleCopyPublicLink} type="button">
               {copied ? <Check size={16} /> : <Copy size={16} />}
               {copied ? "Copiado" : "Copiar link"}
             </button>
@@ -461,7 +480,7 @@ export function Dashboard() {
         <div className="zunary-link-box">
           <span>{publicBookingUrl}</span>
 
-          <button onClick={handleCopyPublicLink}>
+          <button onClick={handleCopyPublicLink} type="button">
             {copied ? <Check size={16} /> : <Copy size={16} />}
             {copied ? "Copiado" : "Copiar"}
           </button>
@@ -473,6 +492,7 @@ export function Dashboard() {
           <div>
             <Scissors size={20} />
           </div>
+
           <span>Serviços ativos</span>
           <h3>{stats.activeServicesCount}</h3>
           <p>Total cadastrado: {stats.servicesCount}</p>
@@ -482,6 +502,7 @@ export function Dashboard() {
           <div>
             <Clock size={20} />
           </div>
+
           <span>Disponibilidades ativas</span>
           <h3>{stats.activeAvailabilityCount}</h3>
           <p>Total cadastrado: {stats.availabilityCount}</p>
@@ -491,6 +512,7 @@ export function Dashboard() {
           <div>
             <CalendarDays size={20} />
           </div>
+
           <span>Agendamentos</span>
           <h3>{stats.appointmentsCount}</h3>
           <p>Total de solicitações recebidas.</p>
@@ -500,6 +522,7 @@ export function Dashboard() {
           <div>
             <Settings size={20} />
           </div>
+
           <span>Página pública</span>
           <h3>{company.public_booking_enabled ? "Ativa" : "Off"}</h3>
           <p>{hasPlanAccess ? "Plano liberado" : "Plano pendente"}</p>
