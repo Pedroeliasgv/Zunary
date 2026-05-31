@@ -6586,3 +6586,221 @@ canvas {
     white-space: normal;
   }
 }
+
+/* ========================= */
+/* ADMIN EVENTS IMPROVED */
+/* ========================= */
+
+.zunary-admin-events-overview {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.zunary-admin-events-overview button {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 20px;
+  padding: 16px;
+  text-align: left;
+  display: grid;
+  gap: 7px;
+  cursor: pointer;
+  transition: 0.18s ease;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.04);
+}
+
+.zunary-admin-events-overview button:hover,
+.zunary-admin-events-overview button.active {
+  border-color: rgba(37, 99, 235, 0.38);
+  background: #eff6ff;
+}
+
+.zunary-admin-events-overview svg {
+  color: #2563eb;
+}
+
+.zunary-admin-events-overview span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-events-overview strong {
+  color: #020617;
+  font-size: 26px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.zunary-admin-events-list {
+  display: grid;
+  gap: 12px;
+}
+
+.zunary-admin-event-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 22px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+}
+
+.zunary-admin-event-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.zunary-admin-event-icon.success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.zunary-admin-event-icon.info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.zunary-admin-event-icon.warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.zunary-admin-event-icon.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.zunary-admin-event-icon.default {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.zunary-admin-event-main {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.zunary-admin-event-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.zunary-admin-event-top h3 {
+  margin: 6px 0 0;
+  color: #020617;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.zunary-admin-event-top time {
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.zunary-admin-event-badge {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 9px;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-event-badge.success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.zunary-admin-event-badge.info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.zunary-admin-event-badge.warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.zunary-admin-event-badge.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.zunary-admin-event-badge.default {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.zunary-admin-event-info-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.zunary-admin-event-info-grid div {
+  border-radius: 16px;
+  background: white;
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.zunary-admin-event-info-grid span {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-event-info-grid strong {
+  color: #020617;
+  font-size: 13px;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1200px) {
+  .zunary-admin-event-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .zunary-admin-events-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .zunary-admin-events-overview,
+  .zunary-admin-event-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-event-card {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-event-top {
+    flex-direction: column;
+  }
+
+  .zunary-admin-event-top time {
+    white-space: normal;
+  }
+}
