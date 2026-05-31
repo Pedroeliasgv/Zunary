@@ -1,5 +1,12 @@
-import { useEffect, useState } from "react";
-import { Search, Shield, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  RefreshCw,
+  Search,
+  Shield,
+  ShieldCheck,
+  User,
+  Users,
+} from "lucide-react";
 import {
   adminUpdateUserRole,
   getAdminUsers,
@@ -19,6 +26,11 @@ function formatDateTime(date?: string | null) {
 function getRoleLabel(role?: string | null) {
   if (role === "admin") return "Admin";
   return "Usuário";
+}
+
+function getRoleClass(role?: string | null) {
+  if (role === "admin") return "admin";
+  return "user";
 }
 
 export function AdminUsers() {
@@ -96,19 +108,30 @@ export function AdminUsers() {
     }
   }
 
-  const filteredUsers = users.filter((user) => {
-    const value = search.trim().toLowerCase();
+  const summary = useMemo(() => {
+    return {
+      total: users.length,
+      admins: users.filter((user) => user.role === "admin").length,
+      commonUsers: users.filter((user) => user.role !== "admin").length,
+    };
+  }, [users]);
 
-    const matchesSearch =
-      !value ||
-      user.full_name?.toLowerCase().includes(value) ||
-      user.email?.toLowerCase().includes(value) ||
-      user.role.toLowerCase().includes(value);
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const value = search.trim().toLowerCase();
 
-    const matchesRole = roleFilter === "all" || user.role === roleFilter;
+      const matchesSearch =
+        !value ||
+        user.full_name?.toLowerCase().includes(value) ||
+        user.email?.toLowerCase().includes(value) ||
+        user.role.toLowerCase().includes(value) ||
+        user.id.toLowerCase().includes(value);
 
-    return matchesSearch && matchesRole;
-  });
+      const matchesRole = roleFilter === "all" || user.role === roleFilter;
+
+      return matchesSearch && matchesRole;
+    });
+  }, [users, search, roleFilter]);
 
   if (loading) {
     return <p className="zunary-muted-text">Carregando usuários...</p>;
@@ -133,7 +156,7 @@ export function AdminUsers() {
         <div>
           <span>Admin</span>
           <h1>Usuários</h1>
-          <p>Veja todos os usuários cadastrados na Zunary.</p>
+          <p>Gerencie usuários comuns e contas admin/master da Zunary.</p>
         </div>
 
         <button
@@ -141,6 +164,7 @@ export function AdminUsers() {
           onClick={loadUsers}
           disabled={Boolean(updatingUserId)}
         >
+          <RefreshCw size={16} />
           Atualizar
         </button>
       </div>
@@ -151,14 +175,51 @@ export function AdminUsers() {
         <div className="zunary-success">{successMessage}</div>
       )}
 
+      <div className="zunary-admin-users-overview">
+        <button
+          className={roleFilter === "all" ? "active" : ""}
+          type="button"
+          onClick={() => setRoleFilter("all")}
+        >
+          <Users size={20} />
+          <span>Total</span>
+          <strong>{summary.total}</strong>
+        </button>
+
+        <button
+          className={roleFilter === "admin" ? "active" : ""}
+          type="button"
+          onClick={() => setRoleFilter("admin")}
+        >
+          <ShieldCheck size={20} />
+          <span>Admins</span>
+          <strong>{summary.admins}</strong>
+        </button>
+
+        <button
+          className={roleFilter === "user" ? "active" : ""}
+          type="button"
+          onClick={() => setRoleFilter("user")}
+        >
+          <User size={20} />
+          <span>Usuários comuns</span>
+          <strong>{summary.commonUsers}</strong>
+        </button>
+      </div>
+
       <div className="zunary-card">
+        <div className="zunary-card-header">
+          <h2>Lista de usuários</h2>
+          <p>Busque por nome, e-mail, role ou ID do usuário.</p>
+        </div>
+
         <div className="zunary-admin-toolbar">
           <div className="zunary-search-field">
             <Search size={16} />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar por nome, e-mail ou role..."
+              placeholder="Buscar por nome, e-mail, role ou ID..."
             />
           </div>
 
@@ -176,27 +237,44 @@ export function AdminUsers() {
         {filteredUsers.length === 0 ? (
           <div className="zunary-empty-card">Nenhum usuário encontrado.</div>
         ) : (
-          <div className="zunary-admin-list">
+          <div className="zunary-admin-users-list">
             {filteredUsers.map((user) => (
-              <div key={user.id} className="zunary-admin-list-item">
-                <div>
-                  <strong>{user.full_name || "Usuário sem nome"}</strong>
-
-                  <span>{user.email || "Sem e-mail"}</span>
-
-                  <span>
-                    Tipo: {getRoleLabel(user.role)} • ID: {user.id}
-                  </span>
-                </div>
-
-                <div className="zunary-admin-company-actions">
-                  <div className="zunary-admin-user-role">
-                    <Users size={13} />
-                    {getRoleLabel(user.role)}
+              <article key={user.id} className="zunary-admin-user-card">
+                <div className="zunary-admin-user-main">
+                  <div className="zunary-admin-user-avatar">
+                    {user.role === "admin" ? (
+                      <ShieldCheck size={20} />
+                    ) : (
+                      <User size={20} />
+                    )}
                   </div>
 
+                  <div>
+                    <span
+                      className={`zunary-admin-user-role-pill ${getRoleClass(
+                        user.role
+                      )}`}
+                    >
+                      {getRoleLabel(user.role)}
+                    </span>
+
+                    <h3>{user.full_name || "Usuário sem nome"}</h3>
+
+                    <p>{user.email || "Sem e-mail"}</p>
+
+                    <small>ID: {user.id}</small>
+                  </div>
+                </div>
+
+                <div className="zunary-admin-user-actions">
+                  <time>{formatDateTime(user.created_at)}</time>
+
                   <button
-                    className="zunary-button zunary-button-secondary"
+                    className={
+                      user.role === "admin"
+                        ? "zunary-button zunary-button-danger"
+                        : "zunary-button"
+                    }
                     onClick={() => handleToggleRole(user)}
                     disabled={updatingUserId === user.id}
                   >
@@ -206,10 +284,8 @@ export function AdminUsers() {
                       ? "Tornar usuário"
                       : "Tornar admin"}
                   </button>
-
-                  <time>{formatDateTime(user.created_at)}</time>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}
