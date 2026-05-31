@@ -165,6 +165,7 @@ export function DashboardSidebar({
           const active =
             location.pathname === item.href ||
             (item.href !== "/dashboard" &&
+              item.href !== "/admin" &&
               location.pathname.startsWith(`${item.href}/`));
 
           return (
