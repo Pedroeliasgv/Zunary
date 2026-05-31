@@ -6139,3 +6139,283 @@ canvas {
     padding: 18px;
   }
 }
+
+/* ========================= */
+/* ADMIN COMPANIES IMPROVED */
+/* ========================= */
+
+.zunary-admin-companies-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.zunary-admin-companies-overview > div {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 20px;
+  padding: 16px;
+  display: grid;
+  gap: 7px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.04);
+}
+
+.zunary-admin-companies-overview svg {
+  color: #2563eb;
+}
+
+.zunary-admin-companies-overview span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-companies-overview strong {
+  color: #020617;
+  font-size: 26px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.zunary-admin-companies-list {
+  display: grid;
+  gap: 12px;
+}
+
+.zunary-admin-company-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 22px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+}
+
+.zunary-admin-company-main {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.zunary-admin-company-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.zunary-admin-company-top h3 {
+  margin: 8px 0 0;
+  color: #020617;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.zunary-admin-company-top time {
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.zunary-admin-company-info {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.zunary-admin-company-info div {
+  border-radius: 16px;
+  background: white;
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.zunary-admin-company-info span {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-company-info strong,
+.zunary-admin-company-info small {
+  color: #020617;
+  font-size: 13px;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.zunary-admin-company-info small {
+  color: #64748b;
+}
+
+.zunary-admin-company-card .zunary-admin-company-actions {
+  min-width: 160px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+/* ========================= */
+/* ADMIN COMPANY DETAILS IMPROVED */
+/* ========================= */
+
+.zunary-admin-company-hero {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.94);
+  border-radius: 28px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.05);
+}
+
+.zunary-admin-company-hero h2 {
+  margin: 10px 0 6px;
+  color: #020617;
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 950;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+.zunary-admin-company-hero p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.zunary-admin-owner-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 22px;
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.zunary-admin-owner-card > div {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: grid;
+  place-items: center;
+}
+
+.zunary-admin-owner-card strong {
+  color: #020617;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.zunary-admin-owner-card span,
+.zunary-admin-owner-card small {
+  color: #64748b;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.zunary-admin-subscription-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.zunary-admin-subscription-main,
+.zunary-admin-subscription-details {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #f8fafc;
+  border-radius: 20px;
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.zunary-admin-subscription-main > span,
+.zunary-admin-subscription-details span {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zunary-admin-subscription-main h3 {
+  margin: 0;
+  color: #020617;
+  font-size: 24px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.zunary-admin-subscription-main p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.zunary-admin-subscription-details strong {
+  color: #020617;
+  font-size: 13px;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.zunary-admin-subscription-actions {
+  min-width: 190px;
+  display: grid;
+  gap: 8px;
+  align-content: center;
+}
+
+@media (max-width: 1100px) {
+  .zunary-admin-company-card,
+  .zunary-admin-subscription-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-company-info {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-company-card .zunary-admin-company-actions,
+  .zunary-admin-subscription-actions {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .zunary-admin-companies-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-admin-company-hero {
+    align-items: stretch;
+    flex-direction: column;
+    border-radius: 22px;
+    padding: 18px;
+  }
+
+  .zunary-admin-company-top {
+    flex-direction: column;
+  }
+
+  .zunary-admin-company-top time {
+    white-space: normal;
+  }
+}

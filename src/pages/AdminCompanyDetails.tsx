@@ -1,5 +1,13 @@
-import { useEffect, useState } from "react";
-import { ExternalLink, Shield } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  CalendarDays,
+  CreditCard,
+  ExternalLink,
+  RefreshCw,
+  Scissors,
+  Shield,
+  User,
+} from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import {
   adminUpdateCompanyPublicBooking,
@@ -43,9 +51,35 @@ function getStatusLabel(status?: string | null) {
     failed: "Falhou",
     confirmed: "Confirmado",
     completed: "Concluído",
+    canceled_appointment: "Cancelado",
   };
 
   return status ? labels[status] || status : "-";
+}
+
+function getStatusClass(status?: string | null) {
+  if (status === "active" || status === "paid" || status === "confirmed") {
+    return "paid";
+  }
+
+  if (status === "inactive" || status === "pending") {
+    return "pending";
+  }
+
+  if (
+    status === "past_due" ||
+    status === "overdue" ||
+    status === "failed" ||
+    status === "canceled"
+  ) {
+    return "failed";
+  }
+
+  if (status === "refunded" || status === "completed") {
+    return "refunded";
+  }
+
+  return "default";
 }
 
 function canSimulatePayment(status?: string | null, billingStatus?: string | null) {
@@ -101,6 +135,13 @@ export function AdminCompanyDetails() {
   useEffect(() => {
     loadCompanyDetails();
   }, [id]);
+
+  const servicesCount = details?.services.length || 0;
+  const activeServicesCount = useMemo(() => {
+    return details?.services.filter((service) => service.is_active).length || 0;
+  }, [details]);
+
+  const appointmentsCount = details?.appointments.length || 0;
 
   async function handleTogglePublicBooking() {
     if (!details?.company) return;
@@ -245,6 +286,14 @@ export function AdminCompanyDetails() {
         </div>
 
         <div className="zunary-admin-header-actions">
+          <button
+            className="zunary-button zunary-button-secondary"
+            onClick={loadCompanyDetails}
+          >
+            <RefreshCw size={16} />
+            Atualizar
+          </button>
+
           <Link
             to="/admin/companies"
             className="zunary-button zunary-button-secondary"
@@ -269,6 +318,66 @@ export function AdminCompanyDetails() {
       {successMessage && (
         <div className="zunary-success">{successMessage}</div>
       )}
+
+      <section className="zunary-admin-company-hero">
+        <div>
+          <span
+            className={
+              company.public_booking_enabled
+                ? "zunary-status-badge active"
+                : "zunary-status-badge inactive"
+            }
+          >
+            {company.public_booking_enabled
+              ? "Página pública ativa"
+              : "Página pública desativada"}
+          </span>
+
+          <h2>{company.name}</h2>
+
+          <p>
+            /booking/{company.slug} • {company.business_type || "Tipo não informado"}
+          </p>
+        </div>
+
+        <button
+          className={
+            company.public_booking_enabled
+              ? "zunary-button zunary-button-danger"
+              : "zunary-button"
+          }
+          onClick={handleTogglePublicBooking}
+          disabled={updatingPublicBooking}
+        >
+          {updatingPublicBooking
+            ? "Atualizando..."
+            : company.public_booking_enabled
+            ? "Desativar página pública"
+            : "Ativar página pública"}
+        </button>
+      </section>
+
+      <div className="zunary-admin-companies-overview">
+        <div>
+          <Scissors size={20} />
+          <span>Serviços ativos</span>
+          <strong>
+            {activeServicesCount}/{servicesCount}
+          </strong>
+        </div>
+
+        <div>
+          <CalendarDays size={20} />
+          <span>Agendamentos recentes</span>
+          <strong>{appointmentsCount}</strong>
+        </div>
+
+        <div>
+          <CreditCard size={20} />
+          <span>Assinatura</span>
+          <strong>{subscription ? getStatusLabel(subscription.status) : "Sem plano"}</strong>
+        </div>
+      </div>
 
       <div className="zunary-admin-details-grid">
         <div className="zunary-card">
@@ -310,24 +419,6 @@ export function AdminCompanyDetails() {
               <strong>{formatDateTime(company.updated_at)}</strong>
             </div>
           </div>
-
-          <div style={{ marginTop: 16 }}>
-            <button
-              className={
-                company.public_booking_enabled
-                  ? "zunary-button zunary-button-danger"
-                  : "zunary-button"
-              }
-              onClick={handleTogglePublicBooking}
-              disabled={updatingPublicBooking}
-            >
-              {updatingPublicBooking
-                ? "Atualizando..."
-                : company.public_booking_enabled
-                ? "Desativar página pública"
-                : "Ativar página pública"}
-            </button>
-          </div>
         </div>
 
         <div className="zunary-card">
@@ -336,21 +427,15 @@ export function AdminCompanyDetails() {
             <p>Usuário responsável por esta empresa.</p>
           </div>
 
-          <div className="zunary-admin-details-list">
+          <div className="zunary-admin-owner-card">
             <div>
-              <span>Nome</span>
-              <strong>{company.owner_name || "Sem nome"}</strong>
+              <User size={22} />
             </div>
 
-            <div>
-              <span>E-mail</span>
-              <strong>{company.owner_email || "Sem e-mail"}</strong>
-            </div>
+            <strong>{company.owner_name || "Sem nome"}</strong>
+            <span>{company.owner_email || "Sem e-mail"}</span>
 
-            <div>
-              <span>Role</span>
-              <strong>{company.owner_role || "user"}</strong>
-            </div>
+            <small>Role: {company.owner_role || "user"}</small>
           </div>
         </div>
       </div>
@@ -366,54 +451,58 @@ export function AdminCompanyDetails() {
             Nenhuma assinatura encontrada para esta empresa.
           </div>
         ) : (
-          <div className="zunary-admin-details-list">
-            <div>
+          <div className="zunary-admin-subscription-panel">
+            <div className="zunary-admin-subscription-main">
               <span>Plano</span>
-              <strong>{subscription.plan_name || "Plano não encontrado"}</strong>
+              <h3>{subscription.plan_name || "Plano não encontrado"}</h3>
+
+              <div className="zunary-subscription-badges">
+                <strong
+                  className={`zunary-status-pill ${getStatusClass(
+                    subscription.status
+                  )}`}
+                >
+                  {getStatusLabel(subscription.status)}
+                </strong>
+
+                <strong
+                  className={`zunary-status-pill ${getStatusClass(
+                    subscription.billing_status
+                  )}`}
+                >
+                  {getStatusLabel(subscription.billing_status)}
+                </strong>
+              </div>
+
+              <p>Vencimento: {formatDate(subscription.next_due_date)}</p>
             </div>
 
-            <div>
-              <span>Status</span>
-              <strong>
-                {getStatusLabel(subscription.status)} /{" "}
-                {getStatusLabel(subscription.billing_status)}
-              </strong>
-            </div>
-
-            <div>
-              <span>Vencimento</span>
-              <strong>{formatDate(subscription.next_due_date)}</strong>
-            </div>
-
-            <div>
-              <span>Asaas subscription</span>
-              <strong>{subscription.asaas_subscription_id || "-"}</strong>
-            </div>
-
-            <div>
-              <span>Asaas payment</span>
-              <strong>{subscription.asaas_payment_id || "-"}</strong>
-            </div>
-
-            {subscription.checkout_url && (
+            <div className="zunary-admin-subscription-details">
               <div>
-                <span>Pagamento</span>
+                <span>Asaas subscription</span>
+                <strong>{subscription.asaas_subscription_id || "-"}</strong>
+              </div>
+
+              <div>
+                <span>Asaas payment</span>
+                <strong>{subscription.asaas_payment_id || "-"}</strong>
+              </div>
+            </div>
+
+            <div className="zunary-admin-subscription-actions">
+              {subscription.checkout_url && (
                 <a
                   href={subscription.checkout_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="zunary-admin-inline-link"
+                  className="zunary-button zunary-button-secondary"
                 >
-                  <ExternalLink size={13} />
+                  <ExternalLink size={15} />
                   Abrir pagamento
                 </a>
-              </div>
-            )}
+              )}
 
-            {showSimulatePaymentButton && (
-              <div>
-                <span>Teste sandbox</span>
-
+              {showSimulatePaymentButton && (
                 <button
                   className="zunary-button"
                   onClick={handleSimulatePayment}
@@ -421,13 +510,9 @@ export function AdminCompanyDetails() {
                 >
                   {simulatingPayment ? "Simulando..." : "Simular pagamento"}
                 </button>
-              </div>
-            )}
+              )}
 
-            {subscription.status !== "canceled" && (
-              <div>
-                <span>Ação administrativa</span>
-
+              {subscription.status !== "canceled" && (
                 <button
                   className="zunary-button zunary-button-danger"
                   onClick={handleCancelSubscription}
@@ -437,85 +522,95 @@ export function AdminCompanyDetails() {
                     ? "Cancelando..."
                     : "Cancelar assinatura"}
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>
 
-      <div className="zunary-card">
-        <div className="zunary-card-header">
-          <h2>Serviços</h2>
-          <p>Serviços cadastrados por esta empresa.</p>
-        </div>
+      <div className="zunary-admin-dashboard-grid">
+        <section className="zunary-card">
+          <div className="zunary-card-header">
+            <h2>Serviços</h2>
+            <p>Serviços cadastrados por esta empresa.</p>
+          </div>
 
-        {services.length === 0 ? (
-          <div className="zunary-empty-card">Nenhum serviço cadastrado.</div>
-        ) : (
-          <div className="zunary-admin-list">
-            {services.map((service) => (
-              <div key={service.id} className="zunary-admin-list-item">
-                <div>
-                  <strong>{service.name}</strong>
+          {services.length === 0 ? (
+            <div className="zunary-empty-card">Nenhum serviço cadastrado.</div>
+          ) : (
+            <div className="zunary-admin-list">
+              {services.map((service) => (
+                <div key={service.id} className="zunary-admin-list-item">
+                  <div>
+                    <strong>{service.name}</strong>
 
-                  <span>
-                    {service.duration_minutes} min •{" "}
-                    {formatCurrency(service.price)} •{" "}
-                    {service.is_active ? "Ativo" : "Inativo"}
-                  </span>
+                    <span>
+                      {service.duration_minutes} min •{" "}
+                      {formatCurrency(service.price)}
+                    </span>
 
-                  {service.description && <span>{service.description}</span>}
+                    <span>{service.is_active ? "Ativo" : "Inativo"}</span>
+
+                    {service.description && <span>{service.description}</span>}
+                  </div>
+
+                  <time>{formatDateTime(service.created_at)}</time>
                 </div>
+              ))}
+            </div>
+          )}
+        </section>
 
-                <time>{formatDateTime(service.created_at)}</time>
-              </div>
-            ))}
+        <section className="zunary-card">
+          <div className="zunary-card-header">
+            <h2>Agendamentos recentes</h2>
+            <p>Últimos agendamentos recebidos por esta empresa.</p>
           </div>
-        )}
-      </div>
 
-      <div className="zunary-card">
-        <div className="zunary-card-header">
-          <h2>Agendamentos recentes</h2>
-          <p>Últimos agendamentos recebidos por esta empresa.</p>
-        </div>
+          {appointments.length === 0 ? (
+            <div className="zunary-empty-card">
+              Nenhum agendamento encontrado.
+            </div>
+          ) : (
+            <div className="zunary-admin-list">
+              {appointments.map((appointment) => (
+                <div key={appointment.id} className="zunary-admin-list-item">
+                  <div>
+                    <strong>
+                      {appointment.customer_name || "Cliente sem nome"}
+                    </strong>
 
-        {appointments.length === 0 ? (
-          <div className="zunary-empty-card">
-            Nenhum agendamento encontrado.
-          </div>
-        ) : (
-          <div className="zunary-admin-list">
-            {appointments.map((appointment) => (
-              <div key={appointment.id} className="zunary-admin-list-item">
-                <div>
-                  <strong>
-                    {appointment.customer_name || "Cliente sem nome"}
-                  </strong>
+                    <span>
+                      Serviço:{" "}
+                      {appointment.service_name || "Serviço não encontrado"}
+                    </span>
 
-                  <span>
-                    Serviço:{" "}
-                    {appointment.service_name || "Serviço não encontrado"}
-                  </span>
+                    <span>
+                      {formatDate(appointment.appointment_date)} •{" "}
+                      {appointment.start_time.slice(0, 5)} até{" "}
+                      {appointment.end_time.slice(0, 5)}
+                    </span>
 
-                  <span>
-                    {formatDate(appointment.appointment_date)} •{" "}
-                    {appointment.start_time.slice(0, 5)} até{" "}
-                    {appointment.end_time.slice(0, 5)} •{" "}
-                    {getStatusLabel(appointment.status)}
-                  </span>
+                    <strong
+                      className={`zunary-status-pill ${getStatusClass(
+                        appointment.status
+                      )}`}
+                    >
+                      {getStatusLabel(appointment.status)}
+                    </strong>
 
-                  <span>
-                    {appointment.customer_email || "Sem e-mail"} •{" "}
-                    {appointment.customer_phone || "Sem telefone"}
-                  </span>
+                    <span>
+                      {appointment.customer_email || "Sem e-mail"} •{" "}
+                      {appointment.customer_phone || "Sem telefone"}
+                    </span>
+                  </div>
+
+                  <time>{formatDateTime(appointment.created_at)}</time>
                 </div>
-
-                <time>{formatDateTime(appointment.created_at)}</time>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );
