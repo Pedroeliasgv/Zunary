@@ -5973,4 +5973,36 @@ canvas {
   }
 }
 
+/* ========================= */
+/* SIDEBAR GROUPS */
+/* ========================= */
 
+.zunary-sidebar-group {
+  display: grid;
+  gap: 6px;
+}
+
+.zunary-sidebar-group + .zunary-sidebar-group {
+  margin-top: 18px;
+}
+
+.zunary-sidebar-group-label {
+  display: block;
+  margin: 0 0 4px 8px;
+  color: rgba(203, 213, 225, 0.62);
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 900px) {
+  .zunary-sidebar-group-label {
+    color: #94a3b8 !important;
+    margin-left: 4px !important;
+  }
+
+  .zunary-sidebar-group + .zunary-sidebar-group {
+    margin-top: 14px !important;
+  }
+}

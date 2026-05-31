@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Activity,
@@ -112,14 +112,6 @@ export function DashboardSidebar({
     loadAdminStatus();
   }, []);
 
-  const items = useMemo(() => {
-    if (isAdmin) {
-      return [...baseItems, ...adminItems];
-    }
-
-    return baseItems;
-  }, [isAdmin]);
-
   return (
     <aside
       className={
@@ -160,27 +152,56 @@ export function DashboardSidebar({
       </div>
 
       <nav className="zunary-sidebar-nav">
-        {items.map((item) => {
-          const Icon = item.icon;
-          const active =
-            location.pathname === item.href ||
-            (item.href !== "/dashboard" &&
-              item.href !== "/admin" &&
-              location.pathname.startsWith(`${item.href}/`));
+  <div className="zunary-sidebar-group">
+    <span className="zunary-sidebar-group-label">Principal</span>
 
-          return (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={active ? "active" : ""}
-              onClick={onClose}
-            >
-              <Icon size={18} />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+    {baseItems.map((item) => {
+      const Icon = item.icon;
+      const active =
+        location.pathname === item.href ||
+        (item.href !== "/dashboard" &&
+          location.pathname.startsWith(`${item.href}/`));
+
+      return (
+        <Link
+          key={item.href}
+          to={item.href}
+          className={active ? "active" : ""}
+          onClick={onClose}
+        >
+          <Icon size={18} />
+          {item.label}
+        </Link>
+      );
+    })}
+  </div>
+
+  {isAdmin && (
+    <div className="zunary-sidebar-group">
+      <span className="zunary-sidebar-group-label">Administração</span>
+
+      {adminItems.map((item) => {
+        const Icon = item.icon;
+        const active =
+          location.pathname === item.href ||
+          (item.href !== "/admin" &&
+            location.pathname.startsWith(`${item.href}/`));
+
+        return (
+          <Link
+            key={item.href}
+            to={item.href}
+            className={active ? "active" : ""}
+            onClick={onClose}
+          >
+            <Icon size={18} />
+            {item.label}
+          </Link>
+        );
+      })}
+    </div>
+  )}
+</nav>
 
       {isAdmin ? (
         <div className="zunary-sidebar-box">
