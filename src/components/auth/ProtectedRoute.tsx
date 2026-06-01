@@ -35,7 +35,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return (
       <div className="zunary-app-loading">
         <div className="zunary-logo-mark">
-          <span>Z</span>
+          <img src="/logo-zunary.png" alt="Zunary" />
         </div>
         <p>Carregando Zunary...</p>
       </div>

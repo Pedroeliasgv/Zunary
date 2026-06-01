@@ -6,7 +6,7 @@ export function NotFound() {
       <div className="zunary-auth-shell">
         <div className="zunary-auth-card">
           <div className="zunary-logo-mark">
-            <span>Z</span>
+            <img src="/logo-zunary.png" alt="Zunary" />
           </div>
 
           <h1 className="zunary-auth-title">Página não encontrada</h1>

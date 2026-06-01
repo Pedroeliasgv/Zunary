@@ -37,7 +37,7 @@ export function PublicOnlyRoute({ children }: PublicOnlyRouteProps) {
         <div className="zunary-auth-shell">
           <div className="zunary-auth-card">
             <div className="zunary-logo-mark">
-              <span>Z</span>
+              <img src="/logo-zunary.png" alt="Zunary" />
             </div>
 
             <p className="zunary-auth-subtitle">Carregando...</p>

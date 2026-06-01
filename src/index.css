@@ -7967,3 +7967,126 @@ canvas {
   height: 42px !important;
 }
 }
+
+/* ========================= */
+/* ZUNARY LOGO - GLOBAL USAGE */
+/* Login, Register, NotFound, ProtectedRoute, PublicOnlyRoute */
+/* ========================= */
+
+/* Logo dos formulários de login/cadastro */
+.zunary-logo-mark {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+.zunary-logo-mark img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+}
+
+.zunary-logo-mark span {
+  display: none !important;
+}
+
+/* Logo usada em telas de loading de rotas */
+.zunary-app-loading img,
+.zunary-route-loading-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Loading geral */
+.zunary-app-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(6, 214, 255, 0.16), transparent 28%),
+    radial-gradient(circle at 85% 85%, rgba(34, 245, 210, 0.12), transparent 30%),
+    linear-gradient(135deg, #050a24 0%, #071032 50%, #020617 100%);
+}
+
+.zunary-app-loading > div {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.zunary-app-loading span,
+.zunary-app-loading p {
+  margin: 0;
+  color: rgba(224, 242, 254, 0.84);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* NotFound */
+.zunary-not-found-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 18px;
+}
+
+/* Caso você tenha colocado a logo dentro de algum card de erro */
+.zunary-blocked-page img,
+.zunary-empty-card img,
+.zunary-error img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 14px;
+}
+
+/* Logo no dashboard/sidebar */
+.zunary-sidebar-logo {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.zunary-sidebar-logo img {
+  width: 38px !important;
+  height: 38px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* Logo da landing page */
+.zunary-home-brand img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Ajustes mobile */
+@media (max-width: 900px) {
+  .zunary-sidebar-logo img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .zunary-logo-mark img,
+  .zunary-app-loading img,
+  .zunary-route-loading-logo,
+  .zunary-not-found-logo {
+    width: 58px;
+    height: 58px;
+  }
+
+  .zunary-home-brand img {
+    width: 40px;
+    height: 40px;
+  }
+}

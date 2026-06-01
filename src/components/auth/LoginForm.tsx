@@ -34,7 +34,7 @@ export function LoginForm() {
     <div className="zunary-auth-card">
       <div>
         <div className="zunary-logo-mark">
-          <span>Z</span>
+          <img src="/logo-zunary.png" alt="Zunary" />
         </div>
 
         <h1 className="zunary-auth-title">
