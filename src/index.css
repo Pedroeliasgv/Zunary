@@ -9379,72 +9379,261 @@ body:has(.zunary-login-clean-page) {
 }
 
 /* ========================= */
-/* GLOBAL SCROLLBAR - ZUNARY SLIM */
+/* ZUNARY GLOBAL SCROLLBAR SYSTEM */
 /* ========================= */
 
+/* Base geral: páginas claras do sistema */
 html,
 body,
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #3b82f6 #020617;
-}
-
-/* Chrome, Edge, Safari */
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: #020617;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: #3b82f6;
-  border-radius: 999px;
-  border: 2px solid #020617;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: #06d6ff;
-}
-
-/* Em páginas claras, mantém o mesmo padrão escuro */
+#root,
 .zunary-app,
 .zunary-main,
 .zunary-content,
 .zunary-page,
 .zunary-table-wrapper,
 .zunary-admin-list,
-.zunary-appointments-list {
-  scrollbar-color: #3b82f6 #020617;
+.zunary-appointments-list,
+.zunary-services-grid,
+.zunary-availability-week,
+.zunary-public-minimal-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(37, 99, 235, 0.62) rgba(226, 232, 240, 0.68);
 }
 
+/* Chrome, Edge, Safari - base geral */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar,
+.zunary-app::-webkit-scrollbar,
+.zunary-main::-webkit-scrollbar,
+.zunary-content::-webkit-scrollbar,
+.zunary-page::-webkit-scrollbar,
+.zunary-table-wrapper::-webkit-scrollbar,
+.zunary-admin-list::-webkit-scrollbar,
+.zunary-appointments-list::-webkit-scrollbar,
+.zunary-services-grid::-webkit-scrollbar,
+.zunary-availability-week::-webkit-scrollbar,
+.zunary-public-minimal-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+#root::-webkit-scrollbar-track,
 .zunary-app::-webkit-scrollbar-track,
 .zunary-main::-webkit-scrollbar-track,
 .zunary-content::-webkit-scrollbar-track,
 .zunary-page::-webkit-scrollbar-track,
 .zunary-table-wrapper::-webkit-scrollbar-track,
 .zunary-admin-list::-webkit-scrollbar-track,
-.zunary-appointments-list::-webkit-scrollbar-track {
-  background: #020617;
+.zunary-appointments-list::-webkit-scrollbar-track,
+.zunary-services-grid::-webkit-scrollbar-track,
+.zunary-availability-week::-webkit-scrollbar-track,
+.zunary-public-minimal-container::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.68);
 }
 
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+#root::-webkit-scrollbar-thumb,
 .zunary-app::-webkit-scrollbar-thumb,
 .zunary-main::-webkit-scrollbar-thumb,
 .zunary-content::-webkit-scrollbar-thumb,
 .zunary-page::-webkit-scrollbar-thumb,
 .zunary-table-wrapper::-webkit-scrollbar-thumb,
 .zunary-admin-list::-webkit-scrollbar-thumb,
-.zunary-appointments-list::-webkit-scrollbar-thumb {
-  background: #3b82f6;
+.zunary-appointments-list::-webkit-scrollbar-thumb,
+.zunary-services-grid::-webkit-scrollbar-thumb,
+.zunary-availability-week::-webkit-scrollbar-thumb,
+.zunary-public-minimal-container::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.62);
+  border-radius: 999px;
+  border: 2px solid rgba(248, 250, 252, 0.95);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+#root::-webkit-scrollbar-thumb:hover,
+.zunary-app::-webkit-scrollbar-thumb:hover,
+.zunary-main::-webkit-scrollbar-thumb:hover,
+.zunary-content::-webkit-scrollbar-thumb:hover,
+.zunary-page::-webkit-scrollbar-thumb:hover,
+.zunary-table-wrapper::-webkit-scrollbar-thumb:hover,
+.zunary-admin-list::-webkit-scrollbar-thumb:hover,
+.zunary-appointments-list::-webkit-scrollbar-thumb:hover,
+.zunary-services-grid::-webkit-scrollbar-thumb:hover,
+.zunary-availability-week::-webkit-scrollbar-thumb:hover,
+.zunary-public-minimal-container::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* ========================= */
+/* DARK PAGES */
+/* Landing, Login, Register */
+/* ========================= */
+
+body:has(.zunary-home),
+body:has(.zunary-auth-page),
+body:has(.zunary-login-clean-page),
+html:has(.zunary-home),
+html:has(.zunary-auth-page),
+html:has(.zunary-login-clean-page) {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.78) #020617;
+}
+
+body:has(.zunary-home)::-webkit-scrollbar,
+body:has(.zunary-auth-page)::-webkit-scrollbar,
+body:has(.zunary-login-clean-page)::-webkit-scrollbar,
+html:has(.zunary-home)::-webkit-scrollbar,
+html:has(.zunary-auth-page)::-webkit-scrollbar,
+html:has(.zunary-login-clean-page)::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body:has(.zunary-home)::-webkit-scrollbar-track,
+body:has(.zunary-auth-page)::-webkit-scrollbar-track,
+body:has(.zunary-login-clean-page)::-webkit-scrollbar-track,
+html:has(.zunary-home)::-webkit-scrollbar-track,
+html:has(.zunary-auth-page)::-webkit-scrollbar-track,
+html:has(.zunary-login-clean-page)::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+body:has(.zunary-home)::-webkit-scrollbar-thumb,
+body:has(.zunary-auth-page)::-webkit-scrollbar-thumb,
+body:has(.zunary-login-clean-page)::-webkit-scrollbar-thumb,
+html:has(.zunary-home)::-webkit-scrollbar-thumb,
+html:has(.zunary-auth-page)::-webkit-scrollbar-thumb,
+html:has(.zunary-login-clean-page)::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.78);
   border-radius: 999px;
   border: 2px solid #020617;
 }
 
-/* Mobile mais fino */
+body:has(.zunary-home)::-webkit-scrollbar-thumb:hover,
+body:has(.zunary-auth-page)::-webkit-scrollbar-thumb:hover,
+body:has(.zunary-login-clean-page)::-webkit-scrollbar-thumb:hover,
+html:has(.zunary-home)::-webkit-scrollbar-thumb:hover,
+html:has(.zunary-auth-page)::-webkit-scrollbar-thumb:hover,
+html:has(.zunary-login-clean-page)::-webkit-scrollbar-thumb:hover {
+  background: #06d6ff;
+}
+
+/* ========================= */
+/* PUBLIC BOOKING PAGE */
+/* Página pública de agendamento */
+/* ========================= */
+
+body:has(.zunary-booking-page),
+html:has(.zunary-booking-page),
+.zunary-booking-page {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.72) #020617;
+}
+
+body:has(.zunary-booking-page)::-webkit-scrollbar,
+html:has(.zunary-booking-page)::-webkit-scrollbar,
+.zunary-booking-page::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body:has(.zunary-booking-page)::-webkit-scrollbar-track,
+html:has(.zunary-booking-page)::-webkit-scrollbar-track,
+.zunary-booking-page::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+body:has(.zunary-booking-page)::-webkit-scrollbar-thumb,
+html:has(.zunary-booking-page)::-webkit-scrollbar-thumb,
+.zunary-booking-page::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.72);
+  border-radius: 999px;
+  border: 2px solid #020617;
+}
+
+body:has(.zunary-booking-page)::-webkit-scrollbar-thumb:hover,
+html:has(.zunary-booking-page)::-webkit-scrollbar-thumb:hover,
+.zunary-booking-page::-webkit-scrollbar-thumb:hover {
+  background: #06d6ff;
+}
+
+/* ========================= */
+/* SIDEBAR */
+/* Desktop escuro, mobile claro */
+/* ========================= */
+
+.zunary-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.72) #020617;
+}
+
+.zunary-sidebar::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.zunary-sidebar::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+.zunary-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.72);
+  border-radius: 999px;
+  border: 2px solid #020617;
+}
+
+.zunary-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #06d6ff;
+}
+
+/* Sidebar no mobile fica clara */
+@media (max-width: 900px) {
+  .zunary-sidebar {
+    scrollbar-color: rgba(37, 99, 235, 0.58) rgba(226, 232, 240, 0.7);
+  }
+
+  .zunary-sidebar::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.7);
+  }
+
+  .zunary-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(37, 99, 235, 0.58);
+    border-color: #ffffff;
+  }
+
+  .zunary-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #2563eb;
+  }
+}
+
+/* ========================= */
+/* MOBILE */
+/* Mais discreta */
+/* ========================= */
+
 @media (max-width: 768px) {
-  *::-webkit-scrollbar {
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  #root::-webkit-scrollbar,
+  .zunary-app::-webkit-scrollbar,
+  .zunary-main::-webkit-scrollbar,
+  .zunary-content::-webkit-scrollbar,
+  .zunary-page::-webkit-scrollbar,
+  .zunary-sidebar::-webkit-scrollbar,
+  .zunary-booking-page::-webkit-scrollbar,
+  .zunary-public-minimal-container::-webkit-scrollbar,
+  .zunary-home::-webkit-scrollbar,
+  .zunary-auth-page::-webkit-scrollbar,
+  .zunary-login-clean-page::-webkit-scrollbar,
+  .zunary-table-wrapper::-webkit-scrollbar,
+  .zunary-admin-list::-webkit-scrollbar,
+  .zunary-appointments-list::-webkit-scrollbar,
+  .zunary-services-grid::-webkit-scrollbar,
+  .zunary-availability-week::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
