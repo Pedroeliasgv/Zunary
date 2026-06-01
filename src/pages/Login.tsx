@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { LoginForm } from "../components/auth/LoginForm";
 
 export function Login() {
@@ -10,8 +11,9 @@ export function Login() {
           <strong>Zunary</strong>
         </Link>
 
-        <Link to="/register" className="zunary-login-clean-register">
-          Criar conta
+        <Link to="/" className="zunary-auth-back-button">
+          <ArrowLeft size={16} />
+          Voltar para o site
         </Link>
       </header>
 

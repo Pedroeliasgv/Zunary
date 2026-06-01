@@ -9271,3 +9271,109 @@ body:has(.zunary-login-clean-page) {
   background: rgba(255, 255, 255, 0.14) !important;
   color: #ffffff !important;
 }
+
+/* ========================= */
+/* AUTH BACK BUTTON */
+/* ========================= */
+
+.zunary-auth-back-button {
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 10px 14px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 850;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: 0.18s ease;
+}
+
+.zunary-auth-back-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.zunary-auth-back-floating {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 20;
+}
+
+@media (max-width: 900px) {
+  .zunary-auth-back-floating {
+    position: static;
+    margin: 18px auto 0 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .zunary-auth-back-button {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+}
+
+/* ========================= */
+/* AUTH BACK LINK MINIMAL */
+/* ========================= */
+
+.zunary-auth-back-button {
+  width: fit-content;
+  border: 0 !important;
+  background: transparent !important;
+  color: rgba(226, 232, 240, 0.62) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 750;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: 0.18s ease;
+}
+
+.zunary-auth-back-button svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.72;
+}
+
+.zunary-auth-back-button:hover {
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+.zunary-auth-back-button:hover svg {
+  opacity: 1;
+}
+
+.zunary-auth-back-floating {
+  position: fixed;
+  top: 26px;
+  left: 28px;
+  z-index: 20;
+}
+
+@media (max-width: 900px) {
+  .zunary-auth-back-floating {
+    position: static;
+    margin: 18px auto 0 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .zunary-auth-back-button {
+    font-size: 12px;
+  }
+
+  .zunary-auth-back-floating {
+    margin-left: 16px;
+  }
+}
