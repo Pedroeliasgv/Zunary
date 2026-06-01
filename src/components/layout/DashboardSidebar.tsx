@@ -4,7 +4,6 @@ import {
   Activity,
   Building2,
   CalendarDays,
-  ClipboardList,
   Clock,
   CreditCard,
   Home,
@@ -112,6 +111,18 @@ export function DashboardSidebar({
     loadAdminStatus();
   }, []);
 
+  function isItemActive(item: SidebarItem) {
+    if (location.pathname === item.href) {
+      return true;
+    }
+
+    if (item.href === "/dashboard" || item.href === "/admin") {
+      return false;
+    }
+
+    return location.pathname.startsWith(`${item.href}/`);
+  }
+
   return (
     <aside
       className={
@@ -121,7 +132,7 @@ export function DashboardSidebar({
       <div className="zunary-sidebar-mobile-top">
         <div className="zunary-sidebar-brand">
           <div className="zunary-sidebar-logo">
-            <ClipboardList size={22} />
+            <img src="/logo-zunary.png" alt="Zunary" />
           </div>
 
           <div>
@@ -142,7 +153,7 @@ export function DashboardSidebar({
 
       <div className="zunary-sidebar-brand zunary-sidebar-brand-desktop">
         <div className="zunary-sidebar-logo">
-          <ClipboardList size={22} />
+          <img src="/logo-zunary.png" alt="Zunary" />
         </div>
 
         <div>
@@ -152,56 +163,50 @@ export function DashboardSidebar({
       </div>
 
       <nav className="zunary-sidebar-nav">
-  <div className="zunary-sidebar-group">
-    <span className="zunary-sidebar-group-label">Principal</span>
+        <div className="zunary-sidebar-group">
+          <span className="zunary-sidebar-group-label">Principal</span>
 
-    {baseItems.map((item) => {
-      const Icon = item.icon;
-      const active =
-        location.pathname === item.href ||
-        (item.href !== "/dashboard" &&
-          location.pathname.startsWith(`${item.href}/`));
+          {baseItems.map((item) => {
+            const Icon = item.icon;
+            const active = isItemActive(item);
 
-      return (
-        <Link
-          key={item.href}
-          to={item.href}
-          className={active ? "active" : ""}
-          onClick={onClose}
-        >
-          <Icon size={18} />
-          {item.label}
-        </Link>
-      );
-    })}
-  </div>
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={active ? "active" : ""}
+                onClick={onClose}
+              >
+                <Icon size={18} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
 
-  {isAdmin && (
-    <div className="zunary-sidebar-group">
-      <span className="zunary-sidebar-group-label">Administração</span>
+        {isAdmin && (
+          <div className="zunary-sidebar-group">
+            <span className="zunary-sidebar-group-label">Administração</span>
 
-      {adminItems.map((item) => {
-        const Icon = item.icon;
-        const active =
-          location.pathname === item.href ||
-          (item.href !== "/admin" &&
-            location.pathname.startsWith(`${item.href}/`));
+            {adminItems.map((item) => {
+              const Icon = item.icon;
+              const active = isItemActive(item);
 
-        return (
-          <Link
-            key={item.href}
-            to={item.href}
-            className={active ? "active" : ""}
-            onClick={onClose}
-          >
-            <Icon size={18} />
-            {item.label}
-          </Link>
-        );
-      })}
-    </div>
-  )}
-</nav>
+              return (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={active ? "active" : ""}
+                  onClick={onClose}
+                >
+                  <Icon size={18} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </nav>
 
       {isAdmin ? (
         <div className="zunary-sidebar-box">

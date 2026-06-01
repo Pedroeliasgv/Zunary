@@ -16,7 +16,7 @@ export function Home() {
     <div className="zunary-home">
       <header className="zunary-home-header">
         <Link to="/" className="zunary-home-brand">
-          <div>Z</div>
+          <img src="/logo-zunary.png" alt="Zunary" />
           <strong>Zunary</strong>
         </Link>
 
@@ -36,7 +36,9 @@ export function Home() {
           <div>
             <span>Agendamento online para negócios locais</span>
 
-            <h1>Organize seus agendamentos sem depender da bagunça do WhatsApp.</h1>
+            <h1>
+              Organize seus agendamentos sem depender da bagunça do WhatsApp.
+            </h1>
 
             <p>
               A Zunary ajuda barbearias, salões, estúdios, clínicas e
@@ -245,7 +247,7 @@ export function Home() {
         <div className="zunary-home-footer-content">
           <div>
             <Link to="/" className="zunary-home-brand">
-              <div>Z</div>
+              <img src="/logo-zunary.png" alt="Zunary" />
               <strong>Zunary</strong>
             </Link>
 
@@ -276,7 +278,9 @@ export function Home() {
         </div>
 
         <div className="zunary-home-footer-bottom">
-          <span>© {new Date().getFullYear()} Zunary. Todos os direitos reservados.</span>
+          <span>
+            © {new Date().getFullYear()} Zunary. Todos os direitos reservados.
+          </span>
           <span>Construído para negócios locais.</span>
         </div>
       </footer>

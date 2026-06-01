@@ -6995,15 +6995,12 @@ canvas {
   gap: 10px;
 }
 
-.zunary-home-brand div {
+.zunary-home-brand img {
   width: 42px;
   height: 42px;
-  border-radius: 15px;
-  background: linear-gradient(135deg, #2563eb 0%, #06d6ff 52%, #22f5d2 100%);
-  display: grid;
-  place-items: center;
-  color: white;
-  font-weight: 950;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
 }
 
 .zunary-home-brand strong {
@@ -7945,4 +7942,28 @@ canvas {
   .zunary-home-preview-card {
     border-radius: 24px;
   }
+}
+
+/* ========================= */
+/* SIDEBAR LOGO CLEAN */
+/* ========================= */
+
+.zunary-sidebar-logo {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.zunary-sidebar-logo img {
+  width: 38px !important;
+  height: 38px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+@media (max-width: 900px) {
+  .zunary-sidebar-logo img {
+  width: 42px !important;
+  height: 42px !important;
+}
 }
