@@ -19,6 +19,10 @@ export type Company = {
   slug: string;
   business_type: string | null;
   description: string | null;
+  logo_url: string | null;
+  whatsapp: string | null;
+  instagram: string | null;
+  address: string | null;
   public_booking_enabled: boolean;
   created_at: string;
   updated_at: string;

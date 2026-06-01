@@ -7,6 +7,10 @@ type CreateCompanyData = {
   slug: string;
   business_type: string;
   description?: string;
+  logo_url?: string;
+  whatsapp?: string;
+  instagram?: string;
+  address?: string;
 };
 
 type UpdateCompanyData = {
@@ -14,6 +18,10 @@ type UpdateCompanyData = {
   slug?: string;
   business_type?: string | null;
   description?: string | null;
+  logo_url?: string | null;
+  whatsapp?: string | null;
+  instagram?: string | null;
+  address?: string | null;
   public_booking_enabled?: boolean;
 };
 
@@ -32,6 +40,10 @@ export type PublicBookingStatus = {
   slug: string | null;
   business_type: string | null;
   description: string | null;
+  logo_url: string | null;
+  whatsapp: string | null;
+  instagram: string | null;
+  address: string | null;
   public_booking_enabled: boolean | null;
   created_at: string | null;
   updated_at: string | null;
@@ -72,6 +84,10 @@ export async function createCompany(data: CreateCompanyData) {
       slug: data.slug,
       business_type: data.business_type,
       description: data.description || null,
+      logo_url: data.logo_url || null,
+      whatsapp: data.whatsapp || null,
+      instagram: data.instagram || null,
+      address: data.address || null,
       public_booking_enabled: true,
     })
     .select("*")
@@ -127,6 +143,10 @@ export async function getPublicCompanyBySlug(slug: string) {
     slug: status.slug,
     business_type: status.business_type,
     description: status.description,
+    logo_url: status.logo_url,
+    whatsapp: status.whatsapp,
+    instagram: status.instagram,
+    address: status.address,
     public_booking_enabled: status.public_booking_enabled,
     created_at: status.created_at,
     updated_at: status.updated_at,

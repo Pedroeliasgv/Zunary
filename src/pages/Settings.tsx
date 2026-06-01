@@ -5,6 +5,9 @@ import {
   ExternalLink,
   Eye,
   EyeOff,
+  Image,
+  MapPin,
+  MessageCircle,
   RefreshCw,
   Save,
 } from "lucide-react";
@@ -13,12 +16,24 @@ import { getCurrentUserCompany, updateCompany } from "../lib/company";
 import { slugify } from "../lib/utils";
 import type { Company } from "../types";
 
+function normalizeInstagram(value: string) {
+  return value.trim().replace(/^@/, "");
+}
+
+function normalizeWhatsApp(value: string) {
+  return value.replace(/\D/g, "");
+}
+
 export function Settings() {
   const [company, setCompany] = useState<Company | null>(null);
 
   const [name, setName] = useState("");
   const [businessType, setBusinessType] = useState("");
   const [description, setDescription] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [address, setAddress] = useState("");
   const [publicBookingEnabled, setPublicBookingEnabled] = useState(true);
 
   const [loading, setLoading] = useState(true);
@@ -42,6 +57,10 @@ export function Settings() {
         setName(data.name);
         setBusinessType(data.business_type || BUSINESS_TYPES[0]);
         setDescription(data.description || "");
+        setLogoUrl(data.logo_url || "");
+        setWhatsapp(data.whatsapp || "");
+        setInstagram(data.instagram || "");
+        setAddress(data.address || "");
         setPublicBookingEnabled(data.public_booking_enabled);
       }
     } catch (error) {
@@ -76,6 +95,10 @@ export function Settings() {
 
   const slugWillChange = Boolean(company) && generatedSlug !== company?.slug;
 
+  const previewLogo = logoUrl.trim();
+  const previewInstagram = normalizeInstagram(instagram);
+  const previewWhatsApp = normalizeWhatsApp(whatsapp);
+
   async function handleCopyPublicLink() {
     if (!currentPublicBookingUrl) return;
 
@@ -88,9 +111,7 @@ export function Settings() {
     }, 1800);
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function saveSettings() {
     if (!company) return;
 
     if (!name.trim()) {
@@ -113,6 +134,10 @@ export function Settings() {
         slug: generatedSlug,
         business_type: businessType,
         description: description.trim() || null,
+        logo_url: logoUrl.trim() || null,
+        whatsapp: normalizeWhatsApp(whatsapp) || null,
+        instagram: normalizeInstagram(instagram) || null,
+        address: address.trim() || null,
         public_booking_enabled: publicBookingEnabled,
       });
 
@@ -127,6 +152,11 @@ export function Settings() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await saveSettings();
   }
 
   if (loading) {
@@ -162,10 +192,10 @@ export function Settings() {
       <div className="zunary-page-header">
         <div>
           <span>Configurações</span>
-          <h1>Empresa</h1>
+          <h1>Personalização</h1>
           <p>
-            Controle os dados públicos, o link de agendamento e a visibilidade
-            da sua empresa.
+            Ajuste a identidade da empresa, os contatos e a página pública de
+            agendamento.
           </p>
         </div>
 
@@ -188,42 +218,77 @@ export function Settings() {
       <div className="zunary-settings-grid">
         <section className="zunary-card">
           <div className="zunary-card-header">
-            <h2>Dados públicos</h2>
+            <h2>Perfil da empresa</h2>
             <p>
-              Essas informações aparecem para seus clientes na página pública de
-              agendamento.
+              Essas informações aparecem para seus clientes na página pública.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="zunary-form">
-            <div className="zunary-field">
-              <label>Nome da empresa</label>
-              <input
-                className="zunary-input"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="Nome da empresa"
-                required
-              />
+            <div className="zunary-settings-logo-row">
+              <div className="zunary-settings-logo-preview">
+                {previewLogo ? (
+                  <img src={previewLogo} alt={name || "Logo da empresa"} />
+                ) : (
+                  <Image size={26} />
+                )}
+              </div>
 
-              <p className="zunary-help-text">
-                Novo link: /booking/{generatedSlug || "nome-da-empresa"}
-              </p>
+              <div>
+                <strong>{name || "Sua empresa"}</strong>
+                <span>{businessType || "Tipo de negócio"}</span>
+              </div>
+            </div>
+
+            <div className="zunary-form-grid">
+              <div className="zunary-field">
+                <label>Nome da empresa</label>
+                <input
+                  className="zunary-input"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Nome da empresa"
+                  required
+                  disabled={saving}
+                />
+
+                <p className="zunary-help-text">
+                  Novo link: /booking/{generatedSlug || "nome-da-empresa"}
+                </p>
+              </div>
+
+              <div className="zunary-field">
+                <label>Tipo de negócio</label>
+                <select
+                  className="zunary-select"
+                  value={businessType}
+                  onChange={(event) => setBusinessType(event.target.value)}
+                  disabled={saving}
+                >
+                  {BUSINESS_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="zunary-field">
-              <label>Tipo de negócio</label>
-              <select
-                className="zunary-select"
-                value={businessType}
-                onChange={(event) => setBusinessType(event.target.value)}
-              >
-                {BUSINESS_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+              <label>Logo ou foto da empresa</label>
+              <input
+                className="zunary-input"
+                type="url"
+                value={logoUrl}
+                onChange={(event) => setLogoUrl(event.target.value)}
+                placeholder="https://exemplo.com/logo.png"
+                disabled={saving}
+              />
+
+              <p className="zunary-help-text">
+                Use um link de imagem por enquanto. Depois podemos adicionar
+                upload direto.
+              </p>
             </div>
 
             <div className="zunary-field">
@@ -233,6 +298,42 @@ export function Settings() {
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 placeholder="Descrição curta da empresa"
+                disabled={saving}
+              />
+            </div>
+
+            <div className="zunary-form-grid">
+              <div className="zunary-field">
+                <label>WhatsApp</label>
+                <input
+                  className="zunary-input"
+                  value={whatsapp}
+                  onChange={(event) => setWhatsapp(event.target.value)}
+                  placeholder="11999999999"
+                  disabled={saving}
+                />
+              </div>
+
+              <div className="zunary-field">
+                <label>Instagram</label>
+                <input
+                  className="zunary-input"
+                  value={instagram}
+                  onChange={(event) => setInstagram(event.target.value)}
+                  placeholder="@suaempresa"
+                  disabled={saving}
+                />
+              </div>
+            </div>
+
+            <div className="zunary-field">
+              <label>Endereço ou bairro</label>
+              <input
+                className="zunary-input"
+                value={address}
+                onChange={(event) => setAddress(event.target.value)}
+                placeholder="Ex: Alphaville, Barueri - SP"
+                disabled={saving}
               />
             </div>
 
@@ -244,6 +345,51 @@ export function Settings() {
         </section>
 
         <aside className="zunary-settings-side">
+          <div className="zunary-settings-preview-card">
+            <div className="zunary-settings-preview-cover">
+              <div className="zunary-settings-preview-logo">
+                {previewLogo ? (
+                  <img src={previewLogo} alt={name || "Logo da empresa"} />
+                ) : (
+                  <Image size={24} />
+                )}
+              </div>
+            </div>
+
+            <div className="zunary-settings-preview-content">
+              <span>{businessType || "Negócio local"}</span>
+              <h2>{name || "Nome da empresa"}</h2>
+
+              <p>
+                {description ||
+                  "Descrição curta da empresa aparecerá aqui para seus clientes."}
+              </p>
+
+              <div className="zunary-settings-preview-info">
+                {address && (
+                  <div>
+                    <MapPin size={15} />
+                    <span>{address}</span>
+                  </div>
+                )}
+
+                {previewWhatsApp && (
+                  <div>
+                    <MessageCircle size={15} />
+                    <span>{previewWhatsApp}</span>
+                  </div>
+                )}
+
+                {previewInstagram && (
+                  <div>
+                    <MessageCircle size={15} />
+                    <span>@{previewInstagram}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div
             className={
               publicBookingEnabled
@@ -326,6 +472,7 @@ export function Settings() {
                 onChange={(event) =>
                   setPublicBookingEnabled(event.target.checked)
                 }
+                disabled={saving}
               />
             </label>
 
@@ -339,7 +486,7 @@ export function Settings() {
             <button
               className="zunary-button"
               type="button"
-              onClick={handleSubmit as unknown as () => void}
+              onClick={saveSettings}
               disabled={saving}
             >
               <Save size={16} />
