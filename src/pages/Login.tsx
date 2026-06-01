@@ -1,39 +1,35 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 import { LoginForm } from "../components/auth/LoginForm";
 
 export function Login() {
   return (
-    <div className="zunary-login-simple-page">
-      <div className="zunary-login-simple-shell">
-        <Link to="/" className="zunary-login-simple-back">
-          <ArrowLeft size={16} />
-          Voltar para o site
+    <div className="zunary-login-clean-page">
+      <header className="zunary-login-clean-top">
+        <Link to="/" className="zunary-login-clean-brand">
+          <img src="/logo-zunary.png" alt="Zunary" />
+          <strong>Zunary</strong>
         </Link>
 
-        <div className="zunary-login-simple-card">
-          <div className="zunary-login-simple-brand">
-            <img src="/logo-zunary.png" alt="Zunary" />
-            <strong>Zunary</strong>
-          </div>
+        <Link to="/register" className="zunary-login-clean-register">
+          Criar conta
+        </Link>
+      </header>
 
-          <div className="zunary-login-simple-header">
-            <span>Painel de agendamentos</span>
-            <h1>Entrar na sua conta</h1>
-            <p>
-              Acesse seu painel para gerenciar serviços, horários e
-              agendamentos.
-            </p>
-          </div>
+      <main className="zunary-login-clean-main">
+        <section className="zunary-login-clean-copy">
+          <span>Painel Zunary</span>
+          <h1>Bem-vindo de volta.</h1>
+          <p>Continue organizando seus serviços, horários e agendamentos.</p>
+        </section>
 
+        <section className="zunary-login-clean-form">
           <LoginForm />
+        </section>
+      </main>
 
-          <div className="zunary-login-simple-footer">
-            <span>Ainda não tem conta?</span>
-            <Link to="/register">Criar conta gratuita</Link>
-          </div>
-        </div>
-      </div>
+      <footer className="zunary-login-clean-footer">
+        <span>Agendamentos online simples para negócios locais.</span>
+      </footer>
     </div>
   );
 }
