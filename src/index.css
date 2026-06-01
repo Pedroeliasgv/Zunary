@@ -9377,3 +9377,75 @@ body:has(.zunary-login-clean-page) {
     margin-left: 16px;
   }
 }
+
+/* ========================= */
+/* GLOBAL SCROLLBAR - ZUNARY SLIM */
+/* ========================= */
+
+html,
+body,
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3b82f6 #020617;
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 999px;
+  border: 2px solid #020617;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #06d6ff;
+}
+
+/* Em páginas claras, mantém o mesmo padrão escuro */
+.zunary-app,
+.zunary-main,
+.zunary-content,
+.zunary-page,
+.zunary-table-wrapper,
+.zunary-admin-list,
+.zunary-appointments-list {
+  scrollbar-color: #3b82f6 #020617;
+}
+
+.zunary-app::-webkit-scrollbar-track,
+.zunary-main::-webkit-scrollbar-track,
+.zunary-content::-webkit-scrollbar-track,
+.zunary-page::-webkit-scrollbar-track,
+.zunary-table-wrapper::-webkit-scrollbar-track,
+.zunary-admin-list::-webkit-scrollbar-track,
+.zunary-appointments-list::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+.zunary-app::-webkit-scrollbar-thumb,
+.zunary-main::-webkit-scrollbar-thumb,
+.zunary-content::-webkit-scrollbar-thumb,
+.zunary-page::-webkit-scrollbar-thumb,
+.zunary-table-wrapper::-webkit-scrollbar-thumb,
+.zunary-admin-list::-webkit-scrollbar-thumb,
+.zunary-appointments-list::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 999px;
+  border: 2px solid #020617;
+}
+
+/* Mobile mais fino */
+@media (max-width: 768px) {
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+}
