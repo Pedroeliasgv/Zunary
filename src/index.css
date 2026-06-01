@@ -9638,3 +9638,49 @@ html:has(.zunary-booking-page)::-webkit-scrollbar-thumb:hover,
     height: 6px;
   }
 }
+
+/* ========================= */
+/* PASSWORD FIELD */
+/* ========================= */
+
+.zunary-password-field {
+  position: relative;
+  width: 100%;
+}
+
+.zunary-password-field .zunary-input {
+  width: 100%;
+  padding-right: 48px !important;
+}
+
+.zunary-password-field button {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transform: translateY(-50%);
+  border-radius: 12px;
+  transition: 0.18s ease;
+}
+
+.zunary-password-field button:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.zunary-password-field button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.zunary-password-field button:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}

@@ -24,6 +24,7 @@ import {
   type Plan,
 } from "../lib/plans";
 import type { Company } from "../types";
+import { useNavigate } from "react-router-dom";
 
 function formatPlanPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
@@ -164,6 +165,7 @@ export function Plans() {
   const billingEnvironment = import.meta.env.VITE_BILLING_ENV || "sandbox";
   const isSandbox = billingEnvironment === "sandbox";
   const isProduction = billingEnvironment === "production";
+  const navigate = useNavigate();
 
   async function loadPlansPage() {
     try {
@@ -216,24 +218,20 @@ export function Plans() {
   }, [plans]);
 
   function openCheckoutForm(plan: Plan) {
-    if (!company) {
-      setErrorMessage("Crie uma empresa antes de escolher um plano.");
-      return;
-    }
-
-    if (hasPendingSubscription) {
-      setErrorMessage(
-        "Você já possui uma assinatura pendente. Abra o pagamento ou cancele a pendente antes de escolher outro plano."
-      );
-      return;
-    }
-
-    setSelectedPlan(plan);
-    setErrorMessage("");
-    setSuccessMessage("");
-
-    setCustomerName(company.name);
+  if (!company) {
+    setErrorMessage("Crie uma empresa antes de escolher um plano.");
+    return;
   }
+
+  if (hasPendingSubscription) {
+    setErrorMessage(
+      "Você já possui uma assinatura pendente. Abra o pagamento ou cancele a pendente antes de escolher outro plano."
+    );
+    return;
+  }
+
+  navigate(`/checkout/${plan.slug}`);
+}
 
   function closeCheckoutForm() {
     setSelectedPlan(null);

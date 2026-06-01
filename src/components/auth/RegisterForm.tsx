@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import { signUpWithEmail } from "../../lib/auth";
 
 export function RegisterForm() {
@@ -8,6 +9,8 @@ export function RegisterForm() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -45,9 +48,7 @@ export function RegisterForm() {
           <img src="/logo-zunary.png" alt="Zunary" />
         </div>
 
-        <h1 className="zunary-auth-title">
-          Criar conta
-        </h1>
+        <h1 className="zunary-auth-title">Criar conta</h1>
 
         <p className="zunary-auth-subtitle">
           Comece a organizar seus serviços, horários e agendamentos.
@@ -67,6 +68,7 @@ export function RegisterForm() {
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
             required
+            disabled={loading}
           />
         </div>
 
@@ -79,20 +81,34 @@ export function RegisterForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
+            disabled={loading}
           />
         </div>
 
         <div className="zunary-field">
           <label>Senha</label>
-          <input
-            className="zunary-input"
-            type="password"
-            placeholder="Mínimo 6 caracteres"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            minLength={6}
-          />
+
+          <div className="zunary-password-field">
+            <input
+              className="zunary-input"
+              type={showPassword ? "text" : "password"}
+              placeholder="Mínimo 6 caracteres"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              minLength={6}
+              disabled={loading}
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((current) => !current)}
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              disabled={loading}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         <button className="zunary-button" type="submit" disabled={loading}>
