@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
   CheckCircle2,
+  ExternalLink,
   Image,
   MapPin,
-  MessageCircle,
   Scissors,
 } from "lucide-react";
 import {
@@ -115,14 +115,12 @@ function generateTimeSlots(rules: AvailabilityRule[], durationMinutes: number) {
   return Array.from(new Set(slots)).sort();
 }
 
-function formatInstagram(value?: string | null) {
-  if (!value) return "";
-  return value.replace(/^@/, "");
-}
+function getGoogleMapsSearchUrl(address?: string | null) {
+  if (!address?.trim()) return "";
 
-function formatWhatsApp(value?: string | null) {
-  if (!value) return "";
-  return value.replace(/\D/g, "");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    address.trim()
+  )}`;
 }
 
 export function PublicBookingForm({ slug }: PublicBookingFormProps) {
@@ -293,9 +291,6 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
     Boolean(customerName.trim()) &&
     !submitting;
 
-  const companyInstagram = formatInstagram(company?.instagram);
-  const companyWhatsApp = formatWhatsApp(company?.whatsapp);
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -417,7 +412,7 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
     return (
       <div className="zunary-booking-page">
         <div className="zunary-public-minimal-container">
-          <header className="zunary-public-company-hero">
+          <header className="zunary-public-company-hero compact">
             <div className="zunary-public-company-logo">
               {company.logo_url ? (
                 <img src={company.logo_url} alt={company.name} />
@@ -487,7 +482,7 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
   return (
     <div className="zunary-booking-page">
       <div className="zunary-public-minimal-container">
-        <header className="zunary-public-company-hero">
+        <header className="zunary-public-company-hero compact">
           <div className="zunary-public-company-logo">
             {company.logo_url ? (
               <img src={company.logo_url} alt={company.name} />
@@ -501,28 +496,22 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
 
           {company.description && <p>{company.description}</p>}
 
-          {(company.address || companyWhatsApp || companyInstagram) && (
-            <div className="zunary-public-company-info">
-              {company.address && (
-                <div>
-                  <MapPin size={15} />
-                  <span>{company.address}</span>
-                </div>
-              )}
+          {company.address && (
+            <div className="zunary-public-location-row">
+              <div className="zunary-public-location-address">
+                <MapPin size={15} />
+                <span>{company.address}</span>
+              </div>
 
-              {companyWhatsApp && (
-                <div>
-                  <MessageCircle size={15} />
-                  <span>{companyWhatsApp}</span>
-                </div>
-              )}
-
-              {companyInstagram && (
-                <div>
-                  <MessageCircle size={15} />
-                  <span>@{companyInstagram}</span>
-                </div>
-              )}
+              <a
+                className="zunary-public-location-button"
+                href={getGoogleMapsSearchUrl(company.address)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <ExternalLink size={14} />
+                Ver localização
+              </a>
             </div>
           )}
         </header>
