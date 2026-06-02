@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  Camera,
   Check,
   Copy,
   ExternalLink,
@@ -10,9 +11,12 @@ import {
   MessageCircle,
   RefreshCw,
   Save,
+  Trash2,
+  Upload,
 } from "lucide-react";
 import { BUSINESS_TYPES } from "../constants/business-types";
 import { getCurrentUserCompany, updateCompany } from "../lib/company";
+import { uploadCompanyLogo } from "../lib/storage";
 import { slugify } from "../lib/utils";
 import type { Company } from "../types";
 
@@ -31,6 +35,7 @@ export function Settings() {
   const [businessType, setBusinessType] = useState("");
   const [description, setDescription] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [instagram, setInstagram] = useState("");
   const [address, setAddress] = useState("");
@@ -38,6 +43,7 @@ export function Settings() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -58,6 +64,7 @@ export function Settings() {
         setBusinessType(data.business_type || BUSINESS_TYPES[0]);
         setDescription(data.description || "");
         setLogoUrl(data.logo_url || "");
+        setLogoPreviewUrl(data.logo_url || "");
         setWhatsapp(data.whatsapp || "");
         setInstagram(data.instagram || "");
         setAddress(data.address || "");
@@ -75,6 +82,10 @@ export function Settings() {
   useEffect(() => {
     loadCompany();
   }, []);
+
+  useEffect(() => {
+    setLogoPreviewUrl(logoUrl);
+  }, [logoUrl]);
 
   const generatedSlug = useMemo(() => {
     return slugify(name);
@@ -95,7 +106,7 @@ export function Settings() {
 
   const slugWillChange = Boolean(company) && generatedSlug !== company?.slug;
 
-  const previewLogo = logoUrl.trim();
+  const previewLogo = logoPreviewUrl.trim();
   const previewInstagram = normalizeInstagram(instagram);
   const previewWhatsApp = normalizeWhatsApp(whatsapp);
 
@@ -109,6 +120,39 @@ export function Settings() {
     setTimeout(() => {
       setCopied(false);
     }, 1800);
+  }
+
+  async function handleLogoUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (!company) return;
+
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    try {
+      setUploadingLogo(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      const publicUrl = await uploadCompanyLogo(company.id, file);
+
+      setLogoUrl(publicUrl);
+      setLogoPreviewUrl(publicUrl);
+      setSuccessMessage("Foto enviada com sucesso. Clique em salvar para aplicar.");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao enviar foto."
+      );
+    } finally {
+      setUploadingLogo(false);
+      event.target.value = "";
+    }
+  }
+
+  function handleRemoveLogo() {
+    setLogoUrl("");
+    setLogoPreviewUrl("");
+    setSuccessMessage("Foto removida. Clique em salvar para aplicar.");
   }
 
   async function saveSettings() {
@@ -202,7 +246,7 @@ export function Settings() {
         <button
           className="zunary-button zunary-button-secondary"
           onClick={loadCompany}
-          disabled={saving}
+          disabled={saving || uploadingLogo}
         >
           <RefreshCw size={16} />
           Atualizar
@@ -225,18 +269,59 @@ export function Settings() {
           </div>
 
           <form onSubmit={handleSubmit} className="zunary-form">
-            <div className="zunary-settings-logo-row">
-              <div className="zunary-settings-logo-preview">
-                {previewLogo ? (
-                  <img src={previewLogo} alt={name || "Logo da empresa"} />
-                ) : (
-                  <Image size={26} />
-                )}
+            <div className="zunary-settings-profile-photo-section">
+              <div className="zunary-settings-avatar-wrapper">
+                <div className="zunary-settings-avatar">
+                  {previewLogo ? (
+                    <img src={previewLogo} alt={name || "Foto da empresa"} />
+                  ) : (
+                    <Image size={30} />
+                  )}
+                </div>
+
+                <label className="zunary-settings-avatar-camera">
+                  <Camera size={16} />
+
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo || saving}
+                  />
+                </label>
               </div>
 
-              <div>
+              <div className="zunary-settings-profile-photo-content">
                 <strong>{name || "Sua empresa"}</strong>
                 <span>{businessType || "Tipo de negócio"}</span>
+
+                <div className="zunary-settings-profile-photo-actions">
+                  <label className="zunary-button zunary-button-secondary">
+                    <Upload size={16} />
+                    {uploadingLogo ? "Enviando..." : "Enviar foto"}
+
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={handleLogoUpload}
+                      disabled={uploadingLogo || saving}
+                    />
+                  </label>
+
+                  {previewLogo && (
+                    <button
+                      className="zunary-button zunary-button-secondary"
+                      type="button"
+                      onClick={handleRemoveLogo}
+                      disabled={uploadingLogo || saving}
+                    >
+                      <Trash2 size={16} />
+                      Remover
+                    </button>
+                  )}
+                </div>
+
+                <small>PNG, JPG ou WEBP. Tamanho máximo recomendado: 2MB.</small>
               </div>
             </div>
 
@@ -249,7 +334,7 @@ export function Settings() {
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Nome da empresa"
                   required
-                  disabled={saving}
+                  disabled={saving || uploadingLogo}
                 />
 
                 <p className="zunary-help-text">
@@ -263,7 +348,7 @@ export function Settings() {
                   className="zunary-select"
                   value={businessType}
                   onChange={(event) => setBusinessType(event.target.value)}
-                  disabled={saving}
+                  disabled={saving || uploadingLogo}
                 >
                   {BUSINESS_TYPES.map((type) => (
                     <option key={type} value={type}>
@@ -275,30 +360,13 @@ export function Settings() {
             </div>
 
             <div className="zunary-field">
-              <label>Logo ou foto da empresa</label>
-              <input
-                className="zunary-input"
-                type="url"
-                value={logoUrl}
-                onChange={(event) => setLogoUrl(event.target.value)}
-                placeholder="https://exemplo.com/logo.png"
-                disabled={saving}
-              />
-
-              <p className="zunary-help-text">
-                Use um link de imagem por enquanto. Depois podemos adicionar
-                upload direto.
-              </p>
-            </div>
-
-            <div className="zunary-field">
               <label>Descrição pública</label>
               <textarea
                 className="zunary-textarea"
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 placeholder="Descrição curta da empresa"
-                disabled={saving}
+                disabled={saving || uploadingLogo}
               />
             </div>
 
@@ -310,7 +378,7 @@ export function Settings() {
                   value={whatsapp}
                   onChange={(event) => setWhatsapp(event.target.value)}
                   placeholder="11999999999"
-                  disabled={saving}
+                  disabled={saving || uploadingLogo}
                 />
               </div>
 
@@ -321,7 +389,7 @@ export function Settings() {
                   value={instagram}
                   onChange={(event) => setInstagram(event.target.value)}
                   placeholder="@suaempresa"
-                  disabled={saving}
+                  disabled={saving || uploadingLogo}
                 />
               </div>
             </div>
@@ -333,11 +401,15 @@ export function Settings() {
                 value={address}
                 onChange={(event) => setAddress(event.target.value)}
                 placeholder="Ex: Alphaville, Barueri - SP"
-                disabled={saving}
+                disabled={saving || uploadingLogo}
               />
             </div>
 
-            <button className="zunary-button" type="submit" disabled={saving}>
+            <button
+              className="zunary-button"
+              type="submit"
+              disabled={saving || uploadingLogo}
+            >
               <Save size={16} />
               {saving ? "Salvando..." : "Salvar alterações"}
             </button>
@@ -349,7 +421,7 @@ export function Settings() {
             <div className="zunary-settings-preview-cover">
               <div className="zunary-settings-preview-logo">
                 {previewLogo ? (
-                  <img src={previewLogo} alt={name || "Logo da empresa"} />
+                  <img src={previewLogo} alt={name || "Foto da empresa"} />
                 ) : (
                   <Image size={24} />
                 )}
@@ -435,6 +507,7 @@ export function Settings() {
                 className="zunary-button zunary-button-secondary"
                 onClick={handleCopyPublicLink}
                 type="button"
+                disabled={saving || uploadingLogo}
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
                 {copied ? "Copiado" : "Copiar link"}
@@ -472,7 +545,7 @@ export function Settings() {
                 onChange={(event) =>
                   setPublicBookingEnabled(event.target.checked)
                 }
-                disabled={saving}
+                disabled={saving || uploadingLogo}
               />
             </label>
 
@@ -487,7 +560,7 @@ export function Settings() {
               className="zunary-button"
               type="button"
               onClick={saveSettings}
-              disabled={saving}
+              disabled={saving || uploadingLogo}
             >
               <Save size={16} />
               {saving ? "Salvando..." : "Salvar publicação"}

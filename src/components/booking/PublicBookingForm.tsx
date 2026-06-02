@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, CheckCircle2, Scissors } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  Image,
+  MapPin,
+  MessageCircle,
+  Scissors,
+} from "lucide-react";
 import {
   createPublicAppointment,
   getBookedTimesByCompanyAndDate,
@@ -108,6 +115,16 @@ function generateTimeSlots(rules: AvailabilityRule[], durationMinutes: number) {
   return Array.from(new Set(slots)).sort();
 }
 
+function formatInstagram(value?: string | null) {
+  if (!value) return "";
+  return value.replace(/^@/, "");
+}
+
+function formatWhatsApp(value?: string | null) {
+  if (!value) return "";
+  return value.replace(/\D/g, "");
+}
+
 export function PublicBookingForm({ slug }: PublicBookingFormProps) {
   const [company, setCompany] = useState<Company | null>(null);
   const [services, setServices] = useState<Service[]>([]);
@@ -161,6 +178,10 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
         slug: publicStatus.slug,
         business_type: publicStatus.business_type,
         description: publicStatus.description,
+        logo_url: publicStatus.logo_url,
+        whatsapp: publicStatus.whatsapp,
+        instagram: publicStatus.instagram,
+        address: publicStatus.address,
         public_booking_enabled: publicStatus.public_booking_enabled,
         created_at: publicStatus.created_at,
         updated_at: publicStatus.updated_at,
@@ -271,6 +292,9 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
     Boolean(startTime) &&
     Boolean(customerName.trim()) &&
     !submitting;
+
+  const companyInstagram = formatInstagram(company?.instagram);
+  const companyWhatsApp = formatWhatsApp(company?.whatsapp);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -393,9 +417,19 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
     return (
       <div className="zunary-booking-page">
         <div className="zunary-public-minimal-container">
-          <header className="zunary-public-minimal-header">
+          <header className="zunary-public-company-hero">
+            <div className="zunary-public-company-logo">
+              {company.logo_url ? (
+                <img src={company.logo_url} alt={company.name} />
+              ) : (
+                <Image size={28} />
+              )}
+            </div>
+
             <span>Agendamento online</span>
             <h1>{company.name}</h1>
+
+            {company.description && <p>{company.description}</p>}
           </header>
 
           <div className="zunary-public-success-screen">
@@ -453,11 +487,44 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
   return (
     <div className="zunary-booking-page">
       <div className="zunary-public-minimal-container">
-        <header className="zunary-public-minimal-header">
-          <span>Agendamento online</span>
+        <header className="zunary-public-company-hero">
+          <div className="zunary-public-company-logo">
+            {company.logo_url ? (
+              <img src={company.logo_url} alt={company.name} />
+            ) : (
+              <Image size={28} />
+            )}
+          </div>
+
+          <span>{company.business_type || "Agendamento online"}</span>
           <h1>{company.name}</h1>
 
           {company.description && <p>{company.description}</p>}
+
+          {(company.address || companyWhatsApp || companyInstagram) && (
+            <div className="zunary-public-company-info">
+              {company.address && (
+                <div>
+                  <MapPin size={15} />
+                  <span>{company.address}</span>
+                </div>
+              )}
+
+              {companyWhatsApp && (
+                <div>
+                  <MessageCircle size={15} />
+                  <span>{companyWhatsApp}</span>
+                </div>
+              )}
+
+              {companyInstagram && (
+                <div>
+                  <MessageCircle size={15} />
+                  <span>@{companyInstagram}</span>
+                </div>
+              )}
+            </div>
+          )}
         </header>
 
         {errorMessage && <div className="zunary-error">{errorMessage}</div>}
@@ -529,10 +596,10 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
                         {availabilityForSelectedDay
                           .map(
                             (rule) =>
-                              `${rule.start_time.slice(0, 5)}-${rule.end_time.slice(
+                              `${rule.start_time.slice(
                                 0,
                                 5
-                              )}`
+                              )}-${rule.end_time.slice(0, 5)}`
                           )
                           .join(" • ")}
                       </span>
