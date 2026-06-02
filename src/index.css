@@ -11193,3 +11193,239 @@ body,
     padding: 38px 16px 16px;
   }
 }
+
+/* ========================= */
+/* SETTINGS AMENITIES / REVIEWS */
+/* ========================= */
+
+.zunary-settings-extra-section {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: #f8fafc;
+  border-radius: 22px;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.zunary-amenities-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.zunary-amenity-chip {
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  background: white;
+  color: #334155;
+  border-radius: 999px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 850;
+  transition: 0.18s ease;
+}
+
+.zunary-amenity-chip:hover {
+  border-color: rgba(37, 99, 235, 0.45);
+  color: #2563eb;
+}
+
+.zunary-amenity-chip.selected {
+  border-color: rgba(37, 99, 235, 0.55);
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.zunary-review-form {
+  display: grid;
+  gap: 14px;
+}
+
+.zunary-settings-reviews-list {
+  display: grid;
+  gap: 10px;
+}
+
+.zunary-settings-review-item {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: white;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.zunary-settings-review-item strong {
+  display: block;
+  color: #020617;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.zunary-settings-review-item span {
+  display: block;
+  margin-top: 4px;
+  color: #f59e0b;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.zunary-settings-review-item p {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.zunary-settings-review-item button {
+  border: 0;
+  background: transparent;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* ========================= */
+/* PUBLIC PROFILE SECTIONS */
+/* ========================= */
+
+.zunary-public-profile-section {
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 26px;
+  padding: 18px;
+}
+
+.zunary-public-section-heading {
+  margin-bottom: 14px;
+}
+
+.zunary-public-section-heading span {
+  color: #67e8f9;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.zunary-public-section-heading h2 {
+  margin: 5px 0 0;
+  color: white;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.zunary-public-amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.zunary-public-amenity-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.zunary-public-amenity-card span {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(34, 245, 210, 0.12);
+  color: #22f5d2;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 950;
+  flex-shrink: 0;
+}
+
+.zunary-public-amenity-card strong {
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.zunary-public-reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.zunary-public-review-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 14px;
+}
+
+.zunary-public-review-card strong {
+  display: block;
+  color: white;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.zunary-public-review-card span {
+  display: block;
+  margin-top: 5px;
+  color: #fbbf24;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.zunary-public-review-card p {
+  margin: 10px 0 0;
+  color: #cbd5e1;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@media (max-width: 760px) {
+  .zunary-public-amenities-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .zunary-public-reviews-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .zunary-settings-extra-section {
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .zunary-amenities-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .zunary-amenity-chip {
+    width: 100%;
+    text-align: center;
+  }
+
+  .zunary-settings-review-item {
+    flex-direction: column;
+  }
+
+  .zunary-public-profile-section {
+    border-radius: 22px;
+    padding: 16px;
+  }
+
+  .zunary-public-amenities-grid {
+    grid-template-columns: 1fr;
+  }
+}

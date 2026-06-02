@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 import { getCurrentUser } from "./auth";
-import type { Company } from "../types";
+import type { Company, CompanyReview } from "../types";
 
 type CreateCompanyData = {
   name: string;
@@ -12,6 +12,8 @@ type CreateCompanyData = {
   whatsapp?: string;
   instagram?: string;
   address?: string;
+  amenities?: string[];
+  reviews?: CompanyReview[];
 };
 
 type UpdateCompanyData = {
@@ -24,6 +26,8 @@ type UpdateCompanyData = {
   whatsapp?: string | null;
   instagram?: string | null;
   address?: string | null;
+  amenities?: string[];
+  reviews?: CompanyReview[];
   public_booking_enabled?: boolean;
 };
 
@@ -47,6 +51,8 @@ export type PublicBookingStatus = {
   whatsapp: string | null;
   instagram: string | null;
   address: string | null;
+  amenities: string[] | null;
+  reviews: CompanyReview[] | null;
   public_booking_enabled: boolean | null;
   created_at: string | null;
   updated_at: string | null;
@@ -69,7 +75,11 @@ export async function getCurrentUserCompany() {
     throw new Error(error.message);
   }
 
-  return data as Company | null;
+  return {
+    ...data,
+    amenities: data?.amenities || [],
+    reviews: data?.reviews || [],
+  } as Company | null;
 }
 
 export async function createCompany(data: CreateCompanyData) {
@@ -92,6 +102,8 @@ export async function createCompany(data: CreateCompanyData) {
       whatsapp: data.whatsapp || null,
       instagram: data.instagram || null,
       address: data.address || null,
+      amenities: data.amenities || [],
+      reviews: data.reviews || [],
       public_booking_enabled: true,
     })
     .select("*")
@@ -152,6 +164,8 @@ export async function getPublicCompanyBySlug(slug: string) {
     whatsapp: status.whatsapp,
     instagram: status.instagram,
     address: status.address,
+    amenities: status.amenities || [],
+    reviews: status.reviews || [],
     public_booking_enabled: status.public_booking_enabled,
     created_at: status.created_at,
     updated_at: status.updated_at,

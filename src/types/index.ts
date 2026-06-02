@@ -4,6 +4,13 @@ export type AppointmentStatus =
   | "canceled"
   | "completed";
 
+export type CompanyReview = {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string;
+};
+
 export type Profile = {
   id: string;
   full_name: string | null;
@@ -24,6 +31,8 @@ export type Company = {
   whatsapp: string | null;
   instagram: string | null;
   address: string | null;
+  amenities: string[];
+  reviews: CompanyReview[];
   public_booking_enabled: boolean;
   created_at: string;
   updated_at: string;

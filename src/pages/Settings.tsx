@@ -18,7 +18,18 @@ import { BUSINESS_TYPES } from "../constants/business-types";
 import { getCurrentUserCompany, updateCompany } from "../lib/company";
 import { uploadCompanyCover, uploadCompanyLogo } from "../lib/storage";
 import { slugify } from "../lib/utils";
-import type { Company } from "../types";
+import type { Company, CompanyReview } from "../types";
+
+const AMENITY_OPTIONS = [
+  "Wi-Fi",
+  "Ar-condicionado",
+  "Estacionamento",
+  "Aceita cartão",
+  "Café",
+  "Ambiente climatizado",
+  "Acessibilidade",
+  "Atendimento com hora marcada",
+];
 
 function normalizeInstagram(value: string) {
   return value.trim().replace(/^@/, "");
@@ -44,7 +55,13 @@ export function Settings() {
   const [whatsapp, setWhatsapp] = useState("");
   const [instagram, setInstagram] = useState("");
   const [address, setAddress] = useState("");
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const [reviews, setReviews] = useState<CompanyReview[]>([]);
   const [publicBookingEnabled, setPublicBookingEnabled] = useState(true);
+
+  const [reviewName, setReviewName] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -81,6 +98,8 @@ export function Settings() {
         setWhatsapp(data.whatsapp || "");
         setInstagram(data.instagram || "");
         setAddress(data.address || "");
+        setAmenities(data.amenities || []);
+        setReviews(data.reviews || []);
         setPublicBookingEnabled(data.public_booking_enabled);
       }
     } catch (error) {
@@ -156,7 +175,9 @@ export function Settings() {
 
       setLogoUrl(publicUrl);
       setLogoPreviewUrl(publicUrl);
-      setSuccessMessage("Foto enviada com sucesso. Clique em salvar para aplicar.");
+      setSuccessMessage(
+        "Foto enviada com sucesso. Clique em salvar para aplicar."
+      );
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Erro ao enviar foto."
@@ -183,7 +204,9 @@ export function Settings() {
 
       setCoverUrl(publicUrl);
       setCoverPreviewUrl(publicUrl);
-      setSuccessMessage("Banner enviado com sucesso. Clique em salvar para aplicar.");
+      setSuccessMessage(
+        "Banner enviado com sucesso. Clique em salvar para aplicar."
+      );
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Erro ao enviar banner."
@@ -204,6 +227,42 @@ export function Settings() {
     setCoverUrl("");
     setCoverPreviewUrl("");
     setSuccessMessage("Banner removido. Clique em salvar para aplicar.");
+  }
+
+  function toggleAmenity(amenity: string) {
+    setAmenities((current) => {
+      if (current.includes(amenity)) {
+        return current.filter((item) => item !== amenity);
+      }
+
+      return [...current, amenity];
+    });
+  }
+
+  function handleAddReview() {
+    if (!reviewName.trim() || !reviewComment.trim()) {
+      setErrorMessage("Preencha o nome e o comentário da avaliação.");
+      return;
+    }
+
+    const newReview: CompanyReview = {
+      id: crypto.randomUUID(),
+      name: reviewName.trim(),
+      rating: reviewRating,
+      comment: reviewComment.trim(),
+    };
+
+    setReviews((current) => [newReview, ...current].slice(0, 6));
+    setReviewName("");
+    setReviewRating(5);
+    setReviewComment("");
+    setErrorMessage("");
+    setSuccessMessage("Avaliação adicionada. Clique em salvar para aplicar.");
+  }
+
+  function handleRemoveReview(reviewId: string) {
+    setReviews((current) => current.filter((review) => review.id !== reviewId));
+    setSuccessMessage("Avaliação removida. Clique em salvar para aplicar.");
   }
 
   async function saveSettings() {
@@ -234,6 +293,8 @@ export function Settings() {
         whatsapp: normalizeWhatsApp(whatsapp) || null,
         instagram: normalizeInstagram(instagram) || null,
         address: address.trim() || null,
+        amenities,
+        reviews,
         public_booking_enabled: publicBookingEnabled,
       });
 
@@ -336,7 +397,9 @@ export function Settings() {
               <div className="zunary-settings-cover-actions">
                 <div>
                   <strong>Banner da empresa</strong>
-                  <span>Imagem horizontal exibida no topo da página pública.</span>
+                  <span>
+                    Imagem horizontal exibida no topo da página pública.
+                  </span>
                 </div>
 
                 <div>
@@ -508,6 +571,115 @@ export function Settings() {
               />
             </div>
 
+            <div className="zunary-settings-extra-section">
+              <div className="zunary-card-header">
+                <h2>Comodidades</h2>
+                <p>Selecione os diferenciais que aparecem na página pública.</p>
+              </div>
+
+              <div className="zunary-amenities-grid">
+                {AMENITY_OPTIONS.map((amenity) => {
+                  const selected = amenities.includes(amenity);
+
+                  return (
+                    <button
+                      key={amenity}
+                      type="button"
+                      className={
+                        selected
+                          ? "zunary-amenity-chip selected"
+                          : "zunary-amenity-chip"
+                      }
+                      onClick={() => toggleAmenity(amenity)}
+                      disabled={isBusy}
+                    >
+                      {amenity}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="zunary-settings-extra-section">
+              <div className="zunary-card-header">
+                <h2>Avaliações em destaque</h2>
+                <p>Adicione depoimentos curtos para gerar mais confiança.</p>
+              </div>
+
+              <div className="zunary-review-form">
+                <div className="zunary-form-grid">
+                  <div className="zunary-field">
+                    <label>Nome do cliente</label>
+                    <input
+                      className="zunary-input"
+                      value={reviewName}
+                      onChange={(event) => setReviewName(event.target.value)}
+                      placeholder="Ex: João Silva"
+                      disabled={isBusy}
+                    />
+                  </div>
+
+                  <div className="zunary-field">
+                    <label>Nota</label>
+                    <select
+                      className="zunary-select"
+                      value={reviewRating}
+                      onChange={(event) =>
+                        setReviewRating(Number(event.target.value))
+                      }
+                      disabled={isBusy}
+                    >
+                      <option value={5}>5 estrelas</option>
+                      <option value={4}>4 estrelas</option>
+                      <option value={3}>3 estrelas</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="zunary-field">
+                  <label>Comentário</label>
+                  <textarea
+                    className="zunary-textarea"
+                    value={reviewComment}
+                    onChange={(event) => setReviewComment(event.target.value)}
+                    placeholder="Ex: Atendimento excelente e horário bem organizado."
+                    disabled={isBusy}
+                  />
+                </div>
+
+                <button
+                  className="zunary-button zunary-button-secondary"
+                  type="button"
+                  onClick={handleAddReview}
+                  disabled={isBusy}
+                >
+                  Adicionar avaliação
+                </button>
+              </div>
+
+              {reviews.length > 0 && (
+                <div className="zunary-settings-reviews-list">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="zunary-settings-review-item">
+                      <div>
+                        <strong>{review.name}</strong>
+                        <span>{"★".repeat(review.rating)}</span>
+                        <p>{review.comment}</p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveReview(review.id)}
+                        disabled={isBusy}
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button className="zunary-button" type="submit" disabled={isBusy}>
               <Save size={16} />
               {saving ? "Salvando..." : "Salvar alterações"}
@@ -562,6 +734,20 @@ export function Settings() {
                   <div>
                     <MessageCircle size={15} />
                     <span>@{previewInstagram}</span>
+                  </div>
+                )}
+
+                {amenities.length > 0 && (
+                  <div>
+                    <Check size={15} />
+                    <span>{amenities.length} comodidade(s)</span>
+                  </div>
+                )}
+
+                {reviews.length > 0 && (
+                  <div>
+                    <MessageCircle size={15} />
+                    <span>{reviews.length} avaliação(ões)</span>
                   </div>
                 )}
               </div>
