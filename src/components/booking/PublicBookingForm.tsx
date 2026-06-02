@@ -123,6 +123,12 @@ function getGoogleMapsSearchUrl(address?: string | null) {
   )}`;
 }
 
+function getPublicHeroClassName(company: Company) {
+  return company.cover_url
+    ? "zunary-public-company-hero compact has-cover"
+    : "zunary-public-company-hero compact";
+}
+
 export function PublicBookingForm({ slug }: PublicBookingFormProps) {
   const [company, setCompany] = useState<Company | null>(null);
   const [services, setServices] = useState<Service[]>([]);
@@ -177,6 +183,7 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
         business_type: publicStatus.business_type,
         description: publicStatus.description,
         logo_url: publicStatus.logo_url,
+        cover_url: publicStatus.cover_url,
         whatsapp: publicStatus.whatsapp,
         instagram: publicStatus.instagram,
         address: publicStatus.address,
@@ -412,7 +419,13 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
     return (
       <div className="zunary-booking-page">
         <div className="zunary-public-minimal-container">
-          <header className="zunary-public-company-hero compact">
+          <header className={getPublicHeroClassName(company)}>
+            {company.cover_url && (
+              <div className="zunary-public-company-cover">
+                <img src={company.cover_url} alt={`Banner de ${company.name}`} />
+              </div>
+            )}
+
             <div className="zunary-public-company-logo">
               {company.logo_url ? (
                 <img src={company.logo_url} alt={company.name} />
@@ -482,7 +495,13 @@ export function PublicBookingForm({ slug }: PublicBookingFormProps) {
   return (
     <div className="zunary-booking-page">
       <div className="zunary-public-minimal-container">
-        <header className="zunary-public-company-hero compact">
+        <header className={getPublicHeroClassName(company)}>
+          {company.cover_url && (
+            <div className="zunary-public-company-cover">
+              <img src={company.cover_url} alt={`Banner de ${company.name}`} />
+            </div>
+          )}
+
           <div className="zunary-public-company-logo">
             {company.logo_url ? (
               <img src={company.logo_url} alt={company.name} />

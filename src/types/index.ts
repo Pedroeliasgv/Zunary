@@ -20,6 +20,7 @@ export type Company = {
   business_type: string | null;
   description: string | null;
   logo_url: string | null;
+  cover_url: string | null;
   whatsapp: string | null;
   instagram: string | null;
   address: string | null;

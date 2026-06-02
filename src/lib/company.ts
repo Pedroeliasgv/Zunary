@@ -8,6 +8,7 @@ type CreateCompanyData = {
   business_type: string;
   description?: string;
   logo_url?: string;
+  cover_url?: string;
   whatsapp?: string;
   instagram?: string;
   address?: string;
@@ -19,6 +20,7 @@ type UpdateCompanyData = {
   business_type?: string | null;
   description?: string | null;
   logo_url?: string | null;
+  cover_url?: string | null;
   whatsapp?: string | null;
   instagram?: string | null;
   address?: string | null;
@@ -41,6 +43,7 @@ export type PublicBookingStatus = {
   business_type: string | null;
   description: string | null;
   logo_url: string | null;
+  cover_url: string | null;
   whatsapp: string | null;
   instagram: string | null;
   address: string | null;
@@ -85,6 +88,7 @@ export async function createCompany(data: CreateCompanyData) {
       business_type: data.business_type,
       description: data.description || null,
       logo_url: data.logo_url || null,
+      cover_url: data.cover_url || null,
       whatsapp: data.whatsapp || null,
       instagram: data.instagram || null,
       address: data.address || null,
@@ -144,6 +148,7 @@ export async function getPublicCompanyBySlug(slug: string) {
     business_type: status.business_type,
     description: status.description,
     logo_url: status.logo_url,
+    cover_url: status.cover_url,
     whatsapp: status.whatsapp,
     instagram: status.instagram,
     address: status.address,
