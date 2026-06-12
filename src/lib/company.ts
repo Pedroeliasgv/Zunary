@@ -113,7 +113,7 @@ export async function createCompany(data: CreateCompanyData) {
     throw new Error(error.message);
   }
 
-  const TRIAL_PLAN_ID = process.env.NEXT_PUBLIC_TRIAL_PLAN_ID; // ou fixo
+const TRIAL_PLAN_ID = import.meta.env.VITE_TRIAL_PLAN_ID;
 
   const { error: subscriptionError } = await supabase
     .from("company_subscriptions")
