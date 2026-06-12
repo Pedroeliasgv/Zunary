@@ -113,23 +113,6 @@ export async function createCompany(data: CreateCompanyData) {
     throw new Error(error.message);
   }
 
-const TRIAL_PLAN_ID = import.meta.env.VITE_TRIAL_PLAN_ID;
-
-  const { error: subscriptionError } = await supabase
-    .from("company_subscriptions")
-    .insert({
-      company_id: company.id,
-      plan_id: TRIAL_PLAN_ID,
-      status: "trial",
-      started_at: new Date().toISOString(),
-      ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      billing_status: "trial",
-    });
-
-  if (subscriptionError) {
-    throw new Error(subscriptionError.message);
-  }
-
   return company as Company;
 }
 
